@@ -1,0 +1,2624 @@
+<!doctype html>
+<html lang="es">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vitrasa AI - Sistema Inteligente de Transporte Urbano</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        body { 
+            font-family: 'Inter', sans-serif;
+            box-sizing: border-box;
+        }
+        
+        .holographic {
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .bus-realtime {
+            animation: busMovement 20s linear infinite;
+        }
+        
+        @keyframes busMovement {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(200px, -50px) rotate(90deg); }
+            50% { transform: translate(400px, 0) rotate(180deg); }
+            75% { transform: translate(200px, 50px) rotate(270deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
+        
+        .neural-network {
+            background: radial-gradient(circle at 20% 50%, #120a8f 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, #ff006e 0%, transparent 50%),
+                        radial-gradient(circle at 40% 80%, #8338ec 0%, transparent 50%);
+            animation: neuralPulse 3s ease-in-out infinite;
+        }
+        
+        @keyframes neuralPulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+        
+        .matrix-rain {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .matrix-char {
+            position: absolute;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            animation: matrixFall 3s linear infinite;
+        }
+        
+        @keyframes matrixFall {
+            0% { transform: translateY(-100vh); opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+        
+        .ar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            display: none;
+        }
+        
+        .quantum-button {
+            background: linear-gradient(45deg, #ff006e, #8338ec, #3a86ff);
+            background-size: 300% 300%;
+            animation: quantumShift 2s ease infinite;
+        }
+        
+        @keyframes quantumShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        .ai-thinking {
+            animation: aiPulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes aiPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .emergency-alert {
+            animation: emergencyBlink 0.5s ease-in-out infinite alternate;
+        }
+        
+        @keyframes emergencyBlink {
+            0% { background-color: #fee2e2; }
+            100% { background-color: #fecaca; }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 min-h-screen text-white"><!-- Matrix Rain Effect -->
+  <div class="matrix-rain" id="matrixRain"></div><!-- AI Header -->
+  <header class="holographic shadow-2xl border-b-4 border-cyan-400 relative overflow-hidden">
+   <div class="container mx-auto px-4 py-6 relative z-10">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between">
+     <div class="flex items-center space-x-6 mb-4 lg:mb-0">
+      <div class="relative">
+       <div class="neural-network rounded-full w-20 h-20 flex items-center justify-center font-bold text-3xl border-4 border-cyan-400">
+        🤖
+       </div>
+       <div class="absolute -top-2 -right-2 w-6 h-6 bg-green-400 rounded-full animate-ping"></div>
+       <div class="absolute -bottom-2 -left-2 w-4 h-4 bg-blue-400 rounded-full animate-bounce"></div>
+      </div>
+      <div>
+       <h1 class="text-4xl font-black bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">Vitrasa AI</h1>
+       <p class="text-cyan-200 text-lg">Sistema Inteligente de Transporte Urbano</p>
+       <div class="flex items-center mt-2 space-x-6">
+        <div class="flex items-center">
+         <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse mr-2"></div><span class="text-sm text-green-300 font-medium" id="aiStatus">IA Activa</span>
+        </div>
+        <div class="flex items-center">
+         <div class="w-3 h-3 bg-blue-400 rounded-full mr-2"></div><span class="text-sm text-blue-300 font-medium" id="networkStatus">Red Neural Online</span>
+        </div>
+        <div class="flex items-center">
+         <div class="w-3 h-3 bg-purple-400 rounded-full mr-2"></div><span class="text-sm text-purple-300 font-medium" id="quantumStatus">Quantum Computing</span>
+        </div>
+       </div>
+      </div>
+     </div>
+     <div class="flex space-x-4">
+      <div class="bg-black/30 backdrop-blur-lg rounded-xl p-4 text-center border border-cyan-400/30">
+       <div class="text-sm text-cyan-300">
+        🧠 Predicciones IA
+       </div>
+       <div class="text-2xl font-bold text-cyan-400" id="aiPredictions">
+        97.3%
+       </div>
+       <div class="text-xs text-cyan-200">
+        Precisión
+       </div>
+      </div>
+      <div class="bg-black/30 backdrop-blur-lg rounded-xl p-4 text-center border border-purple-400/30">
+       <div class="text-sm text-purple-300">
+        ⚡ Procesamiento
+       </div>
+       <div class="text-2xl font-bold text-purple-400" id="processingSpeed">
+        2.4ms
+       </div>
+       <div class="text-xs text-purple-200">
+        Latencia
+       </div>
+      </div>
+      <div class="bg-black/30 backdrop-blur-lg rounded-xl p-4 text-center border border-green-400/30">
+       <div class="text-sm text-green-300">
+        🌡️ Sistema
+       </div>
+       <div class="text-2xl font-bold text-green-400" id="systemTemp">
+        23°C
+       </div>
+       <div class="text-xs text-green-200">
+        Temperatura
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </header>
+  <div class="container mx-auto px-4 py-6"><!-- Advanced Navigation -->
+   <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-3 mb-6 border border-cyan-400/30">
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2"><button onclick="showAdvancedTab('dashboard')" id="tabDashboard" class="quantum-button text-white py-3 px-4 rounded-xl font-bold transition-all text-sm"> 🎛️ Dashboard </button> <button onclick="showAdvancedTab('realtime')" id="tabRealtime" class="bg-gray-700/50 text-gray-300 py-3 px-4 rounded-xl font-medium transition-all text-sm hover:bg-gray-600/50"> 🔴 Tiempo Real </button> <button onclick="showAdvancedTab('ai')" id="tabAi" class="bg-gray-700/50 text-gray-300 py-3 px-4 rounded-xl font-medium transition-all text-sm hover:bg-gray-600/50"> 🤖 IA Predictiva </button> <button onclick="showAdvancedTab('analytics')" id="tabAnalytics" class="bg-gray-700/50 text-gray-300 py-3 px-4 rounded-xl font-medium transition-all text-sm hover:bg-gray-600/50"> 📊 Analytics </button> <button onclick="showAdvancedTab('simulation')" id="tabSimulation" class="bg-gray-700/50 text-gray-300 py-3 px-4 rounded-xl font-medium transition-all text-sm hover:bg-gray-600/50"> 🎮 Simulación </button> <button onclick="showAdvancedTab('ar')" id="tabAr" class="bg-gray-700/50 text-gray-300 py-3 px-4 rounded-xl font-medium transition-all text-sm hover:bg-gray-600/50"> 🥽 AR/VR </button> <button onclick="showAdvancedTab('emergency')" id="tabEmergency" class="bg-gray-700/50 text-gray-300 py-3 px-4 rounded-xl font-medium transition-all text-sm hover:bg-gray-600/50"> 🚨 Emergencias </button> <button onclick="showAdvancedTab('quantum')" id="tabQuantum" class="bg-gray-700/50 text-gray-300 py-3 px-4 rounded-xl font-medium transition-all text-sm hover:bg-gray-600/50"> ⚛️ Quantum </button> <button onclick="showAdvancedTab('admin')" id="tabAdmin" class="bg-gray-700/50 text-gray-300 py-3 px-4 rounded-xl font-medium transition-all text-sm hover:bg-gray-600/50"> 🔐 Admin </button> <button onclick="showAdvancedTab('schedules')" id="tabSchedules" class="bg-gray-700/50 text-gray-300 py-3 px-4 rounded-xl font-medium transition-all text-sm hover:bg-gray-600/50"> 📅 Horarios </button>
+    </div>
+   </div><!-- Dashboard Tab -->
+   <div id="dashboardTab" class="tab-content">
+    <div class="grid lg:grid-cols-4 gap-6 mb-6"><!-- AI Assistant -->
+     <div class="lg:col-span-1">
+      <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-purple-400/30 h-full">
+       <div class="flex items-center mb-4">
+        <div class="ai-thinking w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mr-3">
+         🧠
+        </div>
+        <div>
+         <h3 class="text-lg font-bold text-purple-300">ARIA</h3>
+         <p class="text-xs text-purple-200">Asistente IA</p>
+        </div>
+       </div>
+       <div id="chatMessages" class="space-y-3 mb-4 h-64 overflow-y-auto">
+        <div class="bg-purple-900/30 rounded-lg p-3">
+         <div class="text-sm text-purple-200">
+          ¡Hola! Soy ARIA, tu asistente de IA. Puedo responder con datos reales del sistema y horarios en tiempo real. Pregúntame cosas como:<br>
+           • "¿A qué hora pasa la C3 en Coia?"<br>
+           • "¿Qué hora es?"<br>
+           • "¿Cuántos pasajeros hay hoy?"<br>
+           • "¿Qué paradas tiene la L10?"
+         </div>
+        </div>
+       </div>
+       <div class="flex space-x-2"><input type="text" id="chatInput" placeholder="Pregúntame algo..." class="flex-1 bg-black/30 border border-purple-400/30 rounded-lg px-3 py-2 text-white text-sm" onkeypress="handleChatInput(event)"> <button onclick="sendMessage()" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg text-white text-sm"> 📤 </button>
+       </div>
+      </div>
+     </div><!-- Live Map -->
+     <div class="lg:col-span-2">
+      <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-cyan-400/30">
+       <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xl font-bold text-cyan-300">🗺️ Mapa en Tiempo Real</h3>
+        <div class="flex space-x-2"><button onclick="toggleMapMode('traffic')" class="bg-cyan-600 text-white px-3 py-1 rounded text-sm">Tráfico</button> <button onclick="toggleMapMode('weather')" class="bg-gray-600 text-white px-3 py-1 rounded text-sm">Clima</button> <button onclick="toggleMapMode('incidents')" class="bg-red-600 text-white px-3 py-1 rounded text-sm">Incidentes</button>
+        </div>
+       </div>
+       <div class="relative bg-gradient-to-br from-green-900/30 to-blue-900/30 rounded-xl h-80 overflow-hidden border border-cyan-400/20">
+        <svg width="100%" height="100%" class="absolute inset-0"><!-- Dynamic route lines --> <g id="routeLines"></g> <!-- Bus positions --> <g id="busPositions"></g> <!-- Traffic indicators --> <g id="trafficIndicators"></g>
+        </svg><!-- Floating buses -->
+        <div class="absolute inset-0">
+         <div class="bus-realtime absolute top-10 left-10 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold cursor-pointer" onclick="showBusInfo(1)">
+          1
+         </div>
+         <div class="bus-realtime absolute top-20 left-32 w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white font-bold cursor-pointer" onclick="showBusInfo(2)" style="animation-delay: -5s;">
+          2
+         </div>
+         <div class="bus-realtime absolute top-32 left-20 w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-white font-bold cursor-pointer" onclick="showBusInfo(3)" style="animation-delay: -10s;">
+          3
+         </div>
+        </div><!-- Map controls -->
+        <div class="absolute top-4 right-4 space-y-2"><button class="bg-black/50 text-white p-2 rounded" onclick="zoomIn()">🔍+</button> <button class="bg-black/50 text-white p-2 rounded" onclick="zoomOut()">🔍-</button> <button class="bg-black/50 text-white p-2 rounded" onclick="centerMap()">🎯</button>
+        </div>
+       </div>
+      </div>
+     </div><!-- System Status -->
+     <div class="lg:col-span-1">
+      <div class="space-y-4"><!-- Performance Metrics -->
+       <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-4 border border-green-400/30">
+        <h4 class="font-bold text-green-300 mb-3">⚡ Rendimiento</h4>
+        <div class="space-y-3">
+         <div>
+          <div class="flex justify-between text-sm mb-1"><span class="text-gray-300">CPU IA</span> <span class="text-green-400" id="cpuUsage">67%</span>
+          </div>
+          <div class="w-full bg-gray-700 rounded-full h-2">
+           <div class="bg-green-400 h-2 rounded-full" id="cpuBar" style="width: 67%"></div>
+          </div>
+         </div>
+         <div>
+          <div class="flex justify-between text-sm mb-1"><span class="text-gray-300">Red Neural</span> <span class="text-blue-400" id="neuralLoad">89%</span>
+          </div>
+          <div class="w-full bg-gray-700 rounded-full h-2">
+           <div class="bg-blue-400 h-2 rounded-full" id="neuralBar" style="width: 89%"></div>
+          </div>
+         </div>
+         <div>
+          <div class="flex justify-between text-sm mb-1"><span class="text-gray-300">Quantum</span> <span class="text-purple-400" id="quantumLoad">34%</span>
+          </div>
+          <div class="w-full bg-gray-700 rounded-full h-2">
+           <div class="bg-purple-400 h-2 rounded-full" id="quantumBar" style="width: 34%"></div>
+          </div>
+         </div>
+        </div>
+       </div><!-- Gamification -->
+       <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-4 border border-yellow-400/30">
+        <h4 class="font-bold text-yellow-300 mb-3">🏆 Logros</h4>
+        <div class="space-y-2">
+         <div class="flex items-center justify-between"><span class="text-sm text-gray-300">Puntos Eco</span> <span class="text-yellow-400 font-bold" id="ecoPoints">1,247</span>
+         </div>
+         <div class="flex items-center justify-between"><span class="text-sm text-gray-300">Nivel</span> <span class="text-yellow-400 font-bold">🌟 Experto</span>
+         </div>
+         <div class="bg-yellow-900/30 rounded-lg p-2 text-xs text-yellow-200">
+          🎯 Próximo logro: "Maestro del Transporte" (300 puntos más)
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div><!-- Advanced Line Grid -->
+    <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-cyan-400/30 mb-6">
+     <h3 class="text-xl font-bold text-cyan-300 mb-4">🚌 Red de Transporte Inteligente</h3>
+     <div class="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-8 gap-4" id="advancedLineGrid"><!-- Advanced lines will be populated -->
+     </div>
+    </div>
+   </div><!-- Real-time Tab -->
+   <div id="realtimeTab" class="tab-content hidden">
+    <div class="grid lg:grid-cols-3 gap-6">
+     <div class="lg:col-span-2 space-y-6"><!-- Live Traffic Simulation -->
+      <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-red-400/30">
+       <h3 class="text-xl font-bold text-red-300 mb-4">🔴 Simulación de Tráfico en Vivo</h3>
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div class="bg-red-900/30 rounded-lg p-4">
+         <div class="text-sm text-red-200 mb-2">
+          Densidad de Tráfico
+         </div>
+         <div class="text-2xl font-bold text-red-400" id="trafficDensity">
+          Alto
+         </div>
+         <div class="text-xs text-red-300">
+          Zona Centro: 87% ocupación
+         </div>
+        </div>
+        <div class="bg-orange-900/30 rounded-lg p-4">
+         <div class="text-sm text-orange-200 mb-2">
+          Velocidad Promedio
+         </div>
+         <div class="text-2xl font-bold text-orange-400" id="avgSpeed">
+          23 km/h
+         </div>
+         <div class="text-xs text-orange-300">
+          -15% respecto a óptimo
+         </div>
+        </div>
+       </div>
+       <div class="space-y-3" id="liveIncidents"><!-- Live incidents will be populated -->
+       </div>
+      </div><!-- Predictive Analytics -->
+      <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-purple-400/30">
+       <h3 class="text-xl font-bold text-purple-300 mb-4">🔮 Análisis Predictivo</h3>
+       <div class="grid grid-cols-2 gap-4">
+        <div>
+         <canvas id="predictionChart" width="400" height="200"></canvas>
+        </div>
+        <div class="space-y-4">
+         <div class="bg-purple-900/30 rounded-lg p-3">
+          <div class="text-sm text-purple-200">
+           Predicción próxima hora
+          </div>
+          <div class="text-lg font-bold text-purple-400">
+           +23% demanda
+          </div>
+         </div>
+         <div class="bg-blue-900/30 rounded-lg p-3">
+          <div class="text-sm text-blue-200">
+           Retrasos estimados
+          </div>
+          <div class="text-lg font-bold text-blue-400">
+           2-5 minutos
+          </div>
+         </div>
+         <div class="bg-green-900/30 rounded-lg p-3">
+          <div class="text-sm text-green-200">
+           Eficiencia del sistema
+          </div>
+          <div class="text-lg font-bold text-green-400" id="efficiencyDisplay">
+           94.7%
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div><!-- Real-time Data Stream -->
+     <div class="space-y-6">
+      <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-green-400/30">
+       <h4 class="font-bold text-green-300 mb-4">📡 Stream de Datos</h4>
+       <div id="dataStream" class="space-y-2 h-64 overflow-y-auto text-xs font-mono"><!-- Real-time data stream -->
+       </div>
+      </div>
+      <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-yellow-400/30">
+       <h4 class="font-bold text-yellow-300 mb-4">⚡ Eventos en Tiempo Real</h4>
+       <div id="realTimeEvents" class="space-y-3"><!-- Real-time events -->
+       </div>
+      </div>
+     </div>
+    </div>
+   </div><!-- AI Tab -->
+   <div id="aiTab" class="tab-content hidden">
+    <div class="grid lg:grid-cols-2 gap-6">
+     <div class="space-y-6"><!-- Neural Network Visualization -->
+      <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-purple-400/30">
+       <h3 class="text-xl font-bold text-purple-300 mb-4">🧠 Red Neural en Acción</h3>
+       <div class="neural-network rounded-lg h-64 flex items-center justify-center relative overflow-hidden">
+        <div class="text-center z-10">
+         <div class="text-4xl mb-2">
+          🤖
+         </div>
+         <div class="text-white font-bold">
+          Procesando...
+         </div>
+         <div class="text-purple-300 text-sm" id="aiProcessing">
+          Analizando patrones de tráfico
+         </div>
+        </div><!-- Neural network nodes -->
+        <div class="absolute inset-0">
+         <div class="absolute top-4 left-4 w-4 h-4 bg-purple-400 rounded-full animate-ping"></div>
+         <div class="absolute top-8 right-8 w-3 h-3 bg-cyan-400 rounded-full animate-pulse"></div>
+         <div class="absolute bottom-6 left-12 w-5 h-5 bg-pink-400 rounded-full animate-bounce"></div>
+         <div class="absolute bottom-4 right-4 w-4 h-4 bg-green-400 rounded-full animate-ping" style="animation-delay: 1s;"></div>
+        </div>
+       </div>
+      </div><!-- AI Recommendations -->
+      <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-cyan-400/30">
+       <h3 class="text-xl font-bold text-cyan-300 mb-4">💡 Recomendaciones IA</h3>
+       <div class="space-y-4" id="aiRecommendations"><!-- AI recommendations will be populated -->
+       </div>
+      </div>
+     </div>
+     <div class="space-y-6"><!-- Machine Learning Models -->
+      <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-green-400/30">
+       <h3 class="text-xl font-bold text-green-300 mb-4">🤖 Modelos ML Activos</h3>
+       <div class="space-y-3">
+        <div class="bg-green-900/30 rounded-lg p-3">
+         <div class="flex justify-between items-center"><span class="font-medium text-green-200">Predicción de Demanda</span> <span class="text-green-400 text-sm" id="mlPrediction">97.3% precisión</span>
+         </div>
+         <div class="w-full bg-gray-700 rounded-full h-2 mt-2">
+          <div class="bg-green-400 h-2 rounded-full" id="mlPredictionBar" style="width: 97%"></div>
+         </div>
+        </div>
+        <div class="bg-blue-900/30 rounded-lg p-3">
+         <div class="flex justify-between items-center"><span class="font-medium text-blue-200">Optimización de Rutas</span> <span class="text-blue-400 text-sm">94.8% precisión</span>
+         </div>
+         <div class="w-full bg-gray-700 rounded-full h-2 mt-2">
+          <div class="bg-blue-400 h-2 rounded-full" style="width: 95%"></div>
+         </div>
+        </div>
+        <div class="bg-purple-900/30 rounded-lg p-3">
+         <div class="flex justify-between items-center"><span class="font-medium text-purple-200">Detección de Anomalías</span> <span class="text-purple-400 text-sm">99.1% precisión</span>
+         </div>
+         <div class="w-full bg-gray-700 rounded-full h-2 mt-2">
+          <div class="bg-purple-400 h-2 rounded-full" style="width: 99%"></div>
+         </div>
+        </div>
+       </div>
+      </div><!-- AI Training Data -->
+      <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-yellow-400/30">
+       <h3 class="text-xl font-bold text-yellow-300 mb-4">📚 Datos de Entrenamiento</h3>
+       <div class="space-y-3">
+        <div class="flex justify-between"><span class="text-gray-300">Viajes procesados</span> <span class="text-yellow-400 font-bold">2.4M</span>
+        </div>
+        <div class="flex justify-between"><span class="text-gray-300">Patrones identificados</span> <span class="text-yellow-400 font-bold">15,847</span>
+        </div>
+        <div class="flex justify-between"><span class="text-gray-300">Modelos entrenados</span> <span class="text-yellow-400 font-bold">127</span>
+        </div>
+        <div class="flex justify-between"><span class="text-gray-300">Tiempo de entrenamiento</span> <span class="text-yellow-400 font-bold">847h</span>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div><!-- Analytics Tab -->
+   <div id="analyticsTab" class="tab-content hidden">
+    <div class="grid lg:grid-cols-2 gap-6 mb-6">
+     <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-blue-400/30">
+      <h3 class="text-xl font-bold text-blue-300 mb-4">📈 Análisis de Uso</h3>
+      <canvas id="usageChart" width="400" height="300"></canvas>
+     </div>
+     <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-green-400/30">
+      <h3 class="text-xl font-bold text-green-300 mb-4">🕐️ Tiempos de Viaje</h3>
+      <canvas id="travelTimeChart" width="400" height="300"></canvas>
+     </div>
+    </div><!-- Advanced Statistics -->
+    <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-purple-400/30">
+     <h3 class="text-xl font-bold text-purple-300 mb-6">📊 Estadísticas Avanzadas</h3>
+     <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div class="text-center">
+       <div class="text-3xl font-bold text-blue-400" id="totalPassengers">
+        47,293
+       </div>
+       <div class="text-sm text-blue-200">
+        Pasajeros hoy
+       </div>
+      </div>
+      <div class="text-center">
+       <div class="text-3xl font-bold text-green-400" id="avgWaitTime">
+        4.2min
+       </div>
+       <div class="text-sm text-green-200">
+        Espera promedio
+       </div>
+      </div>
+      <div class="text-center">
+       <div class="text-3xl font-bold text-yellow-400" id="efficiency">
+        96.7%
+       </div>
+       <div class="text-sm text-yellow-200">
+        Eficiencia
+       </div>
+      </div>
+      <div class="text-center">
+       <div class="text-3xl font-bold text-purple-400" id="satisfaction">
+        4.8/5
+       </div>
+       <div class="text-sm text-purple-200">
+        Satisfacción
+       </div>
+      </div>
+     </div>
+    </div>
+   </div><!-- Simulation Tab -->
+   <div id="simulationTab" class="tab-content hidden">
+    <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-cyan-400/30">
+     <div class="flex items-center justify-between mb-6">
+      <h3 class="text-xl font-bold text-cyan-300">🎮 Simulador de Transporte</h3>
+      <div class="flex space-x-2"><button onclick="startSimulation()" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg text-white">▶️ Iniciar</button> <button onclick="pauseSimulation()" class="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-lg text-white">⏸️ Pausar</button> <button onclick="resetSimulation()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-white">🔄 Reset</button>
+      </div>
+     </div>
+     <div class="grid lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2">
+       <div class="bg-gradient-to-br from-blue-900/30 to-purple-900/30 rounded-xl h-96 relative overflow-hidden border border-cyan-400/20">
+        <div id="simulationCanvas" class="w-full h-full relative"><!-- Simulation visualization -->
+         <div class="absolute inset-0 flex items-center justify-center">
+          <div class="text-center">
+           <div class="text-6xl mb-4">
+            🎮
+           </div>
+           <div class="text-white font-bold text-xl">
+            Simulador Avanzado
+           </div>
+           <div class="text-cyan-300">
+            Haz clic en "Iniciar" para comenzar
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="space-y-4">
+       <div class="bg-black/30 rounded-lg p-4">
+        <h4 class="font-bold text-cyan-300 mb-3">⚙️ Controles</h4>
+        <div class="space-y-3">
+         <div><label class="text-sm text-gray-300">Velocidad de simulación</label> <input type="range" min="1" max="10" value="5" class="w-full" id="simSpeed">
+         </div>
+         <div><label class="text-sm text-gray-300">Densidad de tráfico</label> <input type="range" min="1" max="10" value="5" class="w-full" id="trafficDensitySlider">
+         </div>
+         <div><label class="text-sm text-gray-300">Número de autobuses</label> <input type="range" min="5" max="50" value="25" class="w-full" id="busCount">
+         </div>
+        </div>
+       </div>
+       <div class="bg-black/30 rounded-lg p-4">
+        <h4 class="font-bold text-green-300 mb-3">📊 Métricas</h4>
+        <div class="space-y-2 text-sm">
+         <div class="flex justify-between"><span class="text-gray-300">Tiempo simulado:</span> <span class="text-green-400" id="simTime">00:00:00</span>
+         </div>
+         <div class="flex justify-between"><span class="text-gray-300">Pasajeros:</span> <span class="text-green-400" id="simPassengers">0</span>
+         </div>
+         <div class="flex justify-between"><span class="text-gray-300">Eficiencia:</span> <span class="text-green-400" id="simEfficiency">100%</span>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div><!-- AR/VR Tab -->
+   <div id="arTab" class="tab-content hidden">
+    <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-pink-400/30">
+     <h3 class="text-xl font-bold text-pink-300 mb-6">🥽 Realidad Aumentada / Virtual</h3>
+     <div class="grid md:grid-cols-2 gap-6">
+      <div class="space-y-4"><button onclick="activateAR()" class="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 py-4 px-6 rounded-xl text-white font-bold text-lg"> 📱 Activar AR </button> <button onclick="activateVR()" class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 py-4 px-6 rounded-xl text-white font-bold text-lg"> 🥽 Modo VR </button> <button onclick="activate3D()" class="w-full bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 py-4 px-6 rounded-xl text-white font-bold text-lg"> 🌐 Vista 3D </button>
+      </div>
+      <div class="bg-gradient-to-br from-pink-900/30 to-purple-900/30 rounded-xl p-6">
+       <h4 class="font-bold text-pink-300 mb-4">✨ Características AR/VR</h4>
+       <ul class="space-y-2 text-sm text-gray-300">
+        <li>• 🎯 Navegación por gestos</li>
+        <li>• 🗺️ Mapas holográficos 3D</li>
+        <li>• 👁️ Seguimiento ocular</li>
+        <li>• 🎮 Controles hápticos</li>
+        <li>• 🌈 Visualización inmersiva</li>
+        <li>• 🤖 Asistente IA integrado</li>
+       </ul>
+      </div>
+     </div>
+    </div>
+   </div><!-- Emergency Tab -->
+   <div id="emergencyTab" class="tab-content hidden">
+    <div class="space-y-6">
+     <div class="emergency-alert bg-red-900/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-red-400/50">
+      <h3 class="text-xl font-bold text-red-300 mb-4">🚨 Centro de Emergencias</h3>
+      <div class="grid md:grid-cols-3 gap-4"><button onclick="triggerEmergency('medical')" class="bg-red-600 hover:bg-red-700 py-4 px-6 rounded-xl text-white font-bold"> 🏥 Emergencia Médica </button> <button onclick="triggerEmergency('fire')" class="bg-orange-600 hover:bg-orange-700 py-4 px-6 rounded-xl text-white font-bold"> 🔥 Incendio </button> <button onclick="triggerEmergency('security')" class="bg-yellow-600 hover:bg-yellow-700 py-4 px-6 rounded-xl text-white font-bold"> 🚔 Seguridad </button>
+      </div>
+     </div>
+     <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-orange-400/30">
+      <h4 class="font-bold text-orange-300 mb-4">📋 Protocolos Activos</h4>
+      <div id="emergencyProtocols" class="space-y-3"><!-- Emergency protocols will be populated -->
+      </div>
+     </div>
+    </div>
+   </div><!-- Quantum Tab -->
+   <div id="quantumTab" class="tab-content hidden">
+    <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-purple-400/30">
+     <h3 class="text-xl font-bold text-purple-300 mb-6">⚛️ Computación Cuántica</h3>
+     <div class="grid lg:grid-cols-2 gap-6">
+      <div class="space-y-6">
+       <div class="bg-purple-900/30 rounded-xl p-6">
+        <h4 class="font-bold text-purple-300 mb-4">🔬 Estado Cuántico</h4>
+        <div class="space-y-3">
+         <div class="flex justify-between"><span class="text-gray-300">Qubits activos:</span> <span class="text-purple-400 font-bold" id="activeQubits">1,024</span>
+         </div>
+         <div class="flex justify-between"><span class="text-gray-300">Coherencia:</span> <span class="text-purple-400 font-bold" id="coherence">99.7%</span>
+         </div>
+         <div class="flex justify-between"><span class="text-gray-300">Entrelazamiento:</span> <span class="text-purple-400 font-bold" id="entanglement">847 pares</span>
+         </div>
+        </div>
+       </div>
+       <div class="bg-cyan-900/30 rounded-xl p-6">
+        <h4 class="font-bold text-cyan-300 mb-4">⚡ Algoritmos Cuánticos</h4>
+        <div class="space-y-2 text-sm">
+         <div class="flex justify-between"><span class="text-gray-300">Shor (Factorización):</span> <span class="text-green-400">✓ Activo</span>
+         </div>
+         <div class="flex justify-between"><span class="text-gray-300">Grover (Búsqueda):</span> <span class="text-green-400">✓ Activo</span>
+         </div>
+         <div class="flex justify-between"><span class="text-gray-300">QAOA (Optimización):</span> <span class="text-yellow-400">⏳ Ejecutando</span>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-gradient-to-br from-purple-900/30 to-pink-900/30 rounded-xl p-6 h-80 flex items-center justify-center">
+       <div class="text-center">
+        <div class="text-6xl mb-4 animate-spin">
+         ⚛️
+        </div>
+        <div class="text-white font-bold text-xl">
+         Procesador Cuántico
+        </div>
+        <div class="text-purple-300">
+         Optimizando rutas en superposición
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div><!-- Schedules Tab -->
+   <div id="schedulesTab" class="tab-content hidden">
+    <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-cyan-400/30 mb-6">
+     <h3 class="text-2xl font-bold text-cyan-300 mb-4">📅 Visualización de Horarios</h3>
+     <p class="text-gray-400 mb-6">Consulta los horarios oficiales de cada línea. Los administradores pueden subir PDFs actualizados desde el panel Admin.</p><!-- Line Selector -->
+     <div class="mb-6"><label class="block text-sm text-gray-300 mb-3">Selecciona una línea para ver su horario:</label>
+      <div class="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-7 gap-3" id="scheduleLineSelector"><!-- Line buttons will be populated -->
+      </div>
+     </div><!-- Schedule Display -->
+     <div id="scheduleDisplay" class="bg-black/30 rounded-xl p-6 border border-cyan-400/20 min-h-96">
+      <div class="text-center text-gray-400 py-20">
+       <div class="text-6xl mb-4">
+        📅
+       </div>
+       <div class="text-xl font-bold mb-2">
+        Selecciona una línea para ver su horario
+       </div>
+       <div class="text-sm">
+        Las líneas con 📄 tienen PDF disponible
+       </div>
+      </div>
+     </div>
+    </div>
+   </div><!-- Admin Tab -->
+   <div id="adminTab" class="tab-content hidden">
+    <div class="space-y-6"><!-- Authentication -->
+     <div id="adminLogin" class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-red-400/30">
+      <div class="max-w-md mx-auto">
+       <div class="text-center mb-6">
+        <div class="text-6xl mb-4">
+         🔐
+        </div>
+        <h3 class="text-2xl font-bold text-red-300 mb-2">Panel de Administración</h3>
+        <p class="text-gray-400 text-sm">Acceso restringido a personal autorizado</p>
+       </div>
+       <form onsubmit="adminLogin(event)" class="space-y-4">
+        <div><label for="adminUser" class="block text-sm text-gray-300 mb-2">Usuario</label> <input type="text" id="adminUser" class="w-full bg-black/30 border border-red-400/30 rounded-lg px-4 py-3 text-white" placeholder="admin">
+        </div>
+        <div><label for="adminPass" class="block text-sm text-gray-300 mb-2">Contraseña</label> <input type="password" id="adminPass" class="w-full bg-black/30 border border-red-400/30 rounded-lg px-4 py-3 text-white" placeholder="••••••••">
+        </div><button type="submit" class="w-full bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 py-3 rounded-lg text-white font-bold"> 🔓 Iniciar Sesión </button>
+        <div class="text-center text-xs text-gray-500 mt-4">
+         Demo: usuario "admin" / contraseña "vitrasa2024"
+        </div>
+       </form>
+      </div>
+     </div><!-- Admin Panel (hidden until login) -->
+     <div id="adminPanel" class="hidden"><!-- Header -->
+      <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-red-400/30 mb-6">
+       <div class="flex justify-between items-center">
+        <div>
+         <h3 class="text-2xl font-bold text-red-300">Panel de Control Administrativo</h3>
+         <p class="text-gray-400 text-sm">Gestión de datos del sistema Vitrasa</p>
+        </div><button onclick="adminLogout()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-white font-bold"> 🚪 Cerrar Sesión </button>
+       </div>
+      </div><!-- Stats Overview -->
+      <div class="grid md:grid-cols-4 gap-4 mb-6">
+       <div class="bg-blue-900/40 backdrop-blur-xl rounded-xl p-4 border border-blue-400/30">
+        <div class="text-sm text-blue-200">
+         Total Líneas
+        </div>
+        <div class="text-3xl font-bold text-blue-400" id="adminTotalLines">
+         35
+        </div>
+       </div>
+       <div class="bg-green-900/40 backdrop-blur-xl rounded-xl p-4 border border-green-400/30">
+        <div class="text-sm text-green-200">
+         Líneas Activas
+        </div>
+        <div class="text-3xl font-bold text-green-400" id="adminActiveLines">
+         32
+        </div>
+       </div>
+       <div class="bg-yellow-900/40 backdrop-blur-xl rounded-xl p-4 border border-yellow-400/30">
+        <div class="text-sm text-yellow-200">
+         Autobuses
+        </div>
+        <div class="text-3xl font-bold text-yellow-400" id="adminTotalBuses">
+         78
+        </div>
+       </div>
+       <div class="bg-purple-900/40 backdrop-blur-xl rounded-xl p-4 border border-purple-400/30">
+        <div class="text-sm text-purple-200">
+         Pasajeros Hoy
+        </div>
+        <div class="text-3xl font-bold text-purple-400" id="adminTodayPassengers">
+         12,847
+        </div>
+       </div>
+      </div><!-- Schedule Management -->
+      <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-purple-400/30 mb-6">
+       <h4 class="text-xl font-bold text-purple-300 mb-4">📅 Gestión de Horarios PDF</h4>
+       <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <div><label class="block text-sm text-gray-300 mb-2">Seleccionar Línea</label> <select id="pdfLineSelector" class="w-full bg-black/30 border border-purple-400/30 rounded-lg px-3 py-2 text-white"> <option value="">-- Selecciona una línea --</option> </select>
+        </div>
+        <div><label class="block text-sm text-gray-300 mb-2">Subir PDF de Horarios</label> <input type="file" id="pdfFileInput" accept="application/pdf" class="w-full bg-black/30 border border-purple-400/30 rounded-lg px-3 py-2 text-white text-sm">
+        </div>
+       </div><button onclick="uploadSchedulePDF()" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg text-white font-bold"> 📤 Subir Horario </button> <!-- Current Schedules -->
+       <div class="mt-6">
+        <h5 class="font-bold text-purple-300 mb-3">Horarios Actuales</h5>
+        <div class="overflow-x-auto">
+         <table class="w-full text-sm">
+          <thead class="border-b border-purple-400/30">
+           <tr class="text-left">
+            <th class="py-3 px-4 text-purple-300">Línea</th>
+            <th class="py-3 px-4 text-purple-300">Archivo</th>
+            <th class="py-3 px-4 text-purple-300">Fecha Subida</th>
+            <th class="py-3 px-4 text-purple-300">Acciones</th>
+           </tr>
+          </thead>
+          <tbody id="schedulesTable" class="text-gray-300"><!-- Schedules will be populated -->
+          </tbody>
+         </table>
+        </div>
+       </div>
+      </div><!-- Line Management -->
+      <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-cyan-400/30 mb-6">
+       <div class="flex justify-between items-center mb-4">
+        <h4 class="text-xl font-bold text-cyan-300">📋 Gestión de Líneas</h4><button onclick="showAddLineForm()" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg text-white font-bold"> ➕ Agregar Línea </button>
+       </div><!-- Add Line Form (hidden by default) -->
+       <div id="addLineForm" class="hidden mb-6 bg-green-900/20 rounded-xl p-6 border border-green-400/30">
+        <h5 class="font-bold text-green-300 mb-4">Nueva Línea</h5>
+        <form onsubmit="addNewLine(event)" class="space-y-4">
+         <div class="grid md:grid-cols-2 gap-4">
+          <div><label class="block text-sm text-gray-300 mb-2">ID de Línea</label> <input type="text" id="newLineId" required class="w-full bg-black/30 border border-green-400/30 rounded-lg px-3 py-2 text-white" placeholder="L99">
+          </div>
+          <div><label class="block text-sm text-gray-300 mb-2">Nombre</label> <input type="text" id="newLineName" required class="w-full bg-black/30 border border-green-400/30 rounded-lg px-3 py-2 text-white" placeholder="Nueva Línea">
+          </div>
+          <div><label class="block text-sm text-gray-300 mb-2">Color (hex)</label> <input type="color" id="newLineColor" required class="w-full bg-black/30 border border-green-400/30 rounded-lg px-3 py-2 text-white h-10">
+          </div>
+          <div><label class="block text-sm text-gray-300 mb-2">Frecuencia</label> <input type="text" id="newLineFrequency" required class="w-full bg-black/30 border border-green-400/30 rounded-lg px-3 py-2 text-white" placeholder="15-20 min">
+          </div>
+          <div class="md:col-span-2"><label class="block text-sm text-gray-300 mb-2">Ruta</label> <input type="text" id="newLineRoute" required class="w-full bg-black/30 border border-green-400/30 rounded-lg px-3 py-2 text-white" placeholder="Origen → Destino">
+          </div>
+          <div class="md:col-span-2"><label class="block text-sm text-gray-300 mb-2">Horario</label> <input type="text" id="newLineSchedule" required class="w-full bg-black/30 border border-green-400/30 rounded-lg px-3 py-2 text-white" placeholder="L-V: 07:00-22:00">
+          </div>
+          <div><label class="flex items-center space-x-2 text-gray-300"> <input type="checkbox" id="newLineAI" class="w-4 h-4"> <span class="text-sm">🤖 Optimizada IA</span> </label>
+          </div>
+          <div><label class="flex items-center space-x-2 text-gray-300"> <input type="checkbox" id="newLineQuantum" class="w-4 h-4"> <span class="text-sm">⚛️ Ruta Cuántica</span> </label>
+          </div>
+         </div>
+         <div class="flex space-x-2"><button type="submit" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg text-white font-bold"> ✅ Guardar Línea </button> <button type="button" onclick="hideAddLineForm()" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg text-white font-bold"> ❌ Cancelar </button>
+         </div>
+        </form>
+       </div><!-- Lines Table -->
+       <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+         <thead class="border-b border-cyan-400/30">
+          <tr class="text-left">
+           <th class="py-3 px-4 text-cyan-300">ID</th>
+           <th class="py-3 px-4 text-cyan-300">Nombre</th>
+           <th class="py-3 px-4 text-cyan-300">Frecuencia</th>
+           <th class="py-3 px-4 text-cyan-300">Horario</th>
+           <th class="py-3 px-4 text-cyan-300">Optimización</th>
+           <th class="py-3 px-4 text-cyan-300">Acciones</th>
+          </tr>
+         </thead>
+         <tbody id="adminLinesTable" class="text-gray-300"><!-- Lines will be populated here -->
+         </tbody>
+        </table>
+       </div>
+      </div><!-- Real-time Data Editor -->
+      <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-purple-400/30 mb-6">
+       <h4 class="text-xl font-bold text-purple-300 mb-4">📊 Editor de Datos en Tiempo Real</h4>
+       <div class="grid md:grid-cols-3 gap-4">
+        <div><label class="block text-sm text-gray-300 mb-2">Pasajeros Hoy</label> <input type="number" id="editPassengers" class="w-full bg-black/30 border border-purple-400/30 rounded-lg px-3 py-2 text-white" value="12847">
+        </div>
+        <div><label class="block text-sm text-gray-300 mb-2">Tiempo Espera Promedio (min)</label> <input type="number" step="0.1" id="editWaitTime" class="w-full bg-black/30 border border-purple-400/30 rounded-lg px-3 py-2 text-white" value="4.2">
+        </div>
+        <div><label class="block text-sm text-gray-300 mb-2">Eficiencia (%)</label> <input type="number" step="0.1" id="editEfficiency" class="w-full bg-black/30 border border-purple-400/30 rounded-lg px-3 py-2 text-white" value="96.7">
+        </div>
+        <div><label class="block text-sm text-gray-300 mb-2">Satisfacción (1-5)</label> <input type="number" step="0.1" min="1" max="5" id="editSatisfaction" class="w-full bg-black/30 border border-purple-400/30 rounded-lg px-3 py-2 text-white" value="4.8">
+        </div>
+        <div><label class="block text-sm text-gray-300 mb-2">Densidad de Tráfico</label> <select id="editTraffic" class="w-full bg-black/30 border border-purple-400/30 rounded-lg px-3 py-2 text-white"> <option value="Bajo">Bajo</option> <option value="Medio">Medio</option> <option value="Alto" selected>Alto</option> <option value="Crítico">Crítico</option> </select>
+        </div>
+        <div><label class="block text-sm text-gray-300 mb-2">Velocidad Promedio (km/h)</label> <input type="number" id="editAvgSpeed" class="w-full bg-black/30 border border-purple-400/30 rounded-lg px-3 py-2 text-white" value="23">
+        </div>
+       </div><button onclick="updateRealTimeData()" class="mt-4 bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded-lg text-white font-bold"> 💾 Actualizar Datos </button>
+      </div><!-- AI System Controls -->
+      <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-blue-400/30 mb-6">
+       <h4 class="text-xl font-bold text-blue-300 mb-4">🤖 Control del Sistema IA</h4>
+       <div class="grid md:grid-cols-3 gap-4">
+        <div><label class="block text-sm text-gray-300 mb-2">Precisión IA (%)</label> <input type="number" step="0.1" min="0" max="100" id="editAIPrecision" class="w-full bg-black/30 border border-blue-400/30 rounded-lg px-3 py-2 text-white" value="97.3">
+        </div>
+        <div><label class="block text-sm text-gray-300 mb-2">Latencia Procesamiento (ms)</label> <input type="number" step="0.1" min="0" id="editLatency" class="w-full bg-black/30 border border-blue-400/30 rounded-lg px-3 py-2 text-white" value="2.4">
+        </div>
+        <div><label class="block text-sm text-gray-300 mb-2">Temperatura Sistema (°C)</label> <input type="number" min="0" max="100" id="editSystemTemp" class="w-full bg-black/30 border border-blue-400/30 rounded-lg px-3 py-2 text-white" value="23">
+        </div>
+        <div><label class="block text-sm text-gray-300 mb-2">Uso CPU IA (%)</label> <input type="number" min="0" max="100" id="editCPU" class="w-full bg-black/30 border border-blue-400/30 rounded-lg px-3 py-2 text-white" value="67">
+        </div>
+        <div><label class="block text-sm text-gray-300 mb-2">Carga Red Neural (%)</label> <input type="number" min="0" max="100" id="editNeural" class="w-full bg-black/30 border border-blue-400/30 rounded-lg px-3 py-2 text-white" value="89">
+        </div>
+        <div><label class="block text-sm text-gray-300 mb-2">Quantum Computing (%)</label> <input type="number" min="0" max="100" id="editQuantumLoad" class="w-full bg-black/30 border border-blue-400/30 rounded-lg px-3 py-2 text-white" value="34">
+        </div>
+        <div><label class="block text-sm text-gray-300 mb-2">Puntos Eco</label> <input type="number" min="0" id="editEcoPoints" class="w-full bg-black/30 border border-blue-400/30 rounded-lg px-3 py-2 text-white" value="1247">
+        </div>
+        <div><label class="block text-sm text-gray-300 mb-2">Estado IA</label> <select id="editAIStatus" class="w-full bg-black/30 border border-blue-400/30 rounded-lg px-3 py-2 text-white"> <option value="IA Activa" selected>IA Activa</option> <option value="IA en Mantenimiento">IA en Mantenimiento</option> <option value="IA Optimizando">IA Optimizando</option> <option value="IA Aprendiendo">IA Aprendiendo</option> </select>
+        </div>
+        <div><label class="block text-sm text-gray-300 mb-2">Estado Red Neural</label> <select id="editNetworkStatus" class="w-full bg-black/30 border border-blue-400/30 rounded-lg px-3 py-2 text-white"> <option value="Red Neural Online" selected>Red Neural Online</option> <option value="Red Neural Sincronizando">Red Neural Sincronizando</option> <option value="Red Neural Entrenando">Red Neural Entrenando</option> </select>
+        </div>
+       </div><button onclick="updateAISystem()" class="mt-4 bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg text-white font-bold"> 🤖 Actualizar Sistema IA </button>
+      </div><!-- Quantum Controls -->
+      <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-purple-400/30 mb-6">
+       <h4 class="text-xl font-bold text-purple-300 mb-4">⚛️ Control Computación Cuántica</h4>
+       <div class="grid md:grid-cols-3 gap-4">
+        <div><label class="block text-sm text-gray-300 mb-2">Qubits Activos</label> <input type="number" min="0" id="editQubits" class="w-full bg-black/30 border border-purple-400/30 rounded-lg px-3 py-2 text-white" value="1024">
+        </div>
+        <div><label class="block text-sm text-gray-300 mb-2">Coherencia (%)</label> <input type="number" step="0.1" min="0" max="100" id="editCoherence" class="w-full bg-black/30 border border-purple-400/30 rounded-lg px-3 py-2 text-white" value="99.7">
+        </div>
+        <div><label class="block text-sm text-gray-300 mb-2">Pares Entrelazados</label> <input type="number" min="0" id="editEntanglement" class="w-full bg-black/30 border border-purple-400/30 rounded-lg px-3 py-2 text-white" value="847">
+        </div>
+        <div><label class="block text-sm text-gray-300 mb-2">Estado Quantum</label> <select id="editQuantumStatus" class="w-full bg-black/30 border border-purple-400/30 rounded-lg px-3 py-2 text-white"> <option value="Quantum Computing" selected>Quantum Computing</option> <option value="Quantum Optimizando">Quantum Optimizando</option> <option value="Quantum Calibrando">Quantum Calibrando</option> <option value="Quantum Superposición">Quantum Superposición</option> </select>
+        </div>
+       </div><button onclick="updateQuantumSystem()" class="mt-4 bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded-lg text-white font-bold"> ⚛️ Actualizar Sistema Cuántico </button>
+      </div><!-- Bus Fleet Controls -->
+      <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-green-400/30 mb-6">
+       <h4 class="text-xl font-bold text-green-300 mb-4">🚌 Control de Flota</h4>
+       <div class="grid md:grid-cols-4 gap-4">
+        <div><label class="block text-sm text-gray-300 mb-2">Total Autobuses</label> <input type="number" min="0" id="editTotalBuses" class="w-full bg-black/30 border border-green-400/30 rounded-lg px-3 py-2 text-white" value="78">
+        </div>
+        <div><label class="block text-sm text-gray-300 mb-2">Líneas Activas</label> <input type="number" min="0" id="editActiveLines" class="w-full bg-black/30 border border-green-400/30 rounded-lg px-3 py-2 text-white" value="32">
+        </div>
+        <div><label class="block text-sm text-gray-300 mb-2">Autobuses en Ruta</label> <input type="number" min="0" id="editBusesInRoute" class="w-full bg-black/30 border border-green-400/30 rounded-lg px-3 py-2 text-white" value="65">
+        </div>
+        <div><label class="block text-sm text-gray-300 mb-2">En Mantenimiento</label> <input type="number" min="0" id="editBusesMaintenance" class="w-full bg-black/30 border border-green-400/30 rounded-lg px-3 py-2 text-white" value="13">
+        </div>
+       </div><button onclick="updateFleetData()" class="mt-4 bg-green-600 hover:bg-green-700 px-6 py-2 rounded-lg text-white font-bold"> 🚌 Actualizar Flota </button>
+      </div><!-- System Actions -->
+      <div class="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-red-400/30">
+       <h4 class="text-xl font-bold text-red-300 mb-4">⚡ Acciones del Sistema</h4>
+       <div class="grid md:grid-cols-3 gap-4"><button onclick="resetAllData()" class="bg-orange-600 hover:bg-orange-700 py-3 px-4 rounded-lg text-white font-bold"> 🔄 Resetear Datos </button> <button onclick="exportData()" class="bg-green-600 hover:bg-green-700 py-3 px-4 rounded-lg text-white font-bold"> 📥 Exportar Datos </button> <button onclick="importData()" class="bg-blue-600 hover:bg-blue-700 py-3 px-4 rounded-lg text-white font-bold"> 📤 Importar Datos </button> <button onclick="optimizeSystem()" class="bg-purple-600 hover:bg-purple-700 py-3 px-4 rounded-lg text-white font-bold"> 🚀 Optimizar Sistema </button> <button onclick="runDiagnostics()" class="bg-yellow-600 hover:bg-yellow-700 py-3 px-4 rounded-lg text-white font-bold"> 🔍 Ejecutar Diagnósticos </button> <button onclick="emergencyStop()" class="bg-red-600 hover:bg-red-700 py-3 px-4 rounded-lg text-white font-bold"> 🚨 Parada de Emergencia </button>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div><!-- AR Overlay -->
+  <div id="arOverlay" class="ar-overlay">
+   <div class="flex items-center justify-center h-full">
+    <div class="text-center">
+     <div class="text-6xl mb-4">
+      🥽
+     </div>
+     <div class="text-white text-2xl font-bold mb-4">
+      Modo AR Activado
+     </div>
+     <div class="text-gray-300 mb-6">
+      Apunta tu dispositivo hacia las paradas de autobús
+     </div><button onclick="deactivateAR()" class="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg text-white font-bold"> ❌ Desactivar AR </button>
+    </div>
+   </div>
+  </div><!-- Notification System -->
+  <div id="notifications" class="fixed top-4 right-4 space-y-2 z-40"><!-- Notifications will appear here -->
+  </div>
+  <script>
+        // Storage for PDF schedules
+        const lineSchedulePDFs = {};
+
+        // Líneas reales de Vitrasa Vigo con datos auténticos
+        const advancedBusLines = {
+            'C3': { 
+                name: 'Circular Bouzas - Coia', 
+                color: '#E53E3E', 
+                route: 'Circular Bouzas → Coia → Centro',
+                frequency: '10-12 min', 
+                frequency_detail: 'Punta: 10-12 min | Normal: 15-20 min | Festivos: 20-30 min',
+                schedule: 'L-V: 06:00-23:30 | S-D: 07:00-23:30',
+                ai_optimized: true, 
+                quantum_route: true,
+                stops: ['Bouzas', 'O Calvario', 'Coia', 'Policarpo Sanz', 'Praza España'],
+                schedules: {
+                    weekday: ['06:00', '06:12', '06:24', '06:36', '06:48', '07:00', '07:12', '07:24', '07:36', '07:48', '08:00', '08:12', '08:24', '08:36', '08:48', '09:00', '09:15', '09:30', '09:45', '10:00', '10:15', '10:30', '10:45', '11:00', '11:15', '11:30', '11:45', '12:00', '12:15', '12:30', '12:45', '13:00', '13:15', '13:30', '13:45', '14:00', '14:15', '14:30', '14:45', '15:00', '15:15', '15:30', '15:45', '16:00', '16:15', '16:30', '16:45', '17:00', '17:15', '17:30', '17:45', '18:00', '18:12', '18:24', '18:36', '18:48', '19:00', '19:12', '19:24', '19:36', '19:48', '20:00', '20:15', '20:30', '20:45', '21:00', '21:20', '21:40', '22:00', '22:20', '22:40', '23:00', '23:30'],
+                    weekend: ['07:00', '07:20', '07:40', '08:00', '08:20', '08:40', '09:00', '09:20', '09:40', '10:00', '10:20', '10:40', '11:00', '11:20', '11:40', '12:00', '12:20', '12:40', '13:00', '13:20', '13:40', '14:00', '14:20', '14:40', '15:00', '15:20', '15:40', '16:00', '16:20', '16:40', '17:00', '17:20', '17:40', '18:00', '18:20', '18:40', '19:00', '19:20', '19:40', '20:00', '20:25', '20:50', '21:15', '21:40', '22:05', '22:30', '23:00', '23:30']
+                }
+            },
+            'C1': { 
+                name: 'Circular Centro', 
+                color: '#3182CE', 
+                route: 'Centro circular → Policarpo Sanz → Urzáiz → Praza de España',
+                frequency: '10-15 min', 
+                frequency_detail: 'Punta: 10-15 min | Normal: 15-20 min | Festivos: 20-25 min',
+                schedule: 'L-V: 06:30-22:30 | S: 07:30-22:30 | D: 08:00-22:00',
+                ai_optimized: true, 
+                quantum_route: false,
+                stops: ['Praza España', 'Policarpo Sanz', 'Urzáiz', 'García Barbón', 'Porta do Sol'],
+                schedules: {
+                    weekday: ['06:30', '06:45', '07:00', '07:15', '07:30', '07:45', '08:00', '08:15', '08:30', '08:45', '09:00', '09:15', '09:30', '09:50', '10:10', '10:30', '10:50', '11:10', '11:30', '11:50', '12:10', '12:30', '12:50', '13:10', '13:30', '13:50', '14:10', '14:30', '14:50', '15:10', '15:30', '15:50', '16:10', '16:30', '16:50', '17:10', '17:30', '17:50', '18:10', '18:30', '18:50', '19:10', '19:30', '19:50', '20:10', '20:30', '20:50', '21:10', '21:30', '21:50', '22:10', '22:30'],
+                    weekend: ['07:30', '08:00', '08:25', '08:50', '09:15', '09:40', '10:05', '10:30', '10:55', '11:20', '11:45', '12:10', '12:35', '13:00', '13:25', '13:50', '14:15', '14:40', '15:05', '15:30', '15:55', '16:20', '16:45', '17:10', '17:35', '18:00', '18:25', '18:50', '19:15', '19:40', '20:05', '20:30', '20:55', '21:20', '21:45', '22:10']
+                }
+            },
+            'L10': { 
+                name: 'Teis - Caeiro / Canido', 
+                color: '#38A169', 
+                route: 'Teis → Caeiro / Canido',
+                frequency: '15 min', 
+                frequency_detail: 'Punta: 15 min | Normal: 20 min | Festivos: 30 min',
+                schedule: 'L-V: 07:00-21:30 | S-D: 08:00-22:00',
+                ai_optimized: true, 
+                quantum_route: true,
+                stops: ['Teis', 'Beiramar', 'Caeiro', 'Canido', 'Estación Marítima'],
+                schedules: {
+                    weekday: ['07:00', '07:15', '07:30', '07:45', '08:00', '08:15', '08:30', '08:45', '09:00', '09:20', '09:40', '10:00', '10:20', '10:40', '11:00', '11:20', '11:40', '12:00', '12:20', '12:40', '13:00', '13:20', '13:40', '14:00', '14:20', '14:40', '15:00', '15:20', '15:40', '16:00', '16:20', '16:40', '17:00', '17:20', '17:40', '18:00', '18:15', '18:30', '18:45', '19:00', '19:15', '19:30', '19:45', '20:00', '20:20', '20:40', '21:00', '21:30'],
+                    weekend: ['08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00']
+                }
+            },
+            'L15A': { 
+                name: 'Cabral/Universidade - Samil A', 
+                color: '#38A169', 
+                route: 'Cabral/Universidade → Samil',
+                frequency: '15-20 min', 
+                frequency_detail: 'Punta: 15-20 min | Normal: 25-30 min | Festivos: 30-40 min (reforzado en verano)',
+                schedule: 'L-V: 06:45-22:15 | S-D: 07:30-22:30',
+                ai_optimized: true, 
+                quantum_route: true,
+                stops: ['Cabral', 'Universidade', 'Praza América', 'Samil', 'Playa Samil'],
+                schedules: {
+                    weekday: ['06:45', '07:00', '07:15', '07:30', '07:45', '08:00', '08:15', '08:30', '08:45', '09:00', '09:20', '09:40', '10:00', '10:25', '10:50', '11:15', '11:40', '12:05', '12:30', '12:55', '13:20', '13:45', '14:10', '14:35', '15:00', '15:25', '15:50', '16:15', '16:40', '17:05', '17:30', '17:55', '18:15', '18:30', '18:45', '19:00', '19:15', '19:30', '19:45', '20:00', '20:20', '20:40', '21:00', '21:20', '21:40', '22:00', '22:15'],
+                    weekend: ['07:30', '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00', '22:30']
+                }
+            },
+            'H': { 
+                name: 'Hospital Álvaro Cunqueiro', 
+                color: '#E53E3E', 
+                route: 'Centro → Hospital Álvaro Cunqueiro',
+                frequency: '20-30 min', 
+                frequency_detail: 'Punta: 20-30 min | Normal: 30-45 min | Festivos: 45-60 min',
+                schedule: 'L-V: 06:00-22:00 | S-D: 07:00-21:00',
+                ai_optimized: true, 
+                quantum_route: true,
+                stops: ['Praza España', 'Gran Vía', 'Pizarro', 'Hospital Cunqueiro', 'Hospital entrada'],
+                schedules: {
+                    weekday: ['06:00', '06:30', '07:00', '07:30', '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00'],
+                    weekend: ['07:00', '07:45', '08:30', '09:15', '10:00', '10:45', '11:30', '12:15', '13:00', '13:45', '14:30', '15:15', '16:00', '16:45', '17:30', '18:15', '19:00', '19:45', '20:30', '21:00']
+                }
+            },
+            'U1': { 
+                name: 'Universidade CUVI U1', 
+                color: '#805AD5', 
+                route: 'Praza de España → Campus Universitario CUVI',
+                frequency: '10-15 min', 
+                frequency_detail: 'Periodo lectivo: 10-15 min | Sin servicio fines de semana y festivos',
+                schedule: 'Periodo lectivo: 07:00-21:30',
+                ai_optimized: true, 
+                quantum_route: true,
+                stops: ['Praza España', 'García Barbón', 'Universidade Vigo', 'Campus CUVI', 'Facultades'],
+                schedules: {
+                    weekday: ['07:00', '07:15', '07:30', '07:45', '08:00', '08:15', '08:30', '08:45', '09:00', '09:15', '09:30', '09:45', '10:00', '10:15', '10:30', '10:45', '11:00', '11:15', '11:30', '11:45', '12:00', '12:15', '12:30', '12:45', '13:00', '13:15', '13:30', '13:45', '14:00', '14:15', '14:30', '14:45', '15:00', '15:15', '15:30', '15:45', '16:00', '16:15', '16:30', '16:45', '17:00', '17:15', '17:30', '17:45', '18:00', '18:15', '18:30', '18:45', '19:00', '19:15', '19:30', '19:45', '20:00', '20:20', '20:40', '21:00', '21:30'],
+                    weekend: []
+                }
+            },
+            'A': { 
+                name: 'Aeropuerto', 
+                color: '#E53E3E', 
+                route: 'Praza América → Urzáiz → Aeropuerto Peinador',
+                frequency: '30-35 min', 
+                frequency_detail: 'Punta: 30-35 min | Normal: 35-45 min | Festivos: 45-60 min',
+                schedule: 'Diario: 06:00-22:00',
+                ai_optimized: true, 
+                quantum_route: true,
+                stops: ['Praza América', 'Urzáiz', 'Gran Vía', 'Aeropuerto Peinador', 'Terminal'],
+                schedules: {
+                    weekday: ['06:00', '06:30', '07:00', '07:30', '08:00', '08:30', '09:00', '09:35', '10:10', '10:45', '11:20', '11:55', '12:30', '13:05', '13:40', '14:15', '14:50', '15:25', '16:00', '16:35', '17:10', '17:45', '18:20', '18:55', '19:30', '20:05', '20:40', '21:15', '21:50'],
+                    weekend: ['06:00', '06:45', '07:30', '08:15', '09:00', '09:45', '10:30', '11:15', '12:00', '12:45', '13:30', '14:15', '15:00', '15:45', '16:30', '17:15', '18:00', '18:45', '19:30', '20:15', '21:00', '21:45']
+                }
+            }
+        };
+
+        let currentTab = 'dashboard';
+        let simulationRunning = false;
+        let arActive = false;
+        let aiProcessingInterval;
+        let dataStreamInterval;
+        let matrixInterval;
+
+        // Helper function to get real-time data from admin inputs
+        function getAdminData() {
+            return {
+                passengers: document.getElementById('editPassengers')?.value || '12847',
+                waitTime: document.getElementById('editWaitTime')?.value || '4.2',
+                efficiency: document.getElementById('editEfficiency')?.value || '96.7',
+                satisfaction: document.getElementById('editSatisfaction')?.value || '4.8',
+                traffic: document.getElementById('editTraffic')?.value || 'Alto',
+                avgSpeed: document.getElementById('editAvgSpeed')?.value || '23',
+                aiPrecision: document.getElementById('editAIPrecision')?.value || '97.3',
+                latency: document.getElementById('editLatency')?.value || '2.4',
+                systemTemp: document.getElementById('editSystemTemp')?.value || '23',
+                cpu: document.getElementById('editCPU')?.value || '67',
+                neural: document.getElementById('editNeural')?.value || '89',
+                quantumLoad: document.getElementById('editQuantumLoad')?.value || '34',
+                ecoPoints: document.getElementById('editEcoPoints')?.value || '1247',
+                qubits: document.getElementById('editQubits')?.value || '1024',
+                coherence: document.getElementById('editCoherence')?.value || '99.7',
+                entanglement: document.getElementById('editEntanglement')?.value || '847',
+                totalBuses: document.getElementById('editTotalBuses')?.value || '78',
+                activeLines: document.getElementById('editActiveLines')?.value || '32',
+                aiStatus: document.getElementById('editAIStatus')?.value || 'IA Activa',
+                networkStatus: document.getElementById('editNetworkStatus')?.value || 'Red Neural Online',
+                quantumStatus: document.getElementById('editQuantumStatus')?.value || 'Quantum Computing'
+            };
+        }
+
+        // Initialize the ultra-complex system
+        function init() {
+            populateAdvancedLineGrid();
+            initializeCharts();
+            startMatrixRain();
+            startAIProcessing();
+            startDataStream();
+            startRealTimeUpdates();
+            generateAIRecommendations();
+            populateEmergencyProtocols();
+            populateScheduleLineSelector();
+            
+            // Easter eggs
+            document.addEventListener('keydown', handleEasterEggs);
+        }
+
+        // Populate schedule line selector (public view)
+        function populateScheduleLineSelector() {
+            const container = document.getElementById('scheduleLineSelector');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            Object.entries(advancedBusLines).forEach(([lineId, line]) => {
+                const button = document.createElement('button');
+                button.className = 'py-3 px-4 rounded-xl font-bold transition-all border-2 hover:scale-105';
+                
+                const hasSchedule = lineSchedulePDFs[lineId];
+                
+                if (hasSchedule) {
+                    button.className += ' bg-gradient-to-br from-cyan-600 to-blue-600 border-cyan-400 text-white';
+                } else {
+                    button.className += ' bg-gray-700/50 border-gray-600 text-gray-300';
+                }
+                
+                button.innerHTML = `
+                    <div class="text-center">
+                        <div class="text-xl font-bold">${lineId}</div>
+                        <div class="text-xs">${line.name.substring(0, 15)}${line.name.length > 15 ? '...' : ''}</div>
+                        ${hasSchedule ? '<div class="text-xs mt-1">📄 PDF</div>' : '<div class="text-xs mt-1 text-gray-500">Sin PDF</div>'}
+                    </div>
+                `;
+                
+                button.onclick = () => displaySchedule(lineId);
+                container.appendChild(button);
+            });
+        }
+
+        // Display schedule for a line
+        function displaySchedule(lineId) {
+            const line = advancedBusLines[lineId];
+            const schedulePDF = lineSchedulePDFs[lineId];
+            const displayContainer = document.getElementById('scheduleDisplay');
+            
+            if (!displayContainer) return;
+            
+            if (schedulePDF) {
+                // Display PDF
+                displayContainer.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-2xl" style="background-color: ${line.color}">
+                                    ${lineId}
+                                </div>
+                                <div>
+                                    <h3 class="text-2xl font-bold text-cyan-300">${line.name}</h3>
+                                    <p class="text-gray-400">${line.route}</p>
+                                    <p class="text-sm text-cyan-400 mt-1">📄 Horario oficial actualizado</p>
+                                </div>
+                            </div>
+                            <button onclick="downloadSchedulePDF('${lineId}')" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-white font-bold">
+                                📥 Descargar PDF
+                            </button>
+                        </div>
+                        
+                        <!-- PDF Viewer -->
+                        <div class="bg-white rounded-lg overflow-hidden" style="height: 600px;">
+                            <iframe src="${schedulePDF.dataUrl}" class="w-full h-full" type="application/pdf"></iframe>
+                        </div>
+                        
+                        <div class="text-xs text-gray-500 text-center">
+                            Archivo: ${schedulePDF.fileName} | Subido: ${new Date(schedulePDF.uploadDate).toLocaleDateString('es-ES')}
+                        </div>
+                    </div>
+                `;
+            } else {
+                // No PDF available - show text info
+                displayContainer.innerHTML = `
+                    <div class="text-center py-12">
+                        <div class="flex items-center justify-center mb-6">
+                            <div class="w-20 h-20 rounded-full flex items-center justify-center text-white font-bold text-3xl" style="background-color: ${line.color}">
+                                ${lineId}
+                            </div>
+                        </div>
+                        <h3 class="text-3xl font-bold text-cyan-300 mb-2">${line.name}</h3>
+                        <p class="text-xl text-gray-400 mb-6">${line.route}</p>
+                        
+                        <div class="max-w-2xl mx-auto space-y-4">
+                            <div class="bg-cyan-900/30 rounded-xl p-6 border border-cyan-400/30">
+                                <div class="grid md:grid-cols-2 gap-6">
+                                    <div>
+                                        <div class="text-sm text-cyan-300 mb-2">⏱️ Frecuencia</div>
+                                        <div class="text-lg font-bold text-white">${line.frequency}</div>
+                                        <div class="text-xs text-gray-400 mt-1">${line.frequency_detail || ''}</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm text-cyan-300 mb-2">🕐 Horario</div>
+                                        <div class="text-lg font-bold text-white">${line.schedule}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            ${line.stops ? `
+                            <div class="bg-purple-900/30 rounded-xl p-6 border border-purple-400/30">
+                                <div class="text-sm text-purple-300 mb-3">🚏 Paradas principales</div>
+                                <div class="text-white">${line.stops.join(' → ')}</div>
+                            </div>
+                            ` : ''}
+                            
+                            <div class="bg-orange-900/30 rounded-xl p-4 border border-orange-400/30">
+                                <div class="flex items-center justify-center space-x-2 text-orange-300">
+                                    <span class="text-2xl">📄</span>
+                                    <span>No hay PDF de horarios disponible para esta línea</span>
+                                </div>
+                                <div class="text-sm text-orange-200 mt-2">El administrador puede subir un PDF actualizado desde el panel de administración</div>
+                            </div>
+                            
+                            <div class="flex justify-center space-x-2 mt-4">
+                                ${line.ai_optimized ? '<span class="bg-blue-900/50 px-3 py-1 rounded-full text-sm text-blue-300">🤖 IA Optimizada</span>' : ''}
+                                ${line.quantum_route ? '<span class="bg-purple-900/50 px-3 py-1 rounded-full text-sm text-purple-300">⚛️ Ruta Cuántica</span>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Download schedule PDF
+        function downloadSchedulePDF(lineId) {
+            const schedulePDF = lineSchedulePDFs[lineId];
+            if (!schedulePDF) {
+                showNotification('❌ No hay PDF disponible para esta línea', 'error');
+                return;
+            }
+            
+            const link = document.createElement('a');
+            link.href = schedulePDF.dataUrl;
+            link.download = schedulePDF.fileName;
+            link.click();
+            
+            showNotification('📥 Descargando horario...', 'success');
+        }
+
+        // Upload schedule PDF (admin function)
+        function uploadSchedulePDF() {
+            const lineId = document.getElementById('pdfLineSelector').value;
+            const fileInput = document.getElementById('pdfFileInput');
+            const file = fileInput.files[0];
+            
+            if (!lineId) {
+                showNotification('❌ Selecciona una línea', 'error');
+                return;
+            }
+            
+            if (!file) {
+                showNotification('❌ Selecciona un archivo PDF', 'error');
+                return;
+            }
+            
+            if (file.type !== 'application/pdf') {
+                showNotification('❌ Solo se permiten archivos PDF', 'error');
+                return;
+            }
+            
+            if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                showNotification('❌ El archivo es demasiado grande (máximo 10MB)', 'error');
+                return;
+            }
+            
+            showNotification('📤 Subiendo horario...', 'info');
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                lineSchedulePDFs[lineId] = {
+                    fileName: file.name,
+                    dataUrl: e.target.result,
+                    uploadDate: new Date().toISOString(),
+                    fileSize: file.size
+                };
+                
+                populateSchedulesTable();
+                populateScheduleLineSelector();
+                fileInput.value = '';
+                document.getElementById('pdfLineSelector').value = '';
+                
+                showNotification(`✅ Horario subido para línea ${lineId}`, 'success');
+            };
+            
+            reader.onerror = () => {
+                showNotification('❌ Error al leer el archivo', 'error');
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        // Populate schedules table in admin
+        function populateSchedulesTable() {
+            const tbody = document.getElementById('schedulesTable');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            
+            const hasSchedules = Object.keys(lineSchedulePDFs).length > 0;
+            
+            if (!hasSchedules) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="py-6 px-4 text-center text-gray-500">
+                            No hay horarios PDF subidos aún
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            Object.entries(lineSchedulePDFs).forEach(([lineId, schedule]) => {
+                const line = advancedBusLines[lineId];
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-700/30 hover:bg-gray-700/20';
+                
+                const uploadDate = new Date(schedule.uploadDate);
+                const fileSize = (schedule.fileSize / 1024).toFixed(1);
+                
+                row.innerHTML = `
+                    <td class="py-3 px-4">
+                        <div class="flex items-center space-x-2">
+                            <span class="inline-block w-8 h-8 rounded-full text-white font-bold text-xs flex items-center justify-center" style="background-color: ${line.color}">${lineId}</span>
+                            <span>${line.name}</span>
+                        </div>
+                    </td>
+                    <td class="py-3 px-4">
+                        <div class="text-sm">${schedule.fileName}</div>
+                        <div class="text-xs text-gray-500">${fileSize} KB</div>
+                    </td>
+                    <td class="py-3 px-4 text-sm">${uploadDate.toLocaleDateString('es-ES')} ${uploadDate.toLocaleTimeString('es-ES')}</td>
+                    <td class="py-3 px-4">
+                        <div class="flex space-x-2">
+                            <button onclick="viewSchedulePDF('${lineId}')" class="bg-blue-600 hover:bg-blue-700 px-2 py-1 rounded text-xs text-white">👁️ Ver</button>
+                            <button onclick="downloadSchedulePDF('${lineId}')" class="bg-green-600 hover:bg-green-700 px-2 py-1 rounded text-xs text-white">📥 Descargar</button>
+                            <button onclick="deleteSchedulePDF('${lineId}')" class="bg-red-600 hover:bg-red-700 px-2 py-1 rounded text-xs text-white">🗑️ Eliminar</button>
+                        </div>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // View schedule PDF from admin
+        function viewSchedulePDF(lineId) {
+            showAdvancedTab('schedules');
+            displaySchedule(lineId);
+        }
+
+        // Delete schedule PDF
+        function deleteSchedulePDF(lineId) {
+            const line = advancedBusLines[lineId];
+            
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center';
+            modal.innerHTML = `
+                <div class="bg-gray-900 rounded-2xl p-6 max-w-md w-full mx-4 border border-red-400/30">
+                    <div class="text-center">
+                        <div class="text-6xl mb-4">⚠️</div>
+                        <h3 class="text-xl font-bold text-red-300 mb-2">Eliminar Horario</h3>
+                        <p class="text-gray-400 mb-6">¿Estás seguro de eliminar el horario PDF de la línea ${lineId} (${line.name})?</p>
+                        <div class="flex space-x-2 justify-center">
+                            <button onclick="confirmDeleteSchedulePDF('${lineId}', this)" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-white font-bold">
+                                🗑️ Sí, Eliminar
+                            </button>
+                            <button onclick="this.closest('.fixed').remove()" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg text-white font-bold">
+                                ❌ Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        // Confirm delete schedule PDF
+        function confirmDeleteSchedulePDF(lineId, button) {
+            delete lineSchedulePDFs[lineId];
+            populateSchedulesTable();
+            populateScheduleLineSelector();
+            button.closest('.fixed').remove();
+            showNotification(`✅ Horario de línea ${lineId} eliminado`, 'success');
+        }
+
+        // Populate PDF line selector in admin
+        function populatePDFLineSelector() {
+            const selector = document.getElementById('pdfLineSelector');
+            if (!selector) return;
+            
+            selector.innerHTML = '<option value="">-- Selecciona una línea --</option>';
+            
+            Object.entries(advancedBusLines).forEach(([lineId, line]) => {
+                const option = document.createElement('option');
+                option.value = lineId;
+                option.textContent = `${lineId} - ${line.name}`;
+                selector.appendChild(option);
+            });
+        }
+
+        // Advanced tab management
+        function showAdvancedTab(tabName) {
+            currentTab = tabName;
+            
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').classList.remove('hidden');
+            
+            // Update tab buttons
+            document.querySelectorAll('[id^="tab"]').forEach(btn => {
+                btn.className = 'bg-gray-700/50 text-gray-300 py-3 px-4 rounded-xl font-medium transition-all text-sm hover:bg-gray-600/50';
+            });
+            
+            const activeBtn = document.getElementById('tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1));
+            if (activeBtn) {
+                activeBtn.className = 'quantum-button text-white py-3 px-4 rounded-xl font-bold transition-all text-sm';
+            }
+        }
+
+        // Populate advanced line grid
+        function populateAdvancedLineGrid() {
+            const container = document.getElementById('advancedLineGrid');
+            container.innerHTML = '';
+            
+            Object.entries(advancedBusLines).forEach(([lineId, line]) => {
+                const lineElement = document.createElement('div');
+                lineElement.className = 'bg-black/30 backdrop-blur-lg rounded-xl p-4 border border-gray-600/30 hover:border-cyan-400/50 transition-all cursor-pointer transform hover:scale-105';
+                
+                const aiIcon = line.ai_optimized ? '🤖' : '🚌';
+                const quantumIcon = line.quantum_route ? '⚛️' : '';
+                
+                lineElement.innerHTML = `
+                    <div class="text-center">
+                        <div class="w-12 h-12 rounded-full mx-auto mb-2 flex items-center justify-center text-white font-bold text-sm relative" style="background-color: ${line.color}">
+                            ${lineId}
+                            ${line.quantum_route ? '<div class="absolute -top-1 -right-1 text-xs">⚛️</div>' : ''}
+                        </div>
+                        <div class="text-xs font-medium text-gray-200 mb-1">${line.name}</div>
+                        <div class="text-xs text-gray-400 mb-1">${line.frequency}</div>
+                        <div class="text-xs text-gray-500">${line.schedule}</div>
+                        <div class="flex justify-center space-x-1 mt-1">
+                            ${line.ai_optimized ? '<span class="text-xs">🤖</span>' : ''}
+                            ${line.quantum_route ? '<span class="text-xs">⚛️</span>' : ''}
+                        </div>
+                    </div>
+                `;
+                
+                lineElement.onclick = () => selectAdvancedLine(lineId);
+                container.appendChild(lineElement);
+            });
+        }
+
+        // Matrix rain effect
+        function startMatrixRain() {
+            const matrixContainer = document.getElementById('matrixRain');
+            
+            matrixInterval = setInterval(() => {
+                const char = document.createElement('div');
+                char.className = 'matrix-char';
+                char.textContent = String.fromCharCode(0x30A0 + Math.random() * 96);
+                char.style.left = Math.random() * 100 + '%';
+                char.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                
+                matrixContainer.appendChild(char);
+                
+                setTimeout(() => {
+                    char.remove();
+                }, 5000);
+            }, 200);
+        }
+
+        // AI Processing simulation
+        function startAIProcessing() {
+            const processes = [
+                'Analizando patrones de tráfico...',
+                'Optimizando rutas cuánticas...',
+                'Procesando datos de sensores...',
+                'Calculando predicciones ML...',
+                'Ejecutando algoritmos genéticos...',
+                'Sincronizando red neural...',
+                'Aplicando lógica difusa...',
+                'Optimización por enjambre...'
+            ];
+            
+            let processIndex = 0;
+            aiProcessingInterval = setInterval(() => {
+                document.getElementById('aiProcessing').textContent = processes[processIndex];
+                processIndex = (processIndex + 1) % processes.length;
+            }, 3000);
+        }
+
+        // Data stream simulation
+        function startDataStream() {
+            const streamContainer = document.getElementById('dataStream');
+            
+            dataStreamInterval = setInterval(() => {
+                const adminData = getAdminData();
+                const timestamp = new Date().toLocaleTimeString();
+                const busId = Math.floor(Math.random() * parseInt(adminData.totalBuses)) + 1;
+                const lat = (42.8 + Math.random() * 0.1).toFixed(6);
+                const lng = (-2.7 + Math.random() * 0.1).toFixed(6);
+                const passengers = Math.floor(Math.random() * 40);
+                
+                const logEntry = document.createElement('div');
+                logEntry.className = 'text-green-400';
+                logEntry.textContent = `[${timestamp}] BUS_${busId}: LAT=${lat}, LNG=${lng}, PAX=${passengers}, SPD=${adminData.avgSpeed}km/h`;
+                
+                streamContainer.insertBefore(logEntry, streamContainer.firstChild);
+                
+                // Keep only last 20 entries
+                while (streamContainer.children.length > 20) {
+                    streamContainer.removeChild(streamContainer.lastChild);
+                }
+            }, 1000);
+        }
+
+        // Real-time updates
+        function startRealTimeUpdates() {
+            setInterval(() => {
+                const adminData = getAdminData();
+                
+                // Update AI predictions (use real admin data with small variation)
+                const precisionVariation = (parseFloat(adminData.aiPrecision) + (Math.random() * 2 - 1)).toFixed(1);
+                document.getElementById('aiPredictions').textContent = Math.max(0, Math.min(100, precisionVariation)) + '%';
+                
+                // Update processing speed
+                const latencyVariation = (parseFloat(adminData.latency) + (Math.random() * 0.5 - 0.25)).toFixed(1);
+                document.getElementById('processingSpeed').textContent = Math.max(0.1, latencyVariation) + 'ms';
+                
+                // Update system temp
+                const tempVariation = parseInt(adminData.systemTemp) + Math.floor(Math.random() * 3 - 1);
+                document.getElementById('systemTemp').textContent = tempVariation + '°C';
+                
+                // Update system metrics
+                document.getElementById('cpuUsage').textContent = adminData.cpu + '%';
+                document.getElementById('cpuBar').style.width = adminData.cpu + '%';
+                
+                document.getElementById('neuralLoad').textContent = adminData.neural + '%';
+                document.getElementById('neuralBar').style.width = adminData.neural + '%';
+                
+                document.getElementById('quantumLoad').textContent = adminData.quantumLoad + '%';
+                document.getElementById('quantumBar').style.width = adminData.quantumLoad + '%';
+                
+                // Update eco points
+                document.getElementById('ecoPoints').textContent = parseInt(adminData.ecoPoints).toLocaleString();
+                
+                // Update quantum metrics
+                document.getElementById('activeQubits').textContent = parseInt(adminData.qubits).toLocaleString();
+                document.getElementById('coherence').textContent = adminData.coherence + '%';
+                document.getElementById('entanglement').textContent = adminData.entanglement + ' pares';
+                
+                // Update status texts
+                document.getElementById('aiStatus').textContent = adminData.aiStatus;
+                document.getElementById('networkStatus').textContent = adminData.networkStatus;
+                document.getElementById('quantumStatus').textContent = adminData.quantumStatus;
+                
+                // Update ML precision bar
+                document.getElementById('mlPrediction').textContent = adminData.aiPrecision + '% precisión';
+                document.getElementById('mlPredictionBar').style.width = adminData.aiPrecision + '%';
+                
+                // Update efficiency display in real-time tab
+                const effDisplay = document.getElementById('efficiencyDisplay');
+                if (effDisplay) {
+                    effDisplay.textContent = adminData.efficiency + '%';
+                }
+            }, 2000);
+        }
+
+        // Chat system
+        function handleChatInput(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            const chatContainer = document.getElementById('chatMessages');
+            
+            // User message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'bg-blue-900/30 rounded-lg p-3 ml-4';
+            userMsg.innerHTML = `<div class="text-sm text-blue-200">${message}</div>`;
+            chatContainer.appendChild(userMsg);
+            
+            input.value = '';
+            
+            // AI response (simulated with REAL data)
+            setTimeout(() => {
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'bg-purple-900/30 rounded-lg p-3 mr-4';
+                aiMsg.innerHTML = `<div class="text-sm text-purple-200">${generateAIResponse(message)}</div>`;
+                chatContainer.appendChild(aiMsg);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }, 1000);
+            
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Get current time and date info
+        function getCurrentTimeInfo() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const currentTime = `${hours}:${minutes}`;
+            const dayOfWeek = now.getDay(); // 0 = Sunday, 6 = Saturday
+            const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+            
+            return { currentTime, isWeekend, hours: parseInt(hours), minutes: parseInt(minutes), dayOfWeek };
+        }
+
+        // Find next bus times for a line and stop
+        function getNextBusTimes(lineId, stopName) {
+            const line = advancedBusLines[lineId.toUpperCase()];
+            if (!line) return null;
+            
+            const timeInfo = getCurrentTimeInfo();
+            const scheduleType = timeInfo.isWeekend ? 'weekend' : 'weekday';
+            const schedules = line.schedules[scheduleType];
+            
+            if (!schedules || schedules.length === 0) {
+                return { line, stop: stopName, nextTimes: [], noService: true };
+            }
+            
+            // Check if stop exists
+            const stopExists = line.stops.some(s => 
+                s.toLowerCase().includes(stopName.toLowerCase()) || 
+                stopName.toLowerCase().includes(s.toLowerCase())
+            );
+            
+            if (!stopExists && stopName) {
+                return { line, stop: stopName, stopNotFound: true };
+            }
+            
+            const currentMinutes = timeInfo.hours * 60 + timeInfo.minutes;
+            
+            // Find next 3 buses
+            const nextTimes = schedules
+                .map(time => {
+                    const [h, m] = time.split(':').map(Number);
+                    const busMinutes = h * 60 + m;
+                    return { time, minutes: busMinutes, diff: busMinutes - currentMinutes };
+                })
+                .filter(bus => bus.diff >= 0)
+                .sort((a, b) => a.diff - b.diff)
+                .slice(0, 3);
+            
+            return { line, stop: stopName, nextTimes, currentTime: timeInfo.currentTime, isWeekend: timeInfo.isWeekend };
+        }
+
+        // Calculate minutes until bus arrives
+        function getMinutesUntil(busTime) {
+            const timeInfo = getCurrentTimeInfo();
+            const [h, m] = busTime.split(':').map(Number);
+            const busMinutes = h * 60 + m;
+            const currentMinutes = timeInfo.hours * 60 + timeInfo.minutes;
+            return busMinutes - currentMinutes;
+        }
+
+        function generateAIResponse(message) {
+            const lowerMessage = message.toLowerCase();
+            const adminData = getAdminData();
+            const timeInfo = getCurrentTimeInfo();
+            
+            // Detect schedule questions
+            const lineMatch = lowerMessage.match(/l\d+[a-z]?|c\d+|u\d+|línea (\w+)|linea (\w+)|bus (\w+)/i);
+            const stopMatch = lowerMessage.match(/(?:parada|en) (\w+[\s\w]*?)(?:\?|,|$)/i);
+            
+            if ((lowerMessage.includes('hora') || lowerMessage.includes('pasa') || lowerMessage.includes('cuando') || lowerMessage.includes('próximo') || lowerMessage.includes('proximo')) && lineMatch) {
+                let lineId = lineMatch[0].toUpperCase();
+                if (lineId.startsWith('LÍNEA ') || lineId.startsWith('LINEA ') || lineId.startsWith('BUS ')) {
+                    lineId = lineId.split(' ')[1];
+                }
+                
+                const stopName = stopMatch ? stopMatch[1].trim() : '';
+                const busInfo = getNextBusTimes(lineId, stopName);
+                
+                if (!busInfo) {
+                    return `No encontré información sobre la línea "${lineId}". Las líneas disponibles son: C3, C1, L10, L15A, H, U1, A.`;
+                }
+                
+                if (busInfo.noService) {
+                    return `La línea ${lineId} (${busInfo.line.name}) no tiene servicio ${busInfo.isWeekend ? 'los fines de semana' : 'hoy'}. ${busInfo.line.schedule}`;
+                }
+                
+                if (busInfo.stopNotFound && stopName) {
+                    return `La parada "${stopName}" no está en la línea ${lineId}. Paradas de esta línea: ${busInfo.line.stops.join(', ')}. ¿Necesitas horarios para otra parada?`;
+                }
+                
+                if (busInfo.nextTimes.length === 0) {
+                    return `La línea ${lineId} (${busInfo.line.name}) ya no tiene más servicios hoy. Horario: ${busInfo.line.schedule}. Son las ${busInfo.currentTime}.`;
+                }
+                
+                const responses = busInfo.nextTimes.map(bus => {
+                    const mins = bus.diff;
+                    if (mins === 0) return `${bus.time} (¡AHORA!)`;
+                    if (mins <= 5) return `${bus.time} (en ${mins} min ⚡)`;
+                    if (mins <= 15) return `${bus.time} (en ${mins} min)`;
+                    return `${bus.time}`;
+                });
+                
+                const stopText = stopName ? ` en la parada "${stopName}"` : '';
+                return `🕐 Son las ${busInfo.currentTime}. Línea ${lineId} (${busInfo.line.name})${stopText}:\n` +
+                       `📍 Próximos autobuses: ${responses.join(', ')}.\n` +
+                       `Frecuencia: ${busInfo.line.frequency}. Eficiencia sistema: ${adminData.efficiency}%.`;
+            }
+            
+            // List stops for a line
+            if ((lowerMessage.includes('parada') || lowerMessage.includes('para en')) && lineMatch) {
+                let lineId = lineMatch[0].toUpperCase();
+                if (lineId.startsWith('LÍNEA ') || lineId.startsWith('LINEA ') || lineId.startsWith('BUS ')) {
+                    lineId = lineId.split(' ')[1];
+                }
+                
+                const line = advancedBusLines[lineId];
+                if (!line) {
+                    return `No encontré la línea "${lineId}". Líneas disponibles: C3, C1, L10, L15A, H, U1, A.`;
+                }
+                
+                return `🚏 Paradas de la línea ${lineId} (${line.name}):\n${line.stops.join(' → ')}\n\nRuta completa: ${line.route}`;
+            }
+            
+            // Respuestas con datos REALES del sistema admin
+            if (lowerMessage.includes('pasajero') || lowerMessage.includes('gente') || lowerMessage.includes('usuarios')) {
+                return `Según los datos actuales del sistema, hoy hemos transportado ${parseInt(adminData.passengers).toLocaleString()} pasajeros. El tiempo de espera promedio es de ${adminData.waitTime} minutos con una satisfacción de ${adminData.satisfaction}/5.`;
+            }
+            
+            if (lowerMessage.includes('tráfico') || lowerMessage.includes('trafico') || lowerMessage.includes('circulación')) {
+                return `El sistema reporta densidad de tráfico "${adminData.traffic}" con velocidad promedio de ${adminData.avgSpeed} km/h. La eficiencia general del sistema está en ${adminData.efficiency}%.`;
+            }
+            
+            if (lowerMessage.includes('eficiencia') || lowerMessage.includes('rendimiento')) {
+                return `La eficiencia actual del sistema es del ${adminData.efficiency}% con ${adminData.activeLines} líneas activas de ${adminData.totalBuses} autobuses en flota. ${adminData.passengers} pasajeros transportados hoy.`;
+            }
+            
+            if (lowerMessage.includes('ia') || lowerMessage.includes('inteligencia') || lowerMessage.includes('predicc')) {
+                return `Mi precisión de predicciones está en ${adminData.aiPrecision}% con latencia de ${adminData.latency}ms. CPU IA: ${adminData.cpu}%, Red Neural: ${adminData.neural}%, Quantum: ${adminData.quantumLoad}%. Estado: ${adminData.aiStatus}.`;
+            }
+            
+            if (lowerMessage.includes('quantum') || lowerMessage.includes('cuántic') || lowerMessage.includes('qubit')) {
+                return `Sistema cuántico operativo: ${adminData.qubits} qubits activos, coherencia ${adminData.coherence}%, ${adminData.entanglement} pares entrelazados. Estado: ${adminData.quantumStatus}.`;
+            }
+            
+            if (lowerMessage.includes('autobús') || lowerMessage.includes('autobus') || lowerMessage.includes('flota')) {
+                return `Flota actual: ${adminData.totalBuses} autobuses totales, ${adminData.activeLines} líneas activas. Eficiencia operativa: ${adminData.efficiency}%. Velocidad promedio: ${adminData.avgSpeed} km/h.`;
+            }
+            
+            if (lowerMessage.includes('espera') || lowerMessage.includes('tiempo') || lowerMessage.includes('retraso')) {
+                return `Tiempo de espera promedio actual: ${adminData.waitTime} minutos. Satisfacción de usuarios: ${adminData.satisfaction}/5. Densidad de tráfico: ${adminData.traffic}.`;
+            }
+            
+            if (lowerMessage.includes('satisfacción') || lowerMessage.includes('satisfaccion') || lowerMessage.includes('valoración')) {
+                return `Satisfacción actual de usuarios: ${adminData.satisfaction}/5 estrellas basada en ${parseInt(adminData.passengers).toLocaleString()} pasajeros hoy. Eficiencia: ${adminData.efficiency}%.`;
+            }
+            
+            if (lowerMessage.includes('sistema') || lowerMessage.includes('estado') || lowerMessage.includes('temperatura')) {
+                return `Estado del sistema: ${adminData.aiStatus}. Temperatura: ${adminData.systemTemp}°C. CPU: ${adminData.cpu}%, Red Neural: ${adminData.neural}%. ${parseInt(adminData.ecoPoints).toLocaleString()} puntos eco acumulados.`;
+            }
+            
+            if (lowerMessage.includes('línea') || lowerMessage.includes('linea') || lowerMessage.includes('ruta')) {
+                return `Tenemos ${adminData.activeLines} líneas activas. Las líneas con IA optimizada (C3, C1, L10, L15A, H, U1, A) tienen mejor rendimiento. Eficiencia general: ${adminData.efficiency}%.`;
+            }
+            
+            // Respuestas específicas para líneas reales de Vitrasa Vigo
+            if (lowerMessage.includes('c3') || lowerMessage.includes('circular c3') || lowerMessage.includes('bouzas') || lowerMessage.includes('coia')) {
+                return `C3 (Bouzas-Coia): Punta 10-12 min, Normal 15-20 min. Horario L-V 06:00-23:30, S-D 07:00-23:30. Con ${adminData.passengers} pasajeros hoy, eficiencia ${adminData.efficiency}%.`;
+            }
+            
+            if (lowerMessage.includes('c1') || lowerMessage.includes('circular c1')) {
+                return `C1 (Centro): Punta 10-15 min. L-V 06:30-22:30, S 07:30-22:30. Velocidad promedio sistema: ${adminData.avgSpeed} km/h, tráfico ${adminData.traffic}.`;
+            }
+            
+            if (lowerMessage.includes('hospital') || lowerMessage.includes('cunqueiro')) {
+                return `Línea H (Hospital Cunqueiro): Punta 20-30 min. L-V 06:00-22:00. Sistema transportó ${parseInt(adminData.passengers).toLocaleString()} pasajeros hoy, espera ${adminData.waitTime} min.`;
+            }
+            
+            if (lowerMessage.includes('universidad') || lowerMessage.includes('u1') || lowerMessage.includes('cuvi')) {
+                return `U1 (Universidad CUVI): Solo periodo lectivo, cada 10-15 min. ${adminData.activeLines} líneas activas hoy con eficiencia ${adminData.efficiency}%.`;
+            }
+            
+            if (lowerMessage.includes('aeropuerto') || lowerMessage.includes('peinador')) {
+                return `Línea A (Aeropuerto): Punta 30-35 min, diario 06:00-22:00. Densidad tráfico: ${adminData.traffic}, velocidad ${adminData.avgSpeed} km/h.`;
+            }
+            
+            if (lowerMessage.includes('l15') || lowerMessage.includes('samil') || lowerMessage.includes('playa')) {
+                return `L15A (Samil): Punta 15-20 min, reforzado verano. Satisfacción actual: ${adminData.satisfaction}/5. Espera: ${adminData.waitTime} min.`;
+            }
+            
+            // Hora actual
+            if (lowerMessage.includes('qué hora') || lowerMessage.includes('que hora') || lowerMessage.includes('hora es')) {
+                const dayNames = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+                return `🕐 Son las ${timeInfo.currentTime} del ${dayNames[timeInfo.dayOfWeek]}. Sistema operando con eficiencia ${adminData.efficiency}%.`;
+            }
+            
+            // Información sobre líneas disponibles
+            if (lowerMessage.includes('líneas') || lowerMessage.includes('lineas') || lowerMessage.includes('qué líneas') || lowerMessage.includes('que lineas')) {
+                return `📋 Líneas disponibles: C3 (Bouzas-Coia), C1 (Centro), L10 (Teis-Caeiro), L15A (Samil), H (Hospital), U1 (Universidad), A (Aeropuerto). ${adminData.activeLines} activas ahora, ${adminData.totalBuses} autobuses en flota.`;
+            }
+            
+            // Información sobre horarios
+            if (lowerMessage.includes('horario')) {
+                return `Para consultar horarios, pregúntame algo como: "¿A qué hora pasa la C3?" o "¿Cuándo pasa el bus L10 en Teis?". También puedo decirte las paradas de cada línea. Son las ${timeInfo.currentTime}.`;
+            }
+            
+            // Respuesta genérica con datos reales
+            return `Basándome en datos reales del sistema a las ${timeInfo.currentTime}: ${parseInt(adminData.passengers).toLocaleString()} pasajeros hoy, eficiencia ${adminData.efficiency}%, ${adminData.activeLines} líneas activas, IA precisión ${adminData.aiPrecision}%, satisfacción ${adminData.satisfaction}/5. ¿Necesitas horarios de alguna línea específica?`;
+        }
+
+        // Initialize charts
+        function initializeCharts() {
+            // Usage Chart
+            const usageCtx = document.getElementById('usageChart');
+            if (usageCtx) {
+                new Chart(usageCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['6:00', '9:00', '12:00', '15:00', '18:00', '21:00'],
+                        datasets: [{
+                            label: 'Pasajeros por hora',
+                            data: [1200, 3500, 2800, 2200, 4100, 1800],
+                            borderColor: '#3B82F6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { labels: { color: '#E5E7EB' } } },
+                        scales: {
+                            x: { ticks: { color: '#9CA3AF' } },
+                            y: { ticks: { color: '#9CA3AF' } }
+                        }
+                    }
+                });
+            }
+
+            // Travel Time Chart
+            const travelCtx = document.getElementById('travelTimeChart');
+            if (travelCtx) {
+                new Chart(travelCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['L1', 'L2', 'L3', 'L4', 'L5', 'L6'],
+                        datasets: [{
+                            label: 'Tiempo promedio (min)',
+                            data: [25, 18, 32, 28, 15, 45],
+                            backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { labels: { color: '#E5E7EB' } } },
+                        scales: {
+                            x: { ticks: { color: '#9CA3AF' } },
+                            y: { ticks: { color: '#9CA3AF' } }
+                        }
+                    }
+                });
+            }
+
+            // Prediction Chart
+            const predictionCtx = document.getElementById('predictionChart');
+            if (predictionCtx) {
+                new Chart(predictionCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Puntual', 'Retraso Leve', 'Retraso Moderado'],
+                        datasets: [{
+                            data: [75, 20, 5],
+                            backgroundColor: ['#10B981', '#F59E0B', '#EF4444']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { labels: { color: '#E5E7EB' } } }
+                    }
+                });
+            }
+        }
+
+        // Generate AI recommendations (using real data)
+        function generateAIRecommendations() {
+            const adminData = getAdminData();
+            
+            const recommendations = [
+                {
+                    icon: '🎯',
+                    title: 'Optimización Basada en Datos Reales',
+                    description: `Con eficiencia actual de ${adminData.efficiency}% y ${parseInt(adminData.passengers).toLocaleString()} pasajeros, el sistema sugiere optimizar rutas de mayor demanda.`,
+                    confidence: adminData.aiPrecision + '%'
+                },
+                {
+                    icon: '⚡',
+                    title: 'Predicción de Tráfico',
+                    description: `Densidad "${adminData.traffic}" detectada. Velocidad ${adminData.avgSpeed} km/h. Se recomienda ajustar frecuencias en las próximas 2 horas.`,
+                    confidence: Math.max(80, parseFloat(adminData.aiPrecision) - 10).toFixed(1) + '%'
+                },
+                {
+                    icon: '🔧',
+                    title: 'Estado de Flota',
+                    description: `${adminData.activeLines} líneas activas de ${adminData.totalBuses} autobuses. Sistema operando con satisfacción de ${adminData.satisfaction}/5.`,
+                    confidence: Math.max(85, parseFloat(adminData.aiPrecision) - 5).toFixed(1) + '%'
+                }
+            ];
+            
+            const container = document.getElementById('aiRecommendations');
+            if (container) {
+                container.innerHTML = '';
+                recommendations.forEach(rec => {
+                    const recElement = document.createElement('div');
+                    recElement.className = 'bg-cyan-900/30 rounded-lg p-4 border border-cyan-400/20';
+                    recElement.innerHTML = `
+                        <div class="flex items-start space-x-3">
+                            <div class="text-2xl">${rec.icon}</div>
+                            <div class="flex-1">
+                                <div class="font-semibold text-cyan-200">${rec.title}</div>
+                                <div class="text-sm text-gray-300 mt-1">${rec.description}</div>
+                                <div class="text-xs text-cyan-400 mt-2">Confianza: ${rec.confidence}</div>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(recElement);
+                });
+            }
+        }
+
+        // Refresh AI recommendations every 10 seconds with new data
+        setInterval(generateAIRecommendations, 10000);
+
+        // Emergency protocols
+        function populateEmergencyProtocols() {
+            const protocols = [
+                { name: 'Protocolo Alpha', status: 'Standby', color: 'green' },
+                { name: 'Evacuación Rápida', status: 'Ready', color: 'yellow' },
+                { name: 'Comunicación de Crisis', status: 'Active', color: 'red' }
+            ];
+            
+            const container = document.getElementById('emergencyProtocols');
+            if (container) {
+                container.innerHTML = '';
+                protocols.forEach(protocol => {
+                    const protocolElement = document.createElement('div');
+                    protocolElement.className = `bg-${protocol.color}-900/30 rounded-lg p-3 border border-${protocol.color}-400/30`;
+                    protocolElement.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            <span class="font-medium text-${protocol.color}-200">${protocol.name}</span>
+                            <span class="text-${protocol.color}-400 text-sm">${protocol.status}</span>
+                        </div>
+                    `;
+                    container.appendChild(protocolElement);
+                });
+            }
+        }
+
+        // Advanced functions
+        function selectAdvancedLine(lineId) {
+            const line = advancedBusLines[lineId];
+            const adminData = getAdminData();
+            if (line) {
+                showNotification(`🚌 Línea ${lineId}: ${line.route} | Frecuencia: ${line.frequency} | Eficiencia sistema: ${adminData.efficiency}%`, 'info');
+            }
+        }
+
+        function showBusInfo(busId) {
+            const adminData = getAdminData();
+            showNotification(`🚌 Autobús ${busId}: Sistema a ${adminData.avgSpeed} km/h, tráfico ${adminData.traffic}, próxima parada en 2 min`, 'info');
+        }
+
+        function toggleMapMode(mode) {
+            showNotification(`Modo ${mode} activado en el mapa`, 'success');
+        }
+
+        function zoomIn() { showNotification('🔍 Zoom aumentado', 'info'); }
+        function zoomOut() { showNotification('🔍 Zoom reducido', 'info'); }
+        function centerMap() { showNotification('🎯 Mapa centrado', 'info'); }
+
+        // Simulation functions
+        function startSimulation() {
+            simulationRunning = true;
+            showNotification('🎮 Simulación iniciada', 'success');
+            
+            const canvas = document.getElementById('simulationCanvas');
+            canvas.innerHTML = `
+                <div class="absolute inset-0 bg-gradient-to-br from-blue-900/50 to-purple-900/50">
+                    <div class="absolute top-4 left-4 text-white">
+                        <div class="text-sm">Simulación en curso...</div>
+                        <div class="text-xs text-gray-300">Procesando datos en tiempo real</div>
+                    </div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="grid grid-cols-8 gap-2">
+                            ${Array.from({length: 32}, (_, i) => 
+                                `<div class="w-4 h-4 bg-cyan-400 rounded animate-pulse" style="animation-delay: ${i * 0.1}s;"></div>`
+                            ).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function pauseSimulation() {
+            simulationRunning = false;
+            showNotification('⏸️ Simulación pausada', 'warning');
+        }
+
+        function resetSimulation() {
+            simulationRunning = false;
+            showNotification('🔄 Simulación reiniciada', 'info');
+            
+            const canvas = document.getElementById('simulationCanvas');
+            canvas.innerHTML = `
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="text-center">
+                        <div class="text-6xl mb-4">🎮</div>
+                        <div class="text-white font-bold text-xl">Simulador Avanzado</div>
+                        <div class="text-cyan-300">Haz clic en "Iniciar" para comenzar</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // AR/VR functions
+        function activateAR() {
+            arActive = true;
+            document.getElementById('arOverlay').style.display = 'block';
+            showNotification('🥽 Realidad Aumentada activada', 'success');
+        }
+
+        function deactivateAR() {
+            arActive = false;
+            document.getElementById('arOverlay').style.display = 'none';
+            showNotification('❌ AR desactivada', 'info');
+        }
+
+        function activateVR() {
+            showNotification('🥽 Modo VR no disponible en esta demo', 'warning');
+        }
+
+        function activate3D() {
+            showNotification('🌐 Vista 3D cargando...', 'info');
+        }
+
+        // Emergency functions
+        function triggerEmergency(type) {
+            const emergencyTypes = {
+                medical: '🏥 Emergencia médica reportada',
+                fire: '🔥 Alerta de incendio activada',
+                security: '🚔 Protocolo de seguridad iniciado'
+            };
+            
+            showNotification(emergencyTypes[type], 'warning');
+        }
+
+        // Easter eggs
+        function handleEasterEggs(event) {
+            // Konami code: ↑↑↓↓←→←→BA
+            if (event.code === 'KeyQ' && event.ctrlKey) {
+                showNotification('🎉 ¡Easter egg encontrado! Modo desarrollador activado', 'success');
+            }
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification-slide p-4 rounded-lg shadow-2xl max-w-sm border ${
+                type === 'success' ? 'bg-green-900/90 border-green-400 text-green-100' :
+                type === 'warning' ? 'bg-yellow-900/90 border-yellow-400 text-yellow-100' :
+                type === 'error' ? 'bg-red-900/90 border-red-400 text-red-100' :
+                'bg-blue-900/90 border-blue-400 text-blue-100'
+            } backdrop-blur-xl`;
+            
+            const icon = type === 'success' ? '✅' : type === 'warning' ? '⚠️' : type === 'error' ? '❌' : 'ℹ️';
+            notification.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <span class="text-xl">${icon}</span>
+                    <span class="font-medium">${message}</span>
+                </div>
+            `;
+            
+            document.getElementById('notifications').appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        // Admin functions
+        function adminLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('adminUser').value;
+            const password = document.getElementById('adminPass').value;
+            
+            if (username === 'admin' && password === 'vitrasa2024') {
+                document.getElementById('adminLogin').classList.add('hidden');
+                document.getElementById('adminPanel').classList.remove('hidden');
+                populateAdminLinesTable();
+                populatePDFLineSelector();
+                populateSchedulesTable();
+                showNotification('✅ Sesión iniciada correctamente', 'success');
+            } else {
+                showNotification('❌ Usuario o contraseña incorrectos', 'error');
+            }
+        }
+
+        function adminLogout() {
+            document.getElementById('adminPanel').classList.add('hidden');
+            document.getElementById('adminLogin').classList.remove('hidden');
+            document.getElementById('adminUser').value = '';
+            document.getElementById('adminPass').value = '';
+            showNotification('🚪 Sesión cerrada', 'info');
+        }
+
+        function populateAdminLinesTable() {
+            const tbody = document.getElementById('adminLinesTable');
+            tbody.innerHTML = '';
+            
+            Object.entries(advancedBusLines).forEach(([lineId, line]) => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-700/30 hover:bg-gray-700/20';
+                
+                row.innerHTML = `
+                    <td class="py-3 px-4">
+                        <span class="inline-block w-8 h-8 rounded-full text-white font-bold text-xs flex items-center justify-center" style="background-color: ${line.color}">${lineId}</span>
+                    </td>
+                    <td class="py-3 px-4">${line.name}</td>
+                    <td class="py-3 px-4">${line.frequency}</td>
+                    <td class="py-3 px-4 text-xs">${line.schedule}</td>
+                    <td class="py-3 px-4">
+                        ${line.ai_optimized ? '<span class="text-xs">🤖</span>' : ''}
+                        ${line.quantum_route ? '<span class="text-xs">⚛️</span>' : ''}
+                    </td>
+                    <td class="py-3 px-4">
+                        <div class="flex space-x-2">
+                            <button onclick="editLine('${lineId}')" class="bg-blue-600 hover:bg-blue-700 px-2 py-1 rounded text-xs text-white">✏️ Editar</button>
+                            <button onclick="deleteLine('${lineId}')" class="bg-red-600 hover:bg-red-700 px-2 py-1 rounded text-xs text-white">🗑️ Eliminar</button>
+                        </div>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+            
+            // Update stats
+            document.getElementById('adminTotalLines').textContent = Object.keys(advancedBusLines).length;
+        }
+
+        function showAddLineForm() {
+            document.getElementById('addLineForm').classList.remove('hidden');
+        }
+
+        function hideAddLineForm() {
+            document.getElementById('addLineForm').classList.add('hidden');
+            document.getElementById('newLineId').value = '';
+            document.getElementById('newLineName').value = '';
+            document.getElementById('newLineColor').value = '#3182CE';
+            document.getElementById('newLineFrequency').value = '';
+            document.getElementById('newLineRoute').value = '';
+            document.getElementById('newLineSchedule').value = '';
+            document.getElementById('newLineAI').checked = false;
+            document.getElementById('newLineQuantum').checked = false;
+        }
+
+        function addNewLine(event) {
+            event.preventDefault();
+            
+            const lineId = document.getElementById('newLineId').value.trim();
+            
+            if (advancedBusLines[lineId]) {
+                showNotification('❌ Esta línea ya existe', 'error');
+                return;
+            }
+            
+            advancedBusLines[lineId] = {
+                name: document.getElementById('newLineName').value.trim(),
+                color: document.getElementById('newLineColor').value,
+                route: document.getElementById('newLineRoute').value.trim(),
+                frequency: document.getElementById('newLineFrequency').value.trim(),
+                schedule: document.getElementById('newLineSchedule').value.trim(),
+                ai_optimized: document.getElementById('newLineAI').checked,
+                quantum_route: document.getElementById('newLineQuantum').checked
+            };
+            
+            populateAdvancedLineGrid();
+            populateAdminLinesTable();
+            hideAddLineForm();
+            showNotification(`✅ Línea ${lineId} agregada correctamente`, 'success');
+        }
+
+        function editLine(lineId) {
+            const line = advancedBusLines[lineId];
+            
+            // Create edit modal
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center';
+            modal.innerHTML = `
+                <div class="bg-gray-900 rounded-2xl p-6 max-w-2xl w-full mx-4 border border-cyan-400/30">
+                    <h3 class="text-xl font-bold text-cyan-300 mb-4">✏️ Editar Línea ${lineId}</h3>
+                    <form id="editLineForm" class="space-y-4">
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm text-gray-300 mb-2">Nombre</label>
+                                <input type="text" id="editLineName" value="${line.name}" required class="w-full bg-black/30 border border-cyan-400/30 rounded-lg px-3 py-2 text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-300 mb-2">Color (hex)</label>
+                                <input type="color" id="editLineColor" value="${line.color}" required class="w-full bg-black/30 border border-cyan-400/30 rounded-lg px-3 py-2 text-white h-10">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-300 mb-2">Frecuencia</label>
+                                <input type="text" id="editLineFrequency" value="${line.frequency}" required class="w-full bg-black/30 border border-cyan-400/30 rounded-lg px-3 py-2 text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-300 mb-2">Horario</label>
+                                <input type="text" id="editLineSchedule" value="${line.schedule}" required class="w-full bg-black/30 border border-cyan-400/30 rounded-lg px-3 py-2 text-white">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm text-gray-300 mb-2">Ruta</label>
+                                <input type="text" id="editLineRoute" value="${line.route}" required class="w-full bg-black/30 border border-cyan-400/30 rounded-lg px-3 py-2 text-white">
+                            </div>
+                            <div>
+                                <label class="flex items-center space-x-2 text-gray-300">
+                                    <input type="checkbox" id="editLineAI" ${line.ai_optimized ? 'checked' : ''} class="w-4 h-4">
+                                    <span class="text-sm">🤖 Optimizada IA</span>
+                                </label>
+                            </div>
+                            <div>
+                                <label class="flex items-center space-x-2 text-gray-300">
+                                    <input type="checkbox" id="editLineQuantum" ${line.quantum_route ? 'checked' : ''} class="w-4 h-4">
+                                    <span class="text-sm">⚛️ Ruta Cuántica</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button type="submit" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg text-white font-bold">
+                                ✅ Guardar Cambios
+                            </button>
+                            <button type="button" onclick="this.closest('.fixed').remove()" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg text-white font-bold">
+                                ❌ Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            document.getElementById('editLineForm').onsubmit = (e) => {
+                e.preventDefault();
+                
+                advancedBusLines[lineId] = {
+                    name: document.getElementById('editLineName').value.trim(),
+                    color: document.getElementById('editLineColor').value,
+                    route: document.getElementById('editLineRoute').value.trim(),
+                    frequency: document.getElementById('editLineFrequency').value.trim(),
+                    schedule: document.getElementById('editLineSchedule').value.trim(),
+                    ai_optimized: document.getElementById('editLineAI').checked,
+                    quantum_route: document.getElementById('editLineQuantum').checked
+                };
+                
+                populateAdvancedLineGrid();
+                populateAdminLinesTable();
+                modal.remove();
+                showNotification(`✅ Línea ${lineId} actualizada`, 'success');
+            };
+        }
+
+        function deleteLine(lineId) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center';
+            modal.innerHTML = `
+                <div class="bg-gray-900 rounded-2xl p-6 max-w-md w-full mx-4 border border-red-400/30">
+                    <div class="text-center">
+                        <div class="text-6xl mb-4">⚠️</div>
+                        <h3 class="text-xl font-bold text-red-300 mb-2">Confirmar Eliminación</h3>
+                        <p class="text-gray-400 mb-6">¿Estás seguro de que deseas eliminar la línea ${lineId}?</p>
+                        <div class="flex space-x-2 justify-center">
+                            <button onclick="confirmDeleteLine('${lineId}', this)" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-white font-bold">
+                                🗑️ Sí, Eliminar
+                            </button>
+                            <button onclick="this.closest('.fixed').remove()" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg text-white font-bold">
+                                ❌ Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        function confirmDeleteLine(lineId, button) {
+            delete advancedBusLines[lineId];
+            populateAdvancedLineGrid();
+            populateAdminLinesTable();
+            button.closest('.fixed').remove();
+            showNotification(`✅ Línea ${lineId} eliminada`, 'success');
+        }
+
+        function updateRealTimeData() {
+            const passengers = document.getElementById('editPassengers').value;
+            const waitTime = document.getElementById('editWaitTime').value;
+            const efficiency = document.getElementById('editEfficiency').value;
+            const satisfaction = document.getElementById('editSatisfaction').value;
+            const traffic = document.getElementById('editTraffic').value;
+            const avgSpeed = document.getElementById('editAvgSpeed').value;
+            
+            // Update display values
+            document.getElementById('totalPassengers').textContent = parseInt(passengers).toLocaleString();
+            document.getElementById('avgWaitTime').textContent = waitTime + 'min';
+            document.getElementById('efficiency').textContent = efficiency + '%';
+            document.getElementById('satisfaction').textContent = satisfaction + '/5';
+            document.getElementById('trafficDensity').textContent = traffic;
+            document.getElementById('avgSpeed').textContent = avgSpeed + ' km/h';
+            document.getElementById('adminTodayPassengers').textContent = parseInt(passengers).toLocaleString();
+            
+            // Regenerate AI recommendations with new data
+            generateAIRecommendations();
+            
+            showNotification('✅ Datos actualizados en tiempo real', 'success');
+        }
+
+        function updateAISystem() {
+            const aiPrecision = document.getElementById('editAIPrecision').value;
+            const latency = document.getElementById('editLatency').value;
+            const systemTemp = document.getElementById('editSystemTemp').value;
+            const cpuUsage = document.getElementById('editCPU').value;
+            const neuralLoad = document.getElementById('editNeural').value;
+            const quantumLoad = document.getElementById('editQuantumLoad').value;
+            const ecoPoints = document.getElementById('editEcoPoints').value;
+            const aiStatus = document.getElementById('editAIStatus').value;
+            const networkStatus = document.getElementById('editNetworkStatus').value;
+            
+            // Update header values
+            document.getElementById('aiPredictions').textContent = aiPrecision + '%';
+            document.getElementById('processingSpeed').textContent = latency + 'ms';
+            document.getElementById('systemTemp').textContent = systemTemp + '°C';
+            document.getElementById('cpuUsage').textContent = cpuUsage + '%';
+            document.getElementById('neuralLoad').textContent = neuralLoad + '%';
+            document.getElementById('quantumLoad').textContent = quantumLoad + '%';
+            document.getElementById('ecoPoints').textContent = parseInt(ecoPoints).toLocaleString();
+            document.getElementById('aiStatus').textContent = aiStatus;
+            document.getElementById('networkStatus').textContent = networkStatus;
+            
+            // Update progress bars
+            document.getElementById('cpuBar').style.width = cpuUsage + '%';
+            document.getElementById('neuralBar').style.width = neuralLoad + '%';
+            document.getElementById('quantumBar').style.width = quantumLoad + '%';
+            
+            // Update ML precision
+            document.getElementById('mlPrediction').textContent = aiPrecision + '% precisión';
+            document.getElementById('mlPredictionBar').style.width = aiPrecision + '%';
+            
+            // Regenerate AI recommendations with new data
+            generateAIRecommendations();
+            
+            showNotification('🤖 Sistema IA actualizado correctamente', 'success');
+        }
+
+        function updateQuantumSystem() {
+            const qubits = document.getElementById('editQubits').value;
+            const coherence = document.getElementById('editCoherence').value;
+            const entanglement = document.getElementById('editEntanglement').value;
+            const quantumStatus = document.getElementById('editQuantumStatus').value;
+            
+            // Update quantum tab values
+            document.getElementById('activeQubits').textContent = parseInt(qubits).toLocaleString();
+            document.getElementById('coherence').textContent = coherence + '%';
+            document.getElementById('entanglement').textContent = entanglement + ' pares';
+            document.getElementById('quantumStatus').textContent = quantumStatus;
+            
+            showNotification('⚛️ Sistema cuántico actualizado correctamente', 'success');
+        }
+
+        function updateFleetData() {
+            const totalBuses = document.getElementById('editTotalBuses').value;
+            const activeLines = document.getElementById('editActiveLines').value;
+            const busesInRoute = document.getElementById('editBusesInRoute').value;
+            const busesMaintenance = document.getElementById('editBusesMaintenance').value;
+            
+            // Update admin stats
+            document.getElementById('adminTotalBuses').textContent = totalBuses;
+            document.getElementById('adminActiveLines').textContent = activeLines;
+            
+            showNotification('🚌 Datos de flota actualizados correctamente', 'success');
+        }
+
+        function resetAllData() {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center';
+            modal.innerHTML = `
+                <div class="bg-gray-900 rounded-2xl p-6 max-w-md w-full mx-4 border border-orange-400/30">
+                    <div class="text-center">
+                        <div class="text-6xl mb-4">⚠️</div>
+                        <h3 class="text-xl font-bold text-orange-300 mb-2">Resetear Todos los Datos</h3>
+                        <p class="text-gray-400 mb-6">¿Estás seguro? Esta acción restaurará todos los valores por defecto.</p>
+                        <div class="flex space-x-2 justify-center">
+                            <button onclick="confirmResetData(this)" class="bg-orange-600 hover:bg-orange-700 px-4 py-2 rounded-lg text-white font-bold">
+                                🔄 Sí, Resetear
+                            </button>
+                            <button onclick="this.closest('.fixed').remove()" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg text-white font-bold">
+                                ❌ Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function confirmResetData(button) {
+            // Reset all inputs to default values
+            document.getElementById('editPassengers').value = 12847;
+            document.getElementById('editWaitTime').value = 4.2;
+            document.getElementById('editEfficiency').value = 96.7;
+            document.getElementById('editSatisfaction').value = 4.8;
+            document.getElementById('editTraffic').value = 'Alto';
+            document.getElementById('editAvgSpeed').value = 23;
+            document.getElementById('editAIPrecision').value = 97.3;
+            document.getElementById('editLatency').value = 2.4;
+            document.getElementById('editSystemTemp').value = 23;
+            document.getElementById('editCPU').value = 67;
+            document.getElementById('editNeural').value = 89;
+            document.getElementById('editQuantumLoad').value = 34;
+            document.getElementById('editEcoPoints').value = 1247;
+            document.getElementById('editQubits').value = 1024;
+            document.getElementById('editCoherence').value = 99.7;
+            document.getElementById('editEntanglement').value = 847;
+            document.getElementById('editTotalBuses').value = 78;
+            document.getElementById('editActiveLines').value = 32;
+            document.getElementById('editBusesInRoute').value = 65;
+            document.getElementById('editBusesMaintenance').value = 13;
+            
+            // Update all displays
+            updateRealTimeData();
+            updateAISystem();
+            updateQuantumSystem();
+            updateFleetData();
+            
+            button.closest('.fixed').remove();
+            showNotification('🔄 Todos los datos han sido reseteados', 'success');
+        }
+
+        function exportData() {
+            const data = {
+                timestamp: new Date().toISOString(),
+                system: {
+                    passengers: document.getElementById('editPassengers').value,
+                    waitTime: document.getElementById('editWaitTime').value,
+                    efficiency: document.getElementById('editEfficiency').value,
+                    satisfaction: document.getElementById('editSatisfaction').value,
+                    traffic: document.getElementById('editTraffic').value,
+                    avgSpeed: document.getElementById('editAvgSpeed').value
+                },
+                ai: {
+                    precision: document.getElementById('editAIPrecision').value,
+                    latency: document.getElementById('editLatency').value,
+                    temperature: document.getElementById('editSystemTemp').value,
+                    cpu: document.getElementById('editCPU').value,
+                    neural: document.getElementById('editNeural').value,
+                    quantum: document.getElementById('editQuantumLoad').value,
+                    ecoPoints: document.getElementById('editEcoPoints').value
+                },
+                quantum: {
+                    qubits: document.getElementById('editQubits').value,
+                    coherence: document.getElementById('editCoherence').value,
+                    entanglement: document.getElementById('editEntanglement').value
+                },
+                fleet: {
+                    totalBuses: document.getElementById('editTotalBuses').value,
+                    activeLines: document.getElementById('editActiveLines').value,
+                    busesInRoute: document.getElementById('editBusesInRoute').value,
+                    maintenance: document.getElementById('editBusesMaintenance').value
+                },
+                lines: advancedBusLines
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `vitrasa_data_${new Date().getTime()}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('📥 Datos exportados correctamente', 'success');
+        }
+
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'application/json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        
+                        // Import system data
+                        if (data.system) {
+                            document.getElementById('editPassengers').value = data.system.passengers || 12847;
+                            document.getElementById('editWaitTime').value = data.system.waitTime || 4.2;
+                            document.getElementById('editEfficiency').value = data.system.efficiency || 96.7;
+                            document.getElementById('editSatisfaction').value = data.system.satisfaction || 4.8;
+                            document.getElementById('editTraffic').value = data.system.traffic || 'Alto';
+                            document.getElementById('editAvgSpeed').value = data.system.avgSpeed || 23;
+                        }
+                        
+                        // Import AI data
+                        if (data.ai) {
+                            document.getElementById('editAIPrecision').value = data.ai.precision || 97.3;
+                            document.getElementById('editLatency').value = data.ai.latency || 2.4;
+                            document.getElementById('editSystemTemp').value = data.ai.temperature || 23;
+                            document.getElementById('editCPU').value = data.ai.cpu || 67;
+                            document.getElementById('editNeural').value = data.ai.neural || 89;
+                            document.getElementById('editQuantumLoad').value = data.ai.quantum || 34;
+                            document.getElementById('editEcoPoints').value = data.ai.ecoPoints || 1247;
+                        }
+                        
+                        // Import quantum data
+                        if (data.quantum) {
+                            document.getElementById('editQubits').value = data.quantum.qubits || 1024;
+                            document.getElementById('editCoherence').value = data.quantum.coherence || 99.7;
+                            document.getElementById('editEntanglement').value = data.quantum.entanglement || 847;
+                        }
+                        
+                        // Import fleet data
+                        if (data.fleet) {
+                            document.getElementById('editTotalBuses').value = data.fleet.totalBuses || 78;
+                            document.getElementById('editActiveLines').value = data.fleet.activeLines || 32;
+                            document.getElementById('editBusesInRoute').value = data.fleet.busesInRoute || 65;
+                            document.getElementById('editBusesMaintenance').value = data.fleet.maintenance || 13;
+                        }
+                        
+                        // Import lines data
+                        if (data.lines) {
+                            Object.assign(advancedBusLines, data.lines);
+                            populateAdvancedLineGrid();
+                            populateAdminLinesTable();
+                        }
+                        
+                        // Update all displays
+                        updateRealTimeData();
+                        updateAISystem();
+                        updateQuantumSystem();
+                        updateFleetData();
+                        
+                        showNotification('📤 Datos importados correctamente', 'success');
+                    } catch (error) {
+                        showNotification('❌ Error al importar datos: archivo inválido', 'error');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        function optimizeSystem() {
+            showNotification('🚀 Optimizando sistema...', 'info');
+            
+            setTimeout(() => {
+                // Simulate optimization
+                const currentEfficiency = parseFloat(document.getElementById('editEfficiency').value);
+                const newEfficiency = Math.min(100, currentEfficiency + Math.random() * 3);
+                document.getElementById('editEfficiency').value = newEfficiency.toFixed(1);
+                
+                const currentLatency = parseFloat(document.getElementById('editLatency').value);
+                const newLatency = Math.max(1, currentLatency - Math.random() * 0.5);
+                document.getElementById('editLatency').value = newLatency.toFixed(1);
+                
+                updateRealTimeData();
+                updateAISystem();
+                
+                showNotification('✅ Sistema optimizado: +' + (newEfficiency - currentEfficiency).toFixed(1) + '% eficiencia', 'success');
+            }, 2000);
+        }
+
+        function runDiagnostics() {
+            const adminData = getAdminData();
+            
+            showNotification('🔍 Ejecutando diagnósticos completos...', 'info');
+            
+            setTimeout(() => {
+                const diagnostics = [
+                    `✅ Sistema IA: ${adminData.aiStatus} (Precisión: ${adminData.aiPrecision}%)`,
+                    `✅ Red Neural: ${adminData.networkStatus} (Carga: ${adminData.neural}%)`,
+                    `✅ Computación Cuántica: ${adminData.quantumStatus} (Qubits: ${adminData.qubits})`,
+                    `✅ Flota: ${adminData.totalBuses} autobuses, ${adminData.activeLines} líneas activas`,
+                    `✅ Pasajeros hoy: ${parseInt(adminData.passengers).toLocaleString()} (Satisfacción: ${adminData.satisfaction}/5)`,
+                    `✅ Eficiencia sistema: ${adminData.efficiency}%`,
+                    `⚠️ Densidad tráfico: ${adminData.traffic} (Velocidad: ${adminData.avgSpeed} km/h)`,
+                    `✅ Temperatura sistema: ${adminData.systemTemp}°C (Normal)`
+                ];
+                
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center';
+                modal.innerHTML = `
+                    <div class="bg-gray-900 rounded-2xl p-6 max-w-2xl w-full mx-4 border border-yellow-400/30">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-bold text-yellow-300">🔍 Reporte de Diagnósticos (Datos Reales)</h3>
+                            <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-white">✕</button>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            ${diagnostics.map(d => `<div class="text-sm text-gray-300">${d}</div>`).join('')}
+                        </div>
+                        <div class="text-center">
+                            <button onclick="this.closest('.fixed').remove()" class="bg-yellow-600 hover:bg-yellow-700 px-6 py-2 rounded-lg text-white font-bold">
+                                Cerrar
+                            </button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                
+                showNotification('✅ Diagnósticos completados', 'success');
+            }, 2000);
+        }
+
+        function emergencyStop() {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center';
+            modal.innerHTML = `
+                <div class="bg-red-900 rounded-2xl p-6 max-w-md w-full mx-4 border border-red-400">
+                    <div class="text-center">
+                        <div class="text-6xl mb-4 animate-pulse">🚨</div>
+                        <h3 class="text-2xl font-bold text-red-100 mb-2">PARADA DE EMERGENCIA</h3>
+                        <p class="text-red-200 mb-6">Esta acción detendrá todas las operaciones del sistema. ¿Continuar?</p>
+                        <div class="flex space-x-2 justify-center">
+                            <button onclick="confirmEmergencyStop(this)" class="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg text-white font-bold animate-pulse">
+                                🚨 CONFIRMAR PARADA
+                            </button>
+                            <button onclick="this.closest('.fixed').remove()" class="bg-gray-600 hover:bg-gray-700 px-6 py-3 rounded-lg text-white font-bold">
+                                ❌ Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function confirmEmergencyStop(button) {
+            button.closest('.fixed').remove();
+            
+            showNotification('🚨 PARADA DE EMERGENCIA ACTIVADA', 'error');
+            
+            const stopModal = document.createElement('div');
+            stopModal.className = 'fixed inset-0 bg-red-900/80 backdrop-blur-xl z-50 flex items-center justify-center';
+            stopModal.innerHTML = `
+                <div class="text-center">
+                    <div class="text-9xl mb-6 animate-pulse">🚨</div>
+                    <h1 class="text-5xl font-bold text-white mb-4">SISTEMA DETENIDO</h1>
+                    <p class="text-2xl text-red-200 mb-8">Todas las operaciones han sido pausadas</p>
+                    <button onclick="reactivateSystem(this)" class="bg-green-600 hover:bg-green-700 px-8 py-4 rounded-xl text-white font-bold text-xl">
+                        ✅ Reactivar Sistema
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(stopModal);
+        }
+
+        function reactivateSystem(button) {
+            button.closest('.fixed').remove();
+            showNotification('✅ Sistema reactivado correctamente', 'success');
+        }
+
+        // Initialize the ultra-complex system
+        init();
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9ab69fc1e3b1cfe8',t:'MTc2NTMwNTU1NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
