@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VITRASA Vigo - Transporte Público</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    
+    .nav-item {
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-item::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      width: 0;
+      height: 2px;
+      background: #10b981;
+      transition: all 0.3s ease;
+      transform: translateX(-50%);
+    }
+    
+    .nav-item:hover::after,
+    .nav-item.active::after {
+      width: 100%;
+    }
+    
+    .card-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .line-badge {
+      min-width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    .pulse-dot {
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.1); }
+    }
+    
+    .slide-in {
+      animation: slideIn 0.4s ease-out;
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.3s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .time-chip {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      padding: 6px 14px;
+      border-radius: 20px;
+      color: white;
+      font-weight: 600;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .time-chip.arriving {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      animation: pulse 1.5s infinite;
+    }
+    
+    .search-input {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+    
+    .search-input:focus {
+      border-color: #10b981;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+    }
+    
+    .map-container {
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    
+    #map {
+      height: 400px;
+      width: 100%;
+      z-index: 1;
+    }
+    
+    .chat-bubble {
+      max-width: 85%;
+      padding: 12px 16px;
+      border-radius: 18px;
+      line-height: 1.5;
+    }
+    
+    .chat-bubble.user {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border-bottom-right-radius: 4px;
+      margin-left: auto;
+    }
+    
+    .chat-bubble.bot {
+      background: #f3f4f6;
+      color: #1f2937;
+      border-bottom-left-radius: 4px;
+    }
+    
+    .schedule-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+      gap: 8px;
+    }
+    
+    .schedule-time {
+      background: #f8fafc;
+      padding: 8px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 500;
+      color: #374151;
+      border: 1px solid #e5e7eb;
+      transition: all 0.2s ease;
+    }
+    
+    .schedule-time:hover {
+      background: #10b981;
+      color: white;
+      border-color: #10b981;
+    }
+    
+    .schedule-time.next {
+      background: #10b981;
+      color: white;
+      border-color: #10b981;
+    }
+    
+    .stop-marker {
+      background: white;
+      border: 3px solid #10b981;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: bold;
+      color: #10b981;
+    }
+  </style>
+</head>
+<body class="h-full bg-gray-50">
+  <div id="app" class="h-full overflow-auto">
+    
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 py-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3 cursor-pointer" onclick="navigate('home')">
+            <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+              <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h8m-8 4h8m-4 4v4m-4-8a4 4 0 01-4-4V5a2 2 0 012-2h8a2 2 0 012 2v2a4 4 0 01-4 4m-4 0h8"/>
+              </svg>
+            </div>
+            <div>
+              <h1 id="site-title" class="text-xl font-bold text-gray-800">VITRASA Vigo</h1>
+              <p id="welcome-msg" class="text-xs text-gray-500">Tu transporte público en Vigo</p>
+            </div>
+          </div>
+          
+          <nav class="hidden md:flex items-center gap-6">
+            <button onclick="navigate('home')" class="nav-item text-gray-600 hover:text-emerald-600 font-medium" data-nav="home">Inicio</button>
+            <button onclick="navigate('lines')" class="nav-item text-gray-600 hover:text-emerald-600 font-medium" data-nav="lines">Líneas</button>
+            <button onclick="navigate('stops')" class="nav-item text-gray-600 hover:text-emerald-600 font-medium" data-nav="stops">Paradas</button>
+            <button onclick="navigate('routes')" class="nav-item text-gray-600 hover:text-emerald-600 font-medium" data-nav="routes">Planificar</button>
+            <button onclick="navigate('chat')" class="nav-item text-gray-600 hover:text-emerald-600 font-medium" data-nav="chat">Ayuda IA</button>
+          </nav>
+          
+          <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-lg hover:bg-gray-100">
+            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          </button>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden mt-4 pb-2 border-t pt-4">
+          <div class="flex flex-col gap-2">
+            <button onclick="navigate('home')" class="text-left px-4 py-2 rounded-lg hover:bg-emerald-50 text-gray-700 font-medium">🏠 Inicio</button>
+            <button onclick="navigate('lines')" class="text-left px-4 py-2 rounded-lg hover:bg-emerald-50 text-gray-700 font-medium">🚌 Líneas</button>
+            <button onclick="navigate('stops')" class="text-left px-4 py-2 rounded-lg hover:bg-emerald-50 text-gray-700 font-medium">📍 Paradas</button>
+            <button onclick="navigate('routes')" class="text-left px-4 py-2 rounded-lg hover:bg-emerald-50 text-gray-700 font-medium">🗺️ Planificar</button>
+            <button onclick="navigate('chat')" class="text-left px-4 py-2 rounded-lg hover:bg-emerald-50 text-gray-700 font-medium">🤖 Ayuda IA</button>
+          </div>
+        </div>
+      </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main id="main-content" class="max-w-7xl mx-auto px-4 py-6">
+      <!-- Content will be dynamically loaded here -->
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-auto">
+      <div class="max-w-7xl mx-auto px-4 py-8">
+        <div class="grid md:grid-cols-3 gap-8">
+          <div>
+            <h3 class="font-bold text-lg mb-3">VITRASA</h3>
+            <p class="text-gray-400 text-sm">Servicio de transporte público urbano de Vigo. Conectando la ciudad desde 1986.</p>
+          </div>
+          <div>
+            <h3 class="font-bold text-lg mb-3">Contacto</h3>
+            <p class="text-gray-400 text-sm">📞 986 292 100</p>
+            <p class="text-gray-400 text-sm">📧 vitrasa@vitrasa.es</p>
+            <p class="text-gray-400 text-sm">📍 Rúa Coruña, 1 - Vigo</p>
+          </div>
+          <div>
+            <h3 class="font-bold text-lg mb-3">Horario de Atención</h3>
+            <p class="text-gray-400 text-sm">Lunes a Viernes: 7:00 - 20:00</p>
+            <p class="text-gray-400 text-sm">Sábados: 8:00 - 14:00</p>
+            <p class="text-gray-400 text-sm">Domingos: Cerrado</p>
+          </div>
+        </div>
+        <div class="border-t border-gray-700 mt-6 pt-6 text-center text-gray-500 text-sm">
+          <p>© 2024 VITRASA Vigo - Aplicación informativa no oficial</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // ==========================================
+    // DATOS CENTRALIZADOS JSON AMPLIADOS
+    // ==========================================
+    const VITRASA_DATA = {
+      contact: {
+        phone: "986 292 100",
+        emergencyPhone: "986 430 300",
+        email: "vitrasa@vitrasa.es",
+        web: "www.vitrasa.es",
+        address: "Rúa Coruña, 1, 36208 Vigo",
+        officeHours: {
+          weekdays: "07:00 - 20:00",
+          saturday: "08:00 - 14:00",
+          sunday: "Cerrado"
+        }
+      },
+      fares: {
+        single: { price: 1.35, description: "Billete sencillo" },
+        passCard: { price: 0.61, description: "Con tarjeta PASS Vigo" },
+        bono10: { price: 10.50, description: "Bono 10 viajes" },
+        bono30dias: { price: 38.00, description: "Bono mensual 30 días" },
+        youth: { price: 0.51, description: "Tarifa joven (hasta 26 años)" },
+        senior: { price: 0.51, description: "Mayores de 65 años" },
+        children: { price: 0.00, description: "Menores de 4 años gratis" }
+      },
+      lines: [
+        {
+          id: "C1",
+          name: "Circular 1 - Sentido Horario",
+          color: "#e74c3c",
+          description: "Recorre el centro de Vigo conectando principales puntos comerciales y administrativos",
+          frequency: "8-12 min",
+          frequencyWeekend: "12-15 min",
+          firstBus: "06:30",
+          lastBus: "23:00",
+          duration: "35 min",
+          accessible: true,
+          stops: ["P001", "P002", "P003", "P004", "P005", "P006", "P007", "P008", "P022", "P023"],
+          route: [
+            [42.2406, -8.7207], [42.2380, -8.7150], [42.2350, -8.7100],
+            [42.2320, -8.7080], [42.2300, -8.7120], [42.2330, -8.7180],
+            [42.2370, -8.7220], [42.2406, -8.7207], [42.2425, -8.7245], [42.2420, -8.7190]
+          ]
+        },
+        {
+          id: "C2",
+          name: "Circular 2 - Sentido Antihorario",
+          color: "#3498db",
+          description: "Línea circular en sentido contrario a C1, mismo recorrido inverso",
+          frequency: "8-12 min",
+          frequencyWeekend: "12-15 min",
+          firstBus: "06:30",
+          lastBus: "23:00",
+          duration: "35 min",
+          accessible: true,
+          stops: ["P023", "P022", "P008", "P007", "P006", "P005", "P004", "P003", "P002", "P001"],
+          route: [
+            [42.2420, -8.7190], [42.2425, -8.7245], [42.2406, -8.7207],
+            [42.2370, -8.7220], [42.2330, -8.7180], [42.2300, -8.7120],
+            [42.2320, -8.7080], [42.2350, -8.7100], [42.2380, -8.7150], [42.2406, -8.7207]
+          ]
+        },
+        {
+          id: "L1",
+          name: "Hospital Meixoeiro - Centro",
+          color: "#27ae60",
+          description: "Conecta el Hospital Meixoeiro con el centro pasando por barrios residenciales",
+          frequency: "15-20 min",
+          frequencyWeekend: "20-25 min",
+          firstBus: "06:15",
+          lastBus: "23:00",
+          duration: "28 min",
+          accessible: true,
+          stops: ["P025", "P026", "P027", "P003", "P001", "P002"],
+          route: [
+            [42.2250, -8.7450], [42.2280, -8.7380], [42.2310, -8.7280],
+            [42.2350, -8.7100], [42.2406, -8.7207], [42.2380, -8.7150]
+          ]
+        },
+        {
+          id: "L4",
+          name: "Navia - Hospital Álvaro Cunqueiro",
+          color: "#f39c12",
+          description: "Línea estratégica que conecta zonas residenciales con el nuevo hospital universitario",
+          frequency: "15-18 min",
+          frequencyWeekend: "18-22 min",
+          firstBus: "06:00",
+          lastBus: "23:30",
+          duration: "32 min",
+          accessible: true,
+          stops: ["P012", "P032", "P003", "P004", "P034", "P013", "P014"],
+          route: [
+            [42.2500, -8.7350], [42.2470, -8.7280], [42.2350, -8.7100],
+            [42.2320, -8.7080], [42.2260, -8.7020], [42.2200, -8.7000], [42.2100, -8.6900]
+          ]
+        },
+        {
+          id: "L5A",
+          name: "Castrelos - Urzáiz",
+          color: "#1abc9c",
+          description: "Une el parque de Castrelos con la estación de tren y el centro",
+          frequency: "12-15 min",
+          frequencyWeekend: "15-20 min",
+          firstBus: "07:00",
+          lastBus: "22:00",
+          duration: "22 min",
+          accessible: true,
+          stops: ["P015", "P035", "P006", "P005", "P001", "P018"],
+          route: [
+            [42.2150, -8.7400], [42.2220, -8.7300], [42.2330, -8.7180],
+            [42.2300, -8.7120], [42.2406, -8.7207], [42.2420, -8.7100]
+          ]
+        },
+        {
+          id: "L7",
+          name: "Samil - Casco Vello",
+          color: "#e67e22",
+          description: "Desde la playa de Samil hasta el casco histórico, ruta turística costera",
+          frequency: "15-20 min",
+          frequencyWeekend: "12-15 min",
+          firstBus: "06:30",
+          lastBus: "23:30",
+          duration: "38 min",
+          accessible: true,
+          stops: ["P016", "P036", "P017", "P037", "P006", "P001", "P038"],
+          route: [
+            [42.2050, -8.7700], [42.2100, -8.7620], [42.2150, -8.7500],
+            [42.2200, -8.7400], [42.2330, -8.7180], [42.2406, -8.7207], [42.2430, -8.7280]
+          ]
+        },
+        {
+          id: "L9A",
+          name: "Coruxo - Universidad",
+          color: "#c0392b",
+          description: "Conecta barrios del sur con el campus universitario y el centro",
+          frequency: "18-22 min",
+          frequencyWeekend: "20-25 min",
+          firstBus: "06:45",
+          lastBus: "22:30",
+          duration: "42 min",
+          accessible: true,
+          stops: ["P019", "P040", "P016", "P017", "P041", "P001"],
+          route: [
+            [42.1900, -8.7900], [42.1980, -8.7800], [42.2050, -8.7700],
+            [42.2150, -8.7500], [42.2250, -8.7350], [42.2406, -8.7207]
+          ]
+        },
+        {
+          id: "L12",
+          name: "Aeropuerto - Centro - Estación Marítima",
+          color: "#34495e",
+          description: "Conexión aeropuerto con centro urbano y puerto, ideal para turistas y viajeros",
+          frequency: "30-35 min",
+          frequencyWeekend: "40-45 min",
+          firstBus: "06:00",
+          lastBus: "23:30",
+          duration: "45 min",
+          accessible: true,
+          stops: ["P020", "P021", "P043", "P004", "P001", "P028"],
+          route: [
+            [42.2300, -8.6300], [42.2350, -8.6600], [42.2380, -8.6850],
+            [42.2320, -8.7080], [42.2406, -8.7207], [42.2390, -8.7250]
+          ]
+        },
+        {
+          id: "BN1",
+          name: "Búho Nocturno Centro-Bouzas",
+          color: "#8e44ad",
+          description: "Servicio nocturno viernes y sábados desde el centro hacia barrios del este",
+          frequency: "45-60 min",
+          frequencyWeekend: "45-60 min",
+          firstBus: "23:30",
+          lastBus: "04:30",
+          duration: "35 min",
+          accessible: true,
+          stops: ["P001", "P002", "P010", "P011"],
+          route: [
+            [42.2406, -8.7207], [42.2380, -8.7150], [42.2340, -8.7050], [42.2280, -8.6980]
+          ]
+        },
+        {
+          id: "BN2",
+          name: "Búho Nocturno Centro-Samil",
+          color: "#2980b9",
+          description: "Servicio nocturno viernes y sábados desde el centro hacia la zona de playas",
+          frequency: "45-60 min",
+          frequencyWeekend: "45-60 min",
+          firstBus: "23:30",
+          lastBus: "04:30",
+          duration: "40 min",
+          accessible: true,
+          stops: ["P001", "P006", "P017", "P016"],
+          route: [
+            [42.2406, -8.7207], [42.2330, -8.7180], [42.2150, -8.7500], [42.2050, -8.7700]
+          ]
+        }
+      ],
+      stops: [
+        { id: "20", name: "Rúa do Abade de Juan de Bastos(fronte Asociación Veciños)", lat: 42.187231, lng: -8.741008, zone: "Matamá", address: "Rúa do Abade de Juan de Bastos(fronte Asociación Veciños)", lines: ["17"] },
+        { id: "40", name: "Rúa do Abade Juan de Bastos (cruce Baixada da Moo)", lat: 42.191297, lng: -8.731706, zone: "Matamá", address: "Rúa do Abade Juan de Bastos, 48", lines: ["17"] },
+        { id: "50", name: "Rúa do Abade Juan de Bastos, 24", lat: 42.187978, lng: -8.737403, zone: "Matamá", address: "Rúa do Abade Juan de Bastos, 24", lines: ["17"] },
+        { id: "70", name: "Rúa da Lagoa (cruce Camiño do Casmarcelo)", lat: 42.2320, lng: -8.7080, zone: "Pouleira", address: "Rúa da Lagoa (cruce Camiño do Casmarcelo)", lines: ["18A", "18B"] },
+        { id: "80", name: "Rúa da Lagoa, 46", lat: 42.201192, lng: -8.703497, zone: "Pouleira", address: "Rúa da Lagoa, 46", lines: ["18A", "18B"] },
+        { id: "90", name: "Aeroporto de Peinador", lat: 42.225891, lng: -8.633242, zone: "Aeroporto", address: "Avda. de Peinador", lines: ["A"] },
+        { id: "100", name: "Avda. do Alcalde Lavadores, 125", lat: 42.218988, lng: -8.696379, zone: "Lavadores", address: "Avda. do Alcalde Lavadores, 125", lines: ["6"] },
+        { id: "110", name: "Avda. do Alcalde Lavadores, 171", lat: 42.215542, lng: -8.697041, zone: "Lavadores", address: "Avda. do Alcalde Lavadores, 171", lines: ["6"] },
+        { id: "120", name: "Avda. do Alcalde Lavadores, 8", lat: 42.223074, lng: -8.701765, zone: "Lavadores", address: "Avda. do Alcalde Lavadores, 8", lines: ["6"] },
+        { id: "130", name: "Avda. do Alcalde Lavadores, 102", lat: 42.218758, lng: -8.696760, zone: "Lavadores", address: "Avda. do Alcalde Lavadores, 102", lines: ["6"] },
+        { id: "140", name: "Avda. do Alcalde Lavadores, 29", lat: 42.223533, lng: -8.699710, zone: "Lavadores", address: "Avda. do Alcalde Lavadores, 29", lines: ["6"] },
+        { id: "150", name: "Avda. do Alcalde Lavadores, 48", lat: 42.222697, lng: -8.697682, zone: "Lavadores", address: "Avda. do Alcalde Lavadores, 48", lines: ["6"] },
+        { id: "160", name: "Avda. do Alcalde Lavadores, 67", lat: 42.222866, lng: -8.697647, zone: "Lavadores", address: "Avda. do Alcalde Lavadores, 67", lines: ["6"] },
+        { id: "170", name: "Avda. do Alcalde Lavadores, 152", lat: 42.215254, lng: -8.697283, zone: "Lavadores", address: "Avda. do Alcalde Lavadores, 152", lines: ["6"] },
+        { id: "180", name: "Estrada de Valadares, 451", lat: 42.165894, lng: -8.720551, zone: "Garrida", address: "Estrada de Valadares, 451", lines: ["L7"] },
+        { id: "190", name: "Rúa de Ángel de Lema, 58", lat: 42.2150, lng: -8.7500, zone: "Teis", address: "Rúa de Ángel de Lema, 58", lines: ["10", "C3.I"] },
+        { id: "195", name: "Rúa de Ángel de Lema, 247", lat: 42.256697, lng: -8.677912, zone: "Teis", address: "Rúa de Ángel de Lema, 247", lines: ["10", "C3.D"] },
+        { id: "200", name: "Rúa de Ángel de Lema, 100", lat: 42.252502, lng: -8.683413, zone: "Teis", address: "Rúa de Ángel de Lema, 100", lines: ["10", "C3.I"] },
+        { id: "210", name: "Rúa de Ángel de Lema, 140", lat: 42.255835, lng: -8.678907, zone: "Teis", address: "Rúa de Ángel de Lema, 140", lines: ["10", "C3.I"] },
+        { id: "220", name: "Rúa de Ángel de Lema, 163", lat: 42.256635, lng: -8.677858, zone: "Teis", address: "Rúa de Ángel de Lema, 163", lines: ["10", "C3.D"] },
+        { id: "230", name: "Rúa de Ángel de Lema, 14", lat: 42.248017, lng: -8.691476, zone: "Teis", address: "Rúa de Ángel de Lema, 14", lines: ["10", "C3.I"] },
+        { id: "240", name: "Rúa de Ángel de Lema, 19", lat: 42.248120, lng: -8.691521, zone: "Teis", address: "Rúa de Ángel de Lema, 19", lines: ["10", "C3.D"] },
+        { id: "250", name: "Rúa de Ángel de Lema, 221", lat: 42.255343, lng: -8.679875, zone: "Teis", address: "Rúa de Ángel de Lema, 221", lines: ["10", "C3.D"] },
+        { id: "260", name: "Rúa de Ángel de Lema, 91", lat: 42.250262, lng: -8.686058, zone: "Teis", address: "Rúa de Ángel de Lema, 91", lines: ["10", "C3.D"] },
+        { id: "P027", name: "Lepanto", lat: 42.2310, lng: -8.7280, zone: "Centro", address: "Rúa Lepanto", lines: ["L1"] },
+        { id: "P028", name: "Estación Marítima", lat: 42.2390, lng: -8.7250, zone: "Centro", address: "Estación Marítima", lines: ["L12"] },
+        { id: "P032", name: "Calvario", lat: 42.2470, lng: -8.7280, zone: "Norte", address: "Rúa do Calvario", lines: ["L4"] },
+        { id: "P034", name: "Travesía de Vigo", lat: 42.2260, lng: -8.7020, zone: "Sur", address: "Travesía de Vigo", lines: ["L4"] },
+        { id: "P035", name: "Doctor Cadaval", lat: 42.2220, lng: -8.7300, zone: "Sur", address: "Rúa Doctor Cadaval", lines: ["L5A"] },
+        { id: "P036", name: "O Vao", lat: 42.2100, lng: -8.7620, zone: "Oeste", address: "Av. do Vao", lines: ["L7"] },
+        { id: "P037", name: "Torrecedeira", lat: 42.2200, lng: -8.7400, zone: "Oeste", address: "Av. Torrecedeira", lines: ["L7"] },
+        { id: "P038", name: "Casco Vello", lat: 42.2430, lng: -8.7280, zone: "Centro", address: "Casco Histórico", lines: ["L7"] },
+        { id: "P040", name: "Candeán", lat: 42.1980, lng: -8.7800, zone: "Oeste", address: "Candeán", lines: ["L9A"] },
+        { id: "P041", name: "Campus Universitario", lat: 42.2250, lng: -8.7350, zone: "Centro", address: "Campus Lagoas-Marcosende", lines: ["L9A"] },
+        { id: "P043", name: "Sárdoma", lat: 42.2380, lng: -8.6850, zone: "Este", address: "Sárdoma", lines: ["L12"] }
+      ],
+      schedules: {
+        "C1": generateSchedule(6, 30, 23, 0, 10),
+        "C2": generateSchedule(6, 30, 23, 0, 10),
+        "L1": generateSchedule(6, 15, 23, 0, 17),
+        "L4": generateSchedule(6, 0, 23, 30, 16),
+        "L5A": generateSchedule(7, 0, 22, 0, 13),
+        "L7": generateSchedule(6, 30, 23, 30, 17),
+        "L9A": generateSchedule(6, 45, 22, 30, 20),
+        "L12": generateSchedule(6, 0, 23, 30, 32),
+        "BN1": generateSchedule(23, 30, 4, 30, 50),
+        "BN2": generateSchedule(23, 30, 4, 30, 50)
+      },
+      faqs: [
+        { 
+          q: "¿Cuál es el precio del billete?", 
+          a: "💶 <strong>Tarifas VITRASA:</strong><br><br>• Billete sencillo: <strong>1,65€</strong><br>• Con tarjeta PASS: <strong>0,67€/viaje</strong><br>• Bono 10 viajes: <strong>0,00€</strong><br>• Bono mensual: <strong>0€</strong><br>• Tarifa joven/senior: <strong>0,51€</strong><br>• Menores de 14 años: <strong>Gratis</strong><br><br>💳 La tarjeta PASS permite <strong>transbordo gratuito en 45 minutos</strong>.",
+          keywords: ["precio", "billete", "tarifa", "cuesta", "coste", "vale", "pagar", "cuanto"]
+        },
+        { 
+          q: "¿Dónde puedo conseguir la tarjeta PASS?", 
+          a: "📍 <strong>Dónde obtener la tarjeta PASS:</strong><br><br>• Concello (Praza do Rei 1)<br>• Ningún sitio más<br>• En cocheras NO<br>• Recarga online: www.vigo.org<br><br>💰 Coste primera emisión: <strong>3€</strong>",
+          keywords: ["pass", "tarjeta", "conseguir", "obtener", "comprar", "donde", "sacar"]
+        },
+        { 
+          q: "¿Los autobuses tienen acceso para sillas de ruedas?", 
+          a: "♿ <strong>Accesibilidad total:</strong><br><br>✅ 100% de autobuses con piso bajo<br>✅ Rampa automática de acceso<br>✅ Espacio reservado PMR<br>✅ Conductores formados<br>✅ Sistema de aviso de paradas<br><br>Todos nuestros vehículos cumplen normativa europea de accesibilidad.",
+          keywords: ["accesibilidad", "silla", "ruedas", "discapacidad", "movilidad", "reducida", "pmr", "minusvalía"]
+        },
+        { 
+          q: "¿Hay servicio nocturno?", 
+          a: "🌙 <strong>Servicio Búho Nocturno:</strong><br><br>📅 Viernes, sábados y vísperas de festivo<br>⏰ Horario: 23:30 - 04:30<br>🚌 Líneas disponibles:<br><br><strong>BN1</strong>: Centro ↔ Bouzas (cada 45-60 min)<br><strong>BN2</strong>: Centro ↔ Samil (cada 45-60 min)<br><br>Tarifa normal aplicable.",
+          keywords: ["nocturno", "búho", "noche", "madrugada", "bn1", "bn2", "horario", "buho"]
+        },
+        { 
+          q: "¿Puedo llevar mi bicicleta en el autobús?", 
+          a: "🚴 <strong>Política de bicicletas:</strong><br><br>✅ <strong>Bicicletas plegables:</strong> Permitidas siempre<br>⚠️ <strong>Bicicletas convencionales:</strong><br>• Horarios valle: 10:00-14:00 y 16:00-18:00<br>• Sujeto a espacio disponible<br>• Decisión del conductor según ocupación<br><br>Recomendamos horarios de baja ocupación.",
+          keywords: ["bicicleta", "bici", "llevar", "permitido", "ciclismo"]
+        },
+        { 
+          q: "¿Cuánto tarda la línea C1?", 
+          a: "⏱️ <strong>Línea C1 - Circular 1:</strong><br><br>🔄 Recorrido completo: <strong>35-40 minutos</strong><br>🚦 En hora punta: hasta 45 minutos<br>⏰ Frecuencia: <strong>8-12 minutos</strong><br>📍 10 paradas en total<br><br>Es una de nuestras líneas más rápidas para moverte por el centro.",
+          keywords: ["c1", "circular", "tarda", "tiempo", "duración", "vuelta", "demora"]
+        },
+        { 
+          q: "¿Hay wifi en los autobuses?", 
+          a: "📶 <strong>WiFi VITRASA:</strong><br><br>✅ Disponible en +70% de la flota<br>📱 Red: <strong>VITRASA_WiFi</strong><br>⏰ 30 minutos gratis por viaje<br>🔍 Vehículos identificados con pegatina<br><br>Estamos ampliando el servicio a toda la flota progresivamente.",
+          keywords: ["wifi", "internet", "conexión", "gratis", "wi-fi"]
+        },
+        { 
+          q: "¿Cómo llego al Hospital Álvaro Cunqueiro?", 
+          a: "🏥 <strong>Hospital Álvaro Cunqueiro:</strong><br><br>🚌 <strong>Línea L4</strong> (directa)<br>📍 Navia → Hospital<br>⏰ Cada 15-18 minutos<br>⏱️ Duración: 32 minutos<br>🕐 Servicio: 06:00 - 23:30<br><br>También puedes hacer transbordo en Gran Vía o Plaza de España desde otras líneas.",
+          keywords: ["hospital", "cunqueiro", "llegar", "como", "l4", "alvaro"]
+        },
+        { 
+          q: "¿Qué es el transbordo gratuito?", 
+          a: "🔄 <strong>Transbordo gratuito con PASS:</strong><br><br>✅ Hasta <strong>2 transbordos gratis</strong><br>⏰ Dentro de <strong>60 minutos</strong><br>💳 Solo con tarjeta PASS<br>❌ No aplica con billete sencillo<br><br>Valida tu tarjeta en cada autobús y ahorra combinando líneas.",
+          keywords: ["transbordo", "cambio", "combinar", "líneas", "gratis", "60", "minutos"]
+        },
+        { 
+          q: "¿Cómo llego al aeropuerto?", 
+          a: "✈️ <strong>Aeropuerto de Vigo:</strong><br><br>🚌 <strong>Línea L12</strong> (directa)<br>📍 Aeropuerto ↔ Centro ↔ Estación Marítima<br>⏰ Cada 30-35 minutos<br>⏱️ Duración: 45 min hasta Porta do Sol<br>🕐 Primer bus: 06:00 | Último: 23:30<br><br>Paradas: Aeropuerto → Peinador → Sárdoma → Coia → Gran Vía → Centro",
+          keywords: ["aeropuerto", "peinador", "avión", "vuelo", "l12", "airport"]
+        },
+        { 
+          q: "¿Dónde consulto horarios en tiempo real?", 
+          a: "📱 <strong>Información en tiempo real:</strong><br><br>🌐 Web: www.vitrasa.es<br>📲 App móvil VITRASA<br>📺 Paneles en paradas principales<br>📞 Teléfono: 986 292 100<br>🔔 Sistema de alertas por SMS<br><br>Los tiempos se actualizan cada 30 segundos.",
+          keywords: ["tiempo", "real", "app", "aplicación", "paneles", "cuando", "llega", "movil"]
+        },
+        { 
+          q: "¿Puedo viajar con mascotas?", 
+          a: "🐕 <strong>Política de mascotas:</strong><br><br>✅ <strong>Perros de asistencia:</strong> Sin restricciones<br>✅ <strong>Mascotas pequeñas:</strong> En transportín cerrado<br>⚠️ <strong>Perros medianos/grandes:</strong><br>• Con bozal y correa corta<br>• Solo en horarios valle<br>• Según ocupación del vehículo",
+          keywords: ["mascota", "perro", "animal", "gato", "transportín", "pet"]
+        },
+        { 
+          q: "¿Hay descuentos para estudiantes?", 
+          a: "🎓 <strong>Descuentos estudiantes:</strong><br><br>💳 <strong>Tarjeta Joven</strong> (menores 26 años):<br>• Precio: <strong>0,51€/viaje</strong><br>• Ahorro: 62% vs billete normal<br><br>🎒 <strong>Bono Universitario:</strong><br>• Precio: <strong>30€/mes</strong><br>• Requiere carnet universitario<br>• Solo Universidad de Vigo",
+          keywords: ["estudiante", "joven", "descuento", "universidad", "carnet", "universitario"]
+        },
+        { 
+          q: "¿Cómo llego a la playa de Samil?", 
+          a: "🏖️ <strong>Playa de Samil:</strong><br><br>🚌 <strong>Línea L7</strong>: Samil ↔ Casco Vello<br>• Frecuencia: 15-20 min (12-15 en verano)<br>• Desde Porta do Sol: 38 minutos<br><br>🚌 <strong>Línea L9A</strong>: Coruxo ↔ Universidad<br>• Para también en Samil<br><br>🌙 <strong>BN2</strong>: Servicio nocturno fines de semana",
+          keywords: ["samil", "playa", "arena", "verano", "l7", "l9", "playa"]
+        },
+        { 
+          q: "¿Qué hago si pierdo un objeto?", 
+          a: "🔍 <strong>Objetos perdidos:</strong><br><br>📍 Oficinas VITRASA - Rúa Coruña 1<br>📞 Teléfono: 986 292 100<br>⏰ Horario:<br>• Lunes a Viernes: 07:00-20:00<br>• Sábados: 08:00-14:00<br><br>Describe el objeto, línea y hora aproximada del viaje.",
+          keywords: ["perdido", "objeto", "olvidado", "dejado", "perdida", "perdi"]
+        },
+        { 
+          q: "¿Hay servicio en festivos?", 
+          a: "📅 <strong>Servicio en festivos:</strong><br><br>✅ VITRASA opera <strong>365 días al año</strong><br>📆 En festivos: horario de domingo<br>🔔 Festivos especiales (Navidad, Año Nuevo):<br>• Horarios especiales publicados con antelación<br>• Consulta web www.vitrasa.es",
+          keywords: ["festivo", "domingo", "navidad", "servicio", "feriado"]
+        },
+        { 
+          q: "¿Cómo llego a la estación de tren?", 
+          a: "🚂 <strong>Estación de Urzáiz (RENFE):</strong><br><br>🚌 <strong>Línea L5A</strong> (directa):<br>• Para en Estación de Urzáiz<br>• Desde Castrelos hasta la estación<br><br>🚌 <strong>Alternativas:</strong><br>• C1/C2: Bajar en Venezuela (5 min andando)<br>• L12: Conecta con aeropuerto",
+          keywords: ["tren", "renfe", "estación", "urzáiz", "ferrocarril", "estacion"]
+        },
+        { 
+          q: "¿Dónde están las oficinas?", 
+          a: "🏢 <strong>Oficinas VITRASA:</strong><br><br>📍 Rúa Coruña, 1 - 36208 Vigo<br><br>⏰ <strong>Horario:</strong><br>• Lunes-Viernes: 07:00-20:00<br>• Sábados: 08:00-14:00<br>• Domingos: Cerrado<br><br>📞 Tel: 986 292 100<br>📧 vitrasa@vitrasa.es",
+          keywords: ["oficina", "atención", "cliente", "dirección", "contacto", "telefono"]
+        },
+        { 
+          q: "¿Cómo recargo mi tarjeta PASS?", 
+          a: "💳 <strong>Recargar tarjeta PASS:</strong><br><br>📍 <strong>Puntos de recarga:</strong><br>• Oficinas VITRASA<br>• Estancos autorizados<br>• Máquinas en paradas principales<br>• Online: www.vitrasa.es<br><br>⏰ Las recargas online se activan en máximo 2 horas.",
+          keywords: ["recargar", "pass", "saldo", "crédito", "añadir", "cargar"]
+        },
+        { 
+          q: "¿Los niños pagan billete?", 
+          a: "👶 <strong>Tarifas infantiles:</strong><br><br>🆓 <strong>Menores de 4 años:</strong> Viajan GRATIS<br>💰 <strong>Niños 4-13 años:</strong> Tarifa reducida<br>🎒 <strong>Recomendado:</strong> Tarjeta PASS Joven<br>• Para menores de 26 años<br>• Solo 0,51€ por viaje",
+          keywords: ["niños", "bebé", "gratis", "menores", "infantil", "ninos"]
+        }
+      ]
+    };
+    
+    // Generar horarios automáticamente
+    function generateSchedule(startHour, startMin, endHour, endMin, frequency) {
+      const times = [];
+      let current = new Date();
+      current.setHours(startHour, startMin, 0, 0);
+      const end = new Date();
+      end.setHours(endHour, endMin, 0, 0);
+      
+      // Handle overnight schedules (like BN services)
+      if (endHour < startHour) {
+        end.setDate(end.getDate() + 1);
+      }
+      
+      while (current <= end) {
+        times.push(
+          current.getHours().toString().padStart(2, '0') + ':' + 
+          current.getMinutes().toString().padStart(2, '0')
+        );
+        current.setMinutes(current.getMinutes() + frequency);
+      }
+      return times;
+    }
+    
+    // ==========================================
+    // ESTADO DE LA APLICACIÓN
+    // ==========================================
+    let currentPage = 'home';
+    let map = null;
+    let chatHistory = [];
+    
+    const defaultConfig = {
+      site_title: "VITRASA Vigo",
+      welcome_message: "Tu transporte público en Vigo",
+      primary_color: "#10b981",
+      secondary_color: "#f8fafc",
+      text_color: "#1f2937",
+      accent_color: "#059669",
+      bg_color: "#f9fafb"
+    };
+    
+    let config = { ...defaultConfig };
+    
+    // ==========================================
+    // SDK INITIALIZATION
+    // ==========================================
+    function initSDK() {
+      if (window.elementSdk) {
+        window.elementSdk.init({
+          defaultConfig,
+          onConfigChange: async (newConfig) => {
+            config = { ...defaultConfig, ...newConfig };
+            applyConfig();
+          },
+          mapToCapabilities: (cfg) => ({
+            recolorables: [
+              {
+                get: () => cfg.bg_color || defaultConfig.bg_color,
+                set: (v) => { cfg.bg_color = v; window.elementSdk.setConfig({ bg_color: v }); }
+              },
+              {
+                get: () => cfg.secondary_color || defaultConfig.secondary_color,
+                set: (v) => { cfg.secondary_color = v; window.elementSdk.setConfig({ secondary_color: v }); }
+              },
+              {
+                get: () => cfg.text_color || defaultConfig.text_color,
+                set: (v) => { cfg.text_color = v; window.elementSdk.setConfig({ text_color: v }); }
+              },
+              {
+                get: () => cfg.primary_color || defaultConfig.primary_color,
+                set: (v) => { cfg.primary_color = v; window.elementSdk.setConfig({ primary_color: v }); }
+              },
+              {
+                get: () => cfg.accent_color || defaultConfig.accent_color,
+                set: (v) => { cfg.accent_color = v; window.elementSdk.setConfig({ accent_color: v }); }
+              }
+            ],
+            borderables: [],
+            fontEditable: undefined,
+            fontSizeable: undefined
+          }),
+          mapToEditPanelValues: (cfg) => new Map([
+            ["site_title", cfg.site_title || defaultConfig.site_title],
+            ["welcome_message", cfg.welcome_message || defaultConfig.welcome_message]
+          ])
+        });
+      }
+    }
+    
+    function applyConfig() {
+      document.getElementById('site-title').textContent = config.site_title || defaultConfig.site_title;
+      document.getElementById('welcome-msg').textContent = config.welcome_message || defaultConfig.welcome_message;
+      document.body.style.background = config.bg_color || defaultConfig.bg_color;
+    }
+    
+    // ==========================================
+    // NAVEGACIÓN
+    // ==========================================
+    function navigate(page, params = {}) {
+      currentPage = page;
+      const main = document.getElementById('main-content');
+      
+      // Update nav active state
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.nav === page) item.classList.add('active');
+      });
+      
+      // Hide mobile menu
+      document.getElementById('mobile-menu').classList.add('hidden');
+      
+      // Render page
+      switch(page) {
+        case 'home':
+          renderHome(main);
+          break;
+        case 'lines':
+          renderLines(main);
+          break;
+        case 'line-detail':
+          renderLineDetail(main, params.lineId);
+          break;
+        case 'stops':
+          renderStops(main);
+          break;
+        case 'stop-detail':
+          renderStopDetail(main, params.stopId);
+          break;
+        case 'routes':
+          renderRoutes(main);
+          break;
+        case 'chat':
+          renderChat(main);
+          break;
+      }
+      
+      // Scroll to top
+      window.scrollTo(0, 0);
+    }
+    
+    function toggleMobileMenu() {
+      document.getElementById('mobile-menu').classList.toggle('hidden');
+    }
+    
+    // ==========================================
+    // PÁGINA DE INICIO
+    // ==========================================
+    function renderHome(container) {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+      
+      container.innerHTML = `
+        <div class="slide-in">
+          <!-- Hero Section -->
+          <div class="bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600 rounded-3xl p-8 md:p-12 text-white mb-8 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+            <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+            <div class="relative z-10">
+              <div class="flex items-center gap-2 mb-4">
+                <span class="w-3 h-3 bg-green-300 rounded-full pulse-dot"></span>
+                <span class="text-emerald-100 text-sm font-medium">Servicio activo · ${timeStr}</span>
+              </div>
+              <h2 class="text-3xl md:text-4xl font-bold mb-4">Bienvenido a VITRASA</h2>
+              <p class="text-emerald-100 text-lg mb-6 max-w-xl">Consulta líneas, horarios y planifica tu viaje por Vigo de forma sencilla.</p>
+              <div class="flex flex-wrap gap-3">
+                <button onclick="navigate('routes')" class="bg-white text-emerald-600 px-6 py-3 rounded-xl font-semibold hover:bg-emerald-50 transition-all flex items-center gap-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                  </svg>
+                  Planificar viaje
+                </button>
+                <button onclick="navigate('chat')" class="bg-emerald-700/50 text-white px-6 py-3 rounded-xl font-semibold hover:bg-emerald-700 transition-all flex items-center gap-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                  </svg>
+                  Ayuda IA
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Quick Access -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <button onclick="navigate('lines')" class="bg-white p-6 rounded-2xl shadow-sm card-hover text-center">
+              <div class="w-14 h-14 bg-emerald-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <span class="text-2xl">🚌</span>
+              </div>
+              <h3 class="font-semibold text-gray-800">Líneas</h3>
+              <p class="text-sm text-gray-500">${VITRASA_DATA.lines.length} líneas</p>
+            </button>
+            <button onclick="navigate('stops')" class="bg-white p-6 rounded-2xl shadow-sm card-hover text-center">
+              <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <span class="text-2xl">📍</span>
+              </div>
+              <h3 class="font-semibold text-gray-800">Paradas</h3>
+              <p class="text-sm text-gray-500">${VITRASA_DATA.stops.length} paradas</p>
+            </button>
+            <button onclick="navigate('routes')" class="bg-white p-6 rounded-2xl shadow-sm card-hover text-center">
+              <div class="w-14 h-14 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <span class="text-2xl">🗺️</span>
+              </div>
+              <h3 class="font-semibold text-gray-800">Planificar</h3>
+              <p class="text-sm text-gray-500">Tu ruta</p>
+            </button>
+            <button onclick="navigate('chat')" class="bg-white p-6 rounded-2xl shadow-sm card-hover text-center">
+              <div class="w-14 h-14 bg-amber-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <span class="text-2xl">🤖</span>
+              </div>
+              <h3 class="font-semibold text-gray-800">Ayuda IA</h3>
+              <p class="text-sm text-gray-500">Preguntas</p>
+            </button>
+          </div>
+          
+          <!-- Featured Lines -->
+          <div class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-xl font-bold text-gray-800">Líneas populares</h3>
+              <button onclick="navigate('lines')" class="text-emerald-600 hover:text-emerald-700 font-medium text-sm flex items-center gap-1">
+                Ver todas
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </button>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              ${VITRASA_DATA.lines.slice(0, 6).map(line => `
+                <button onclick="navigate('line-detail', {lineId: '${line.id}'})" class="bg-white p-4 rounded-xl shadow-sm card-hover flex items-center gap-4 text-left">
+                  <div class="line-badge" style="background: ${line.color}">${line.id}</div>
+                  <div class="flex-1 min-w-0">
+                    <h4 class="font-semibold text-gray-800 truncate">${line.name}</h4>
+                    <p class="text-sm text-gray-500">Cada ${line.frequency}</p>
+                  </div>
+                  <div class="time-chip">
+                    ${getNextBusTime(line.id)}
+                  </div>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+          
+          <!-- Map Preview -->
+          <div class="mb-8">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Mapa de la red</h3>
+            <div class="map-container">
+              <div id="home-map" style="height: 350px; width: 100%;"></div>
+            </div>
+          </div>
+          
+          <!-- Info Cards -->
+          <div class="grid md:grid-cols-3 gap-4">
+            <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-2xl text-white">
+              <h4 class="font-bold text-lg mb-2">💳 Tarjeta PASS</h4>
+              <p class="text-blue-100 text-sm mb-3">Viaja más barato con la tarjeta recargable de VITRASA.</p>
+              <p class="font-semibold">0,61€ por viaje</p>
+            </div>
+            <div class="bg-gradient-to-br from-amber-500 to-orange-500 p-6 rounded-2xl text-white">
+              <h4 class="font-bold text-lg mb-2">🌙 Búho Nocturno</h4>
+              <p class="text-amber-100 text-sm mb-3">Servicio nocturno viernes y sábados.</p>
+              <p class="font-semibold">23:30 - 04:30</p>
+            </div>
+            <div class="bg-gradient-to-br from-emerald-500 to-teal-500 p-6 rounded-2xl text-white">
+              <h4 class="font-bold text-lg mb-2">♿ Accesibilidad</h4>
+              <p class="text-emerald-100 text-sm mb-3">Toda la flota adaptada para PMR.</p>
+              <p class="font-semibold">100% accesible</p>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Initialize home map
+      setTimeout(() => initHomeMap(), 100);
+    }
+    
+    function initHomeMap() {
+      if (map) map.remove();
+      
+      const mapContainer = document.getElementById('home-map');
+      if (!mapContainer) return;
+      
+      map = L.map('home-map').setView([42.2306, -8.7200], 13);
+      
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+      
+      // Add all lines to map
+      VITRASA_DATA.lines.forEach(line => {
+        L.polyline(line.route, {
+          color: line.color,
+          weight: 4,
+          opacity: 0.8
+        }).addTo(map);
+      });
+      
+      // Add stop markers
+      VITRASA_DATA.stops.slice(0, 10).forEach(stop => {
+        const marker = L.circleMarker([stop.lat, stop.lng], {
+          radius: 8,
+          fillColor: '#10b981',
+          color: '#fff',
+          weight: 2,
+          fillOpacity: 1
+        }).addTo(map);
+        
+        marker.bindPopup(`
+          <div class="p-2">
+            <strong>${stop.name}</strong><br>
+            <span class="text-gray-500">${stop.lines.join(', ')}</span>
+          </div>
+        `);
+      });
+    }
+    
+    // ==========================================
+    // PÁGINA DE LÍNEAS
+    // ==========================================
+    function renderLines(container) {
+      container.innerHTML = `
+        <div class="slide-in">
+          <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Líneas de autobús</h2>
+            <p class="text-gray-500">Consulta todas las líneas de VITRASA y sus horarios</p>
+          </div>
+          
+          <div class="mb-6">
+            <input type="text" id="line-search" placeholder="Buscar línea..." 
+              class="search-input w-full px-4 py-3 rounded-xl outline-none"
+              oninput="filterLines(this.value)">
+          </div>
+          
+          <div id="lines-grid" class="grid md:grid-cols-2 gap-4">
+            ${VITRASA_DATA.lines.map(line => renderLineCard(line)).join('')}
+          </div>
+        </div>
+      `;
+    }
+    
+    function renderLineCard(line) {
+      return `
+        <button onclick="navigate('line-detail', {lineId: '${line.id}'})" 
+          class="line-card bg-white p-5 rounded-xl shadow-sm card-hover flex items-start gap-4 text-left"
+          data-line-id="${line.id}" data-line-name="${line.name.toLowerCase()}">
+          <div class="line-badge" style="background: ${line.color}">${line.id}</div>
+          <div class="flex-1">
+            <h3 class="font-bold text-gray-800 mb-1">${line.name}</h3>
+            <p class="text-sm text-gray-500 mb-3">${line.description}</p>
+            <div class="flex flex-wrap items-center gap-3 text-sm">
+              <span class="flex items-center gap-1 text-gray-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                ${line.frequency}
+              </span>
+              <span class="flex items-center gap-1 text-gray-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                </svg>
+                ${line.stops.length} paradas
+              </span>
+              <div class="time-chip ${isArriving(line.id) ? 'arriving' : ''}">
+                ${getNextBusTime(line.id)}
+              </div>
+            </div>
+          </div>
+        </button>
+      `;
+    }
+    
+    function filterLines(query) {
+      const cards = document.querySelectorAll('.line-card');
+      const q = query.toLowerCase().trim();
+      
+      cards.forEach(card => {
+        const id = card.dataset.lineId.toLowerCase();
+        const name = card.dataset.lineName;
+        const matches = id.includes(q) || name.includes(q);
+        card.style.display = matches ? 'flex' : 'none';
+      });
+    }
+    
+    // ==========================================
+    // DETALLE DE LÍNEA
+    // ==========================================
+    function renderLineDetail(container, lineId) {
+      const line = VITRASA_DATA.lines.find(l => l.id === lineId);
+      if (!line) {
+        container.innerHTML = '<p class="text-center text-gray-500 py-8">Línea no encontrada</p>';
+        return;
+      }
+      
+      const stops = line.stops.map(stopId => VITRASA_DATA.stops.find(s => s.id === stopId)).filter(Boolean);
+      const schedules = VITRASA_DATA.schedules[lineId] || [];
+      const now = new Date();
+      const currentTime = now.getHours() * 60 + now.getMinutes();
+      
+      container.innerHTML = `
+        <div class="slide-in">
+          <!-- Back button -->
+          <button onclick="navigate('lines')" class="flex items-center gap-2 text-gray-600 hover:text-emerald-600 mb-6 font-medium">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Volver a líneas
+          </button>
+          
+          <!-- Header -->
+          <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+            <div class="flex items-start gap-4">
+              <div class="line-badge text-2xl" style="background: ${line.color}; min-width: 64px; height: 64px; font-size: 1.5rem;">${line.id}</div>
+              <div class="flex-1">
+                <h2 class="text-2xl font-bold text-gray-800 mb-1">${line.name}</h2>
+                <p class="text-gray-500 mb-4">${line.description}</p>
+                <div class="flex flex-wrap gap-4 text-sm">
+                  <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">🕐</span>
+                    <div>
+                      <p class="text-gray-400 text-xs">Frecuencia</p>
+                      <p class="font-semibold text-gray-700">${line.frequency}</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">🌅</span>
+                    <div>
+                      <p class="text-gray-400 text-xs">Primer bus</p>
+                      <p class="font-semibold text-gray-700">${line.firstBus}</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">🌙</span>
+                    <div>
+                      <p class="text-gray-400 text-xs">Último bus</p>
+                      <p class="font-semibold text-gray-700">${line.lastBus
