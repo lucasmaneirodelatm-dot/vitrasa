@@ -289,183 +289,276 @@
         }
       },
       fares: {
-        single: { price: 1.35, description: "Billete sencillo" },
-        passCard: { price: 0.61, description: "Con tarjeta PASS Vigo" },
-        bono10: { price: 10.50, description: "Bono 10 viajes" },
-        bono30dias: { price: 38.00, description: "Bono mensual 30 días" },
+        single: { price: 1.65, description: "Billete sencillo" },
+        passCard: { price: 0.67, description: "Con tarjeta PASS Vigo" },
+        bono10: { price: 0.00, description: "Bono 10 viajes" },
+        bono30dias: { price: 00.00, description: "Bono mensual 30 días" },
         youth: { price: 0.51, description: "Tarifa joven (hasta 26 años)" },
-        senior: { price: 0.51, description: "Mayores de 65 años" },
-        children: { price: 0.00, description: "Menores de 4 años gratis" }
+        senior: { price: 0.00, description: "Mayores de 65 años" },
+        children: { price: 0.00, description: "Menores de 14 años gratis" }
       },
       lines: [
         {
           id: "C1",
-          name: "Circular 1 - Sentido Horario",
+          name: "CIRCULAR CENTRO",
           color: "#e74c3c",
           description: "Recorre el centro de Vigo conectando principales puntos comerciales y administrativos",
-          frequency: "8-12 min",
-          frequencyWeekend: "12-15 min",
-          firstBus: "06:30",
+          frequency: "10 min",
+          frequencyWeekend: "12-18 min",
+          firstBus: "07:15",
           lastBus: "23:00",
           duration: "35 min",
           accessible: true,
-          stops: ["P001", "P002", "P003", "P004", "P005", "P006", "P007", "P008", "P022", "P023"],
+          stops: [],
           route: [
-            [42.2406, -8.7207], [42.2380, -8.7150], [42.2350, -8.7100],
-            [42.2320, -8.7080], [42.2300, -8.7120], [42.2330, -8.7180],
-            [42.2370, -8.7220], [42.2406, -8.7207], [42.2425, -8.7245], [42.2420, -8.7190]
+            [], [], [],
+            [], [], [],
+            [], [], [], []
           ]
         },
         {
           id: "C2",
           name: "Circular 2 - Sentido Antihorario",
           color: "#3498db",
-          description: "Línea circular en sentido contrario a C1, mismo recorrido inverso",
-          frequency: "8-12 min",
-          frequencyWeekend: "12-15 min",
-          firstBus: "06:30",
-          lastBus: "23:00",
-          duration: "35 min",
-          accessible: true,
-          stops: ["P023", "P022", "P008", "P007", "P006", "P005", "P004", "P003", "P002", "P001"],
+          description: null,
+          frequency: "0 min",
+          frequencyWeekend: "0 min",
+          firstBus: null,
+          lastBus: null,
+          duration: "0 min",
+          accessible: false,
+          stops: [],
           route: [
-            [42.2420, -8.7190], [42.2425, -8.7245], [42.2406, -8.7207],
-            [42.2370, -8.7220], [42.2330, -8.7180], [42.2300, -8.7120],
-            [42.2320, -8.7080], [42.2350, -8.7100], [42.2380, -8.7150], [42.2406, -8.7207]
+            [], [], [],
+            [], [], [],
+            [], [], [], []
           ]
         },
         {
-          id: "L1",
-          name: "Hospital Meixoeiro - Centro",
-          color: "#27ae60",
-          description: "Conecta el Hospital Meixoeiro con el centro pasando por barrios residenciales",
+          id: "C3.I",
+          name: "COIA/BOUZAS - ENCARNACIÓN (Praza España)",
+          color: "#FDD835",
+          description: "Conecta Vigo de un extremo a otro",
           frequency: "15-20 min",
-          frequencyWeekend: "20-25 min",
-          firstBus: "06:15",
+          frequencyWeekend: "30-40 min",
+          firstBus: "06:00",
           lastBus: "23:00",
-          duration: "28 min",
+          duration: "100 min",
           accessible: true,
-          stops: ["P025", "P026", "P027", "P003", "P001", "P002"],
+          stops: ["230", "190", "200", "210"],
           route: [
-            [42.2250, -8.7450], [42.2280, -8.7380], [42.2310, -8.7280],
-            [42.2350, -8.7100], [42.2406, -8.7207], [42.2380, -8.7150]
+            [42.248017, -8.691476], [42.2150, -8.7500], [42.252502, -8.683413],
+            [42.255835, -8.678907], [], []
           ]
         },
         {
-          id: "L4",
-          name: "Navia - Hospital Álvaro Cunqueiro",
-          color: "#f39c12",
-          description: "Línea estratégica que conecta zonas residenciales con el nuevo hospital universitario",
-          frequency: "15-18 min",
-          frequencyWeekend: "18-22 min",
-          firstBus: "06:00",
-          lastBus: "23:30",
-          duration: "32 min",
+          id: "C3.D",
+          name: "COIA/BOUZAS - ENCARNACIÓN (Praza Eugenio Fadrique)",
+          color: "#FDD835",
+          description: "Conecta Vigo de un extremo a otro",
+          frequency: "15-20 min",
+          frequencyWeekend: "30-40 min",
+          firstBus: "05:30",
+          lastBus: "23:00",
+          duration: "100 min",
           accessible: true,
-          stops: ["P012", "P032", "P003", "P004", "P034", "P013", "P014"],
+          stops: ["195", "250", "220", "260", "240"],
           route: [
-            [42.2500, -8.7350], [42.2470, -8.7280], [42.2350, -8.7100],
-            [42.2320, -8.7080], [42.2260, -8.7020], [42.2200, -8.7000], [42.2100, -8.6900]
+            [42.256697, -8.677912], [42.255343, -8.679875], [42.256635, -8.677858],
+            [42.250262, -8.686058], [42.248120, -8.691521], []
+          ]
+        },
+        {
+          id: "4A",
+          name: "COIA - ARAGÓN",
+          color: "#4CAF50",
+          description: null,
+          frequency: "30-35 min",
+          frequencyWeekend: "60-70 min",
+          firstBus: "05:30",
+          lastBus: "23:30",
+          duration: "92 min",
+          accessible: true,
+          stops: ["390", "410", "340", "350", "370", "380", "360", "420", "400"],
+          route: [
+            [42.233017, -8.702832], [42.235179, -8.701743], [42.238716, -8.701644],
+            [42.240571, -8.700617], [42.241834, -8.698994], [42.242058, -8.699249],
+            [42.240188, -8.701268], [42.236307, -8.701531], [42.234321, -8.702556]
+          ]
+        },
+        {
+          id: "4C",
+          name: "COIA - GREGORIO ESPINO",
+          color: "#4CAF50",
+          description: null,
+          frequency: "30-35 min",
+          frequencyWeekend: "60-70 min",
+          firstBus: "07:00",
+          lastBus: "23:30",
+          duration: "92 min",
+          accessible: true,
+          stops: [],
+          route: [
+            [], [], [],
+            [], [], [],
+            [], [], []
           ]
         },
         {
           id: "L5A",
-          name: "Castrelos - Urzáiz",
+          name: "PEDRA SEIXA/TEIXUGEIRAS - BUENOS AIRES (Por Urzáiz)",
           color: "#1abc9c",
-          description: "Une el parque de Castrelos con la estación de tren y el centro",
-          frequency: "12-15 min",
-          frequencyWeekend: "15-20 min",
-          firstBus: "07:00",
+          description: null,
+          frequency: "30-35 min",
+          frequencyWeekend: "35-60 min",
+          firstBus: "06:00",
           lastBus: "22:00",
-          duration: "22 min",
+          duration: "130 min",
           accessible: true,
-          stops: ["P015", "P035", "P006", "P005", "P001", "P018"],
+          stops: [],
           route: [
-            [42.2150, -8.7400], [42.2220, -8.7300], [42.2330, -8.7180],
-            [42.2300, -8.7120], [42.2406, -8.7207], [42.2420, -8.7100]
+            [], [], [],
+            [], [], []
+          ]
+        },
+        {
+          id: "L5B",
+          name: "PEDRA SEIXA/TEIXUGEIRAS - BUENOS AIRES (Por García Barbón)",
+          color: "#1abc9c",
+          description: null,
+          frequency: "30-35 min",
+          frequencyWeekend: "35-60 min",
+          firstBus: "06:00",
+          lastBus: "22:00",
+          duration: "130 min",
+          accessible: true,
+          stops: [],
+          route: [
+            [], [], [],
+            [], [], []
+          ]
+        },
+        {
+          id: "6",
+          name: "PIZARRO - BEADE/HOSPITAL ÁLVARO CUNQUEIRO",
+          color: "#1abc9c",
+          description: null,
+          frequency: "60 min",
+          frequencyWeekend: "90-120 min",
+          firstBus: "05:45",
+          lastBus: "22:00",
+          duration: "70 min",
+          accessible: true,
+          stops: [],
+          route: [
+            [], [], [],
+            [], [], []
           ]
         },
         {
           id: "L7",
-          name: "Samil - Casco Vello",
+          name: "PRAZA ESPAÑA - GARRIDA/ZAMÁNS/SOBREIRA/SAN COSME",
           color: "#e67e22",
-          description: "Desde la playa de Samil hasta el casco histórico, ruta turística costera",
-          frequency: "15-20 min",
-          frequencyWeekend: "12-15 min",
-          firstBus: "06:30",
-          lastBus: "23:30",
-          duration: "38 min",
+          description: "Está al cargo del Alto de la Garrida",
+          frequency: "30 min",
+          frequencyWeekend: "45-75 min",
+          firstBus: "05:30",
+          lastBus: "23:00",
+          duration: "105 min",
           accessible: true,
-          stops: ["P016", "P036", "P017", "P037", "P006", "P001", "P038"],
+          stops: ["180", "660"],
           route: [
-            [42.2050, -8.7700], [42.2100, -8.7620], [42.2150, -8.7500],
-            [42.2200, -8.7400], [42.2330, -8.7180], [42.2406, -8.7207], [42.2430, -8.7280]
+            [42.165894, -8.720551], [42.211532, -8.736717], [],
+            [], [], [], []
           ]
         },
         {
-          id: "L9A",
-          name: "Coruxo - Universidad",
-          color: "#c0392b",
-          description: "Conecta barrios del sur con el campus universitario y el centro",
-          frequency: "18-22 min",
-          frequencyWeekend: "20-25 min",
-          firstBus: "06:45",
-          lastBus: "22:30",
-          duration: "42 min",
-          accessible: true,
-          stops: ["P019", "P040", "P016", "P017", "P041", "P001"],
-          route: [
-            [42.1900, -8.7900], [42.1980, -8.7800], [42.2050, -8.7700],
-            [42.2150, -8.7500], [42.2250, -8.7350], [42.2406, -8.7207]
-          ]
-        },
-        {
-          id: "L12",
-          name: "Aeropuerto - Centro - Estación Marítima",
-          color: "#34495e",
-          description: "Conexión aeropuerto con centro urbano y puerto, ideal para turistas y viajeros",
+          id: "A",
+          name: "UNIVERSIDADE - AEROPORTO PEINADOR",
+          color: "#43A047",
+          description: "Conecta dos puntos clave de las afueras de la ciudad",
           frequency: "30-35 min",
-          frequencyWeekend: "40-45 min",
-          firstBus: "06:00",
+          frequencyWeekend: "35-60 min",
+          firstBus: "05:30",
+          lastBus: "23:00",
+          duration: "145 min",
+          accessible: true,
+          stops: ["90"],
+          route: [
+            [42.225891, -8.633242], [], [],
+            [], [], [], []
+          ]
+        },
+        {
+          id: "L9B",
+          name: "RECONQUISTA - RABADEIRA",
+          color: "#c0392b",
+          description: null,
+          frequency: "62-66 min",
+          frequencyWeekend: "60-65 min",
+          firstBus: "05:30",
           lastBus: "23:30",
-          duration: "45 min",
+          duration: "56 min",
           accessible: true,
-          stops: ["P020", "P021", "P043", "P004", "P001", "P028"],
+          stops: [],
           route: [
-            [42.2300, -8.6300], [42.2350, -8.6600], [42.2380, -8.6850],
-            [42.2320, -8.7080], [42.2406, -8.7207], [42.2390, -8.7250]
+            [], [], [],
+            [], [], []
           ]
         },
         {
-          id: "BN1",
-          name: "Búho Nocturno Centro-Bouzas",
+          id: "10",
+          name: "SAIÁNS/CANIDO - CEMITERIO TEIS",
+          color: "#34495e",
+          description: "Conexión de extremo a extremo",
+          frequency: "60 min",
+          frequencyWeekend: "50-70 min",
+          firstBus: "05:30",
+          lastBus: "22:30",
+          duration: "135 min",
+          accessible: true,
+          stops: ["650", "600", "310", "280", "320", "330", "270", "290", "230", "190", "200", "210", "195", "250", "220", "260", "240", "310", "280", "320", "330", "270", "560"],
+          route: [
+            [42.181057, -8.807881], [42.189720, -8.801269], [42.190873, -8.804010],
+            [42.189497, -8.808519], [42.189209, -8.812172], [42.187244, -8.813385],
+            [42.192981, -8.800328], [42.189978, -8.804603], [42.248017, -8.691476],
+            [42.2150, -8.7500], [42.252502, -8.683413], [42.255835, -8.678907],
+            [42.256697, -8.677912], [42.255343, -8.679875], [42.256635, -8.677858],
+            [42.250262, -8.686058], [42.248120, -8.691521], [42.190873, -8.804010],
+            [42.189497, -8.808519], [42.189209, -8.812172], [42.187244, -8.813385],
+            [42.192981, -8.800328], [42.189978, -8.804603], [42.180896, -8.807988]
+          ]
+        },
+        {
+          id: "N1",
+          name: "SAMIL - BUENOS AIRES",
           color: "#8e44ad",
-          description: "Servicio nocturno viernes y sábados desde el centro hacia barrios del este",
-          frequency: "45-60 min",
-          frequencyWeekend: "45-60 min",
-          firstBus: "23:30",
-          lastBus: "04:30",
-          duration: "35 min",
+          description: "Servicio nocturno a diario",
+          frequency: "70-85 min",
+          frequencyWeekend: "70-90 min",
+          firstBus: "23:00",
+          lastBus: "05:30",
+          duration: "75 min",
           accessible: true,
-          stops: ["P001", "P002", "P010", "P011"],
+          stops: [],
           route: [
-            [42.2406, -8.7207], [42.2380, -8.7150], [42.2340, -8.7050], [42.2280, -8.6980]
+            [], [], [], []
           ]
         },
         {
-          id: "BN2",
-          name: "Búho Nocturno Centro-Samil",
+          id: "N4",
+          name: "NAVIA - GREGORIO ESPINO",
           color: "#2980b9",
-          description: "Servicio nocturno viernes y sábados desde el centro hacia la zona de playas",
-          frequency: "45-60 min",
-          frequencyWeekend: "45-60 min",
+          description: "Servicio nocturno viernes y sábados desde Navia hacia la zona de Llorones",
+          frequency: null,
+          frequencyWeekend: "75-95 min",
           firstBus: "23:30",
-          lastBus: "04:30",
-          duration: "40 min",
+          lastBus: "06:00",
+          duration: "87 min",
           accessible: true,
-          stops: ["P001", "P006", "P017", "P016"],
+          stops: [],
           route: [
-            [42.2406, -8.7207], [42.2330, -8.7180], [42.2150, -8.7500], [42.2050, -8.7700]
+            [], [], [], []
           ]
         }
       ],
