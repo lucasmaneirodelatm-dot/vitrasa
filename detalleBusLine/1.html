@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horario Línea C1 - Vitrasa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Roboto', sans-serif; }
+        .bus-animation {
+            animation: busMove 3s ease-in-out infinite;
+        }
+        @keyframes busMove {
+            0%, 100% { transform: translateX(0px); }
+            50% { transform: translateX(10px); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-50 to-teal-100 min-h-screen">
+    <div class="container mx-auto px-4 py-6">
+        <!-- Header with Live Status -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 mb-6 border-l-4 border-green-500">
+            <div class="flex flex-col md:flex-row md:items-center justify-between">
+                <div class="flex items-center space-x-4 mb-4 md:mb-0">
+                    <div class="bg-green-600 text-white rounded-full w-16 h-16 flex items-center justify-center font-bold text-2xl bus-animation">
+                        5
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-800">Línea 5 - Vitrasa</h1>
+                        <p class="text-gray-600 text-lg">Estación → Salburua → Zabalgana</p>
+                        <div class="flex items-center mt-2">
+                            <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse mr-2"></div>
+                            <span class="text-sm text-green-600 font-medium">Servicio activo</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-green-50 rounded-xl p-4 text-center">
+                    <div class="text-sm text-gray-600 mb-1">⏰ Próximo autobús</div>
+                    <div class="text-2xl font-bold text-green-600" id="nextBusTime">09:15</div>
+                    <div class="text-xs text-gray-500" id="nextBusIn">en 8 minutos</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Info Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-lg p-4 text-center">
+                <div class="text-2xl mb-2">🕐</div>
+                <div class="text-sm text-gray-600">Frecuencia</div>
+                <div class="font-bold text-gray-800">15-20 min</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-4 text-center">
+                <div class="text-2xl mb-2">📍</div>
+                <div class="text-sm text-gray-600">Paradas</div>
+                <div class="font-bold text-gray-800">18 paradas</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-4 text-center">
+                <div class="text-2xl mb-2">⏱️</div>
+                <div class="text-sm text-gray-600">Duración</div>
+                <div class="font-bold text-gray-800">35 minutos</div>
+            </div>
+        </div>
+
+        <!-- Direction Toggle -->
+        <div class="bg-white rounded-xl shadow-lg p-4 mb-6">
+            <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+                <button onclick="changeDirection('ida')" id="btnIda" class="flex-1 bg-green-600 text-white py-4 px-6 rounded-xl font-semibold transition-all hover:bg-green-700 transform hover:scale-105">
+                    🚌 Estación → Zabalgana
+                </button>
+                <button onclick="changeDirection('vuelta')" id="btnVuelta" class="flex-1 bg-gray-100 text-gray-700 py-4 px-6 rounded-xl font-semibold transition-all hover:bg-gray-200 transform hover:scale-105">
+                    🚌 Zabalgana → Estación
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="grid lg:grid-cols-3 gap-6">
+            <!-- Schedule Section -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Weekday Schedule -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                            📅 Lunes a Viernes
+                        </h3>
+                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                            Servicio completo
+                        </span>
+                    </div>
+                    <div id="weekdayTimes" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
+                        <!-- Times will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Weekend Schedule -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                            🎯 Sábados y Domingos
+                        </h3>
+                        <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium">
+                            Servicio reducido
+                        </span>
+                    </div>
+                    <div id="weekendTimes" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
+                        <!-- Times will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Route Map -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                    🗺️ Recorrido
+                </h3>
+                <div id="routeMap" class="space-y-3">
+                    <!-- Route stops will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mt-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">ℹ️ Información Adicional</h3>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="font-semibold text-gray-700 mb-2">🎫 Tarifas</h4>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• Billete sencillo: 1,63€</li>
+                        <li>• Tarjeta PASS: 0,65€</li>
+                        <li>• Abono mensual: 27,20€</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-700 mb-2">♿ Accesibilidad</h4>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• Autobuses de piso bajo</li>
+                        <li>• Rampa para sillas de ruedas</li>
+                        <li>• Avisos sonoros</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-8 text-gray-500">
+            <p class="text-sm">🕐 Horarios actualizados • Vitrasa - Transporte Urbano de Vigo</p>
+            <p class="text-xs mt-2">Información sujeta a modificaciones • Consulta avisos en paradas</p>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced schedule data for Line 1
+        const lineData = {
+            ida: {
+                weekday: [
+                    '06:15', '06:45', '07:15', '07:30', '07:45', '08:00', '08:15', '08:30', '08:45', '09:00',
+                    '09:15', '09:30', '09:45', '10:00', '10:20', '10:40', '11:00', '11:20', '11:40', '12:00',
+                    '12:20', '12:40', '13:00', '13:20', '13:40', '14:00', '14:15', '14:30', '14:45', '15:00',
+                    '15:15', '15:30', '15:45', '16:00', '16:15', '16:30', '16:45', '17:00', '17:15', '17:30',
+                    '17:45', '18:00', '18:20', '18:40', '19:00', '19:20', '19:40', '20:00', '20:30', '21:00',
+                    '21:30', '22:00', '22:30'
+                ],
+                weekend: [
+                    '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30',
+                    '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30',
+                    '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00'
+                ]
+            },
+            vuelta: {
+                weekday: [
+                    '06:45', '07:15', '07:45', '08:00', '08:15', '08:30', '08:45', '09:00', '09:15', '09:30',
+                    '09:45', '10:00', '10:15', '10:30', '10:50', '11:10', '11:30', '11:50', '12:10', '12:30',
+                    '12:50', '13:10', '13:30', '13:50', '14:10', '14:30', '14:45', '15:00', '15:15', '15:30',
+                    '15:45', '16:00', '16:15', '16:30', '16:45', '17:00', '17:15', '17:30', '17:45', '18:00',
+                    '18:15', '18:30', '18:50', '19:10', '19:30', '19:50', '20:10', '20:30', '21:00', '21:30',
+                    '22:00', '22:30', '23:00'
+                ],
+                weekend: [
+                    '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00',
+                    '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00',
+                    '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00', '22:30'
+                ]
+            }
+        };
+
+        const routeStops = {
+            ida: [
+                { name: 'Praza de América, 1', icon: '⛲' },
+                { name: 'Rúa da Coruña, 26', icon: '🚏' },
+                { name: 'Rúa da Coruña, 52', icon: '🚏' },
+                { name: 'Rúa do Conde de Torrecedeira, 123', icon: '🚏' },
+                { name: 'Rua do Conde de Torrecedeira, 105', icon: '🚏' },
+                { name: 'Rúa do Conde de Torrecedeira, 81', icon: '🚏' },
+                { name: 'Rúa do Conde de Torrecedeira (Parque)', icon: '🌳' },
+                { name: 'Rúa do Conde de Torrecedeira, 21', icon: '🚏' },
+                { name: 'Rúa do Gaiteiro de Ricardo Portela (fronte Pavillón)', icon: '🚏' },
+                { name: 'Rúa da Ribeira do Berbés', icon: '🏛️' },
+                { name: 'Rúa de Cánovas del Castillo, 18', icon: '🚏' },
+                { name: 'Praza de Compostela, 2', icon: '🌳' },
+                { name: 'Rúa de Policarpo Sanz, 26', icon: '🏙️' }
+            ],
+            vuelta: [
+                { name: 'Rúa de Policarpo Sanz, 40', icon: '🏙️' },
+                { name: 'Rúa de Urzáiz - Príncipe', icon: '🏬' },
+                { name: 'Rúa de Urzáiz, 28', icon: '🏙️' },
+                { name: 'Avda. da Gran Vía, 12', icon: '🚏' },
+                { name: 'Avda. da Gran Vía, 46', icon: '🏙️' },
+                { name: 'Rúa de Santo Amaro (Praza de España)', icon: '🏘️' },
+                { name: 'Rúa de Barcelona, 18', icon: '🚏' },
+                { name: 'Rúa de Barcelona, 44', icon: '🚏' },
+                { name: 'Rúa de Barcelona, Hospital Ribera Povisa', icon: '🏥' },
+                { name: 'Rúa do Pintor Laxeiro, 4', icon: '🚏' },
+                { name: 'Avda. das Camelias, 136', icon: '🏢' }
+            ]
+        };
+
+        let currentDirection = 'ida';
+
+        function changeDirection(direction) {
+            currentDirection = direction;
+            
+            const btnIda = document.getElementById('btnIda');
+            const btnVuelta = document.getElementById('btnVuelta');
+            
+            if (direction === 'ida') {
+                btnIda.className = 'flex-1 bg-green-600 text-white py-4 px-6 rounded-xl font-semibold transition-all hover:bg-green-700 transform hover:scale-105';
+                btnVuelta.className = 'flex-1 bg-gray-100 text-gray-700 py-4 px-6 rounded-xl font-semibold transition-all hover:bg-gray-200 transform hover:scale-105';
+            } else {
+                btnIda.className = 'flex-1 bg-gray-100 text-gray-700 py-4 px-6 rounded-xl font-semibold transition-all hover:bg-gray-200 transform hover:scale-105';
+                btnVuelta.className = 'flex-1 bg-green-600 text-white py-4 px-6 rounded-xl font-semibold transition-all hover:bg-green-700 transform hover:scale-105';
+            }
+            
+            updateScheduleDisplay();
+            updateRouteDisplay();
+            calculateNextBus();
+        }
+
+        function updateScheduleDisplay() {
+            const weekdayContainer = document.getElementById('weekdayTimes');
+            const weekendContainer = document.getElementById('weekendTimes');
+            
+            // Clear containers
+            weekdayContainer.innerHTML = '';
+            weekendContainer.innerHTML = '';
+            
+            // Populate weekday schedule
+            lineData[currentDirection].weekday.forEach(time => {
+                const timeElement = document.createElement('div');
+                timeElement.className = 'bg-green-50 hover:bg-green-100 text-green-800 font-medium py-2 px-3 rounded-lg text-center text-sm transition-colors cursor-pointer';
+                timeElement.textContent = time;
+                timeElement.onclick = () => highlightTime(timeElement);
+                weekdayContainer.appendChild(timeElement);
+            });
+            
+            // Populate weekend schedule
+            lineData[currentDirection].weekend.forEach(time => {
+                const timeElement = document.createElement('div');
+                timeElement.className = 'bg-orange-50 hover:bg-orange-100 text-orange-800 font-medium py-2 px-3 rounded-lg text-center text-sm transition-colors cursor-pointer';
+                timeElement.textContent = time;
+                timeElement.onclick = () => highlightTime(timeElement);
+                weekendContainer.appendChild(timeElement);
+            });
+        }
+
+        function updateRouteDisplay() {
+            const routeContainer = document.getElementById('routeMap');
+            routeContainer.innerHTML = '';
+            
+            routeStops[currentDirection].forEach((stop, index) => {
+                const stopElement = document.createElement('div');
+                stopElement.className = 'flex items-center space-x-3 p-3 bg-gray-50 hover:bg-green-50 rounded-lg transition-colors cursor-pointer';
+                stopElement.innerHTML = `
+                    <div class="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-xs font-bold">
+                        ${index + 1}
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-lg">${stop.icon}</span>
+                            <span class="text-sm font-medium text-gray-800">${stop.name}</span>
+                        </div>
+                    </div>
+                `;
+                routeContainer.appendChild(stopElement);
+            });
+        }
+
+        function highlightTime(element) {
+            // Remove previous highlights
+            document.querySelectorAll('.time-selected').forEach(el => {
+                el.classList.remove('time-selected', 'ring-2', 'ring-green-400');
+            });
+            
+            // Add highlight to selected time
+            element.classList.add('time-selected', 'ring-2', 'ring-green-400');
+        }
+
+        function calculateNextBus() {
+            const now = new Date();
+            const currentTime = now.getHours() * 60 + now.getMinutes();
+            const isWeekend = now.getDay() === 0 || now.getDay() === 6;
+            
+            const schedule = isWeekend ? 
+                lineData[currentDirection].weekend : 
+                lineData[currentDirection].weekday;
+            
+            let nextBus = null;
+            let minutesUntil = 0;
+            
+            for (let time of schedule) {
+                const [hours, minutes] = time.split(':').map(Number);
+                const busTime = hours * 60 + minutes;
+                
+                if (busTime > currentTime) {
+                    nextBus = time;
+                    minutesUntil = busTime - currentTime;
+                    break;
+                }
+            }
+            
+            if (!nextBus && schedule.length > 0) {
+                nextBus = schedule[0];
+                minutesUntil = (24 * 60) - currentTime + (parseInt(schedule[0].split(':')[0]) * 60 + parseInt(schedule[0].split(':')[1]));
+            }
+            
+            document.getElementById('nextBusTime').textContent = nextBus || 'Sin servicio';
+            document.getElementById('nextBusIn').textContent = nextBus ? 
+                (minutesUntil > 60 ? 'mañana' : `en ${minutesUntil} minutos`) : 
+                'Servicio finalizado';
+        }
+
+        // Initialize the application
+        changeDirection('ida');
+        
+        // Update next bus time every minute
+        setInterval(calculateNextBus, 60000);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9e5fba36c37517f6',t:'MTc3NTEzMTc5NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
