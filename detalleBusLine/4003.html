@@ -1,0 +1,477 @@
+
+<!doctype html>
+<html lang="es" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Linea 4C - Vitrasa</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Poppins', sans-serif; }
+    html, body { height: 100%; }
+    .schedule-row:nth-child(even) { background: rgba(0,90,156,0.04); }
+    .next-bus { animation: pulse-highlight 2s ease-in-out infinite; }
+    @keyframes pulse-highlight { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+    .tab-active { border-bottom: 3px solid #005a9c; }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+ </head>
+ <body class="h-full">
+  <div id="app" class="h-full w-full bg-gradient-to-b from-slate-50 to-slate-100 overflow-auto flex flex-col"><!-- Header Premium -->
+   <header class="bg-gradient-to-r from-[#005a9c] to-[#003d6b] text-white px-5 py-5 shadow-lg">
+    <h1 id="app-title" class="font-bold text-2xl mb-1">Vitrasa Plus</h1>
+    <p class="text-blue-100 text-sm">Tu compañero de transporte en Vigo</p>
+   </header><!-- Tabs de navegación -->
+   <div class="flex gap-0 bg-white border-b border-slate-200 px-5 sticky top-0 z-10"><button onclick="switchTab('horarios')" id="tab-horarios" class="tab-btn tab-active py-3 px-4 text-sm font-semibold text-[#005a9c] border-b-[3px] border-[#005a9c] transition"> <i data-lucide="clock" style="width:16px;height:16px;display:inline;margin-right:6px;vertical-align:-2px;"></i>Horarios </button> <button onclick="switchTab('favoritos')" id="tab-favoritos" class="tab-btn py-3 px-4 text-sm font-semibold text-slate-600 border-b-[3px] border-transparent transition hover:border-slate-300"> <i data-lucide="star" style="width:16px;height:16px;display:inline;margin-right:6px;vertical-align:-2px;"></i>Favoritos </button> <button onclick="switchTab('historial')" id="tab-historial" class="tab-btn py-3 px-4 text-sm font-semibold text-slate-600 border-b-[3px] border-transparent transition hover:border-slate-300"> <i data-lucide="history" style="width:16px;height:16px;display:inline;margin-right:6px;vertical-align:-2px;"></i>Historial </button>
+   </div><!-- Contenedor principal con flex -->
+   <div class="flex-1 overflow-auto"><!-- TAB: HORARIOS -->
+    <div id="tab-content-horarios" class="tab-content px-5 py-4"><!-- Search card -->
+     <div class="bg-white rounded-2xl shadow-md p-4 mb-4 border border-slate-200">
+      <div class="flex gap-2 mb-3"><input id="search-line" type="text" placeholder="Línea (ej: C1, A1)" class="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#005a9c] focus:border-transparent" oninput="handleLineSearch()"> <input id="search-stop" type="text" placeholder="Parada (ej: Plaza)" class="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#005a9c] focus:border-transparent" oninput="handleStopSearch()">
+      </div>
+     </div><!-- Day & Direction Controls -->
+     <div class="bg-white rounded-xl shadow-sm p-3 mb-4 border border-slate-200">
+      <div class="flex justify-between items-center mb-3"><span class="text-xs text-slate-500 uppercase tracking-wide font-bold">Tipo de día</span>
+       <div class="flex gap-1.5"><button onclick="setDay('laborable')" id="btn-laborable" class="day-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#005a9c] text-white">Laborables</button> <button onclick="setDay('sabado')" id="btn-sabado" class="day-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600">Sábados</button> <button onclick="setDay('festivo')" id="btn-festivo" class="day-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600">Festivos</button>
+       </div>
+      </div>
+      <div class="flex items-center justify-between pt-2 border-t border-slate-100"><span class="text-xs text-slate-500 uppercase tracking-wide font-bold">Dirección</span> <button onclick="toggleDirection()" id="direction-btn" class="flex items-center gap-1.5 text-sm font-semibold text-[#005a9c] bg-slate-50 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition"> <span id="direction-label">Ida</span> <i data-lucide="arrow-right-left" style="width:14px;height:14px;"></i> </button>
+      </div>
+     </div><!-- Próximo bus destacado -->
+     <div id="next-bus-card" class="hidden bg-gradient-to-r from-emerald-400 to-emerald-500 text-white rounded-xl shadow-lg p-4 mb-4 next-bus border-l-4 border-emerald-600">
+      <div class="text-xs font-bold opacity-90 mb-1">
+       PRÓXIMO AUTOBÚS
+      </div>
+      <div class="flex items-end justify-between">
+       <div>
+        <div id="next-bus-time" class="text-4xl font-black">
+         14:32
+        </div>
+        <div id="next-bus-wait" class="text-sm font-semibold opacity-90">
+         en 8 minutos
+        </div>
+       </div><i data-lucide="bus" style="width:48px;height:48px;opacity:0.8;"></i>
+      </div>
+     </div><!-- Schedule table -->
+     <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="grid grid-cols-[80px_1fr_50px] bg-gradient-to-r from-slate-100 to-slate-50 px-4 py-3 text-xs font-bold text-slate-600 uppercase tracking-wide"><span>Hora</span> <span>Minutos</span> <span></span>
+      </div>
+      <div id="schedule-body" class="divide-y divide-slate-100 max-h-96 overflow-auto"></div>
+     </div><!-- Info footer -->
+     <div class="flex items-start gap-2 text-xs text-slate-400 mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100"><i data-lucide="info" style="width:14px;height:14px;margin-top:2px;flex-shrink:0;"></i> <span>Horarios orientativos. Pueden variar según condiciones de tráfico. Consulta la app de Vitrasa para tiempo real.</span>
+     </div>
+    </div><!-- TAB: FAVORITOS -->
+    <div id="tab-content-favoritos" class="tab-content px-5 py-4 hidden">
+     <div id="favorites-empty" class="text-center py-12"><i data-lucide="star" style="width:48px;height:48px;margin:0 auto 12px;color:#cbd5e1;"></i>
+      <p class="text-slate-500 font-semibold mb-2">Sin favoritos todavía</p>
+      <p class="text-slate-400 text-sm mb-4">Haz clic en el corazón junto a un horario para guardarlo</p>
+     </div>
+     <div id="favorites-list" class="hidden space-y-2"></div>
+    </div><!-- TAB: HISTORIAL -->
+    <div id="tab-content-historial" class="tab-content px-5 py-4 hidden">
+     <div id="history-empty" class="text-center py-12"><i data-lucide="history" style="width:48px;height:48px;margin:0 auto 12px;color:#cbd5e1;"></i>
+      <p class="text-slate-500 font-semibold mb-2">Sin historial</p>
+      <p class="text-slate-400 text-sm">Tu búsquedas recientes aparecerán aquí</p>
+     </div>
+     <div id="history-list" class="hidden space-y-2"></div>
+    </div>
+   </div>
+  </div>
+  <script>
+const scheduleData = {
+  laborable: {
+    ida: [
+      {h:"7",m:["00","30"]},
+      {h:"8",m:["00","30"]},
+      {h:"9",m:["10","46"]},
+      {h:"10",m:["22","58"]},
+      {h:"11",m:["34"]},
+      {h:"12",m:["10","46"]},
+      {h:"13",m:["20","54"]},
+      {h:"14",m:["28"]},
+      {h:"15",m:["04","40"]},
+      {h:"16",m:["16","52"]},
+      {h:"17",m:["28"]},
+      {h:"18",m:["04","40"]},
+      {h:"19",m:["16","48"]},
+      {h:"20",m:["25"]},
+      {h:"21",m:["00","30"]},
+      {h:"22",m:["00","20"]}
+    ],
+    vuelta: [
+      {h:"5",m:["00"]},
+      {h:"6",m:[]},
+      {h:"7",m:["00","40"]},
+      {h:"8",m:["15","47"]},
+      {h:"9",m:["30"]},
+      {h:"10",m:["00","35"]},
+      {h:"11",m:["11","47"]},
+      {h:"12",m:["23","59"]},
+      {h:"13",m:["35"]},
+      {h:"14",m:["11","46"]},
+      {h:"15",m:["19","54"]},
+      {h:"16",m:["30"]},
+      {h:"17",m:["06","41"]},
+      {h:"18",m:["16","52"]},
+      {h:"19",m:["28"]},
+      {h:"20",m:["04","36"]},
+      {h:"21",m:["15","44"]},
+      {h:"22",m:["15"]}
+    ]
+  },
+  sabado: {
+    ida: [
+      {h:"8",m:["00","55"]},
+      {h:"9",m:["50"]},
+      {h:"10",m:["58"]},
+      {h:"11",m:[]},
+      {h:"12",m:["06"]},
+      {h:"13",m:["14"]},
+      {h:"14",m:["22"]},
+      {h:"15",m:["30"]},
+      {h:"16",m:["38"]},
+      {h:"17",m:["46"]},
+      {h:"18",m:["52"]},
+      {h:"19",m:[]},
+      {h:"20",m:["02"]},
+      {h:"21",m:["05"]},
+      {h:"22",m:["05"]}
+    ],
+    vuelta: [
+      {h:"8",m:["37"]},
+      {h:"9",m:["38"]},
+      {h:"10",m:["35"]},
+      {h:"11",m:["44"]},
+      {h:"12",m:["52"]},
+      {h:"13",m:[]},
+      {h:"14",m:["00"]},
+      {h:"15",m:["08"]},
+      {h:"16",m:["14"]},
+      {h:"17",m:["24"]},
+      {h:"18",m:["32"]},
+      {h:"19",m:["40"]},
+      {h:"20",m:["48"]},
+      {h:"21",m:["50"]},
+      {h:"22",m:["55"]},
+    ]
+  },
+  festivo: {
+    ida: [
+      {h:"10",m:["22"]},
+      {h:"11",m:["22"]},
+      {h:"12",m:["22"]},
+      {h:"13",m:["22"]},
+      {h:"14",m:["22"]},
+      {h:"15",m:["30"]},
+      {h:"16",m:["38"]},
+      {h:"17",m:["46"]},
+      {h:"18",m:["54"]},
+      {h:"19",m:[]},
+      {h:"20",m:["02"]},
+      {h:"21",m:["10"]},
+      {h:"22",m:["30"]}
+    ],
+    vuelta: [
+      {h:"11",m:["02"]},
+      {h:"12",m:["02"]},
+      {h:"13",m:["05"]},
+      {h:"14",m:["07"]},
+      {h:"15",m:["07"]},
+      {h:"16",m:["13"]},
+      {h:"17",m:["23"]},
+      {h:"18",m:["32"]},
+      {h:"19",m:["40"]},
+      {h:"20",m:["48"]},
+      {h:"21",m:["49"]},
+      {h:"22",m:[]},
+      {h:"22",m:["08"]}
+    ]
+  }
+};
+
+let currentDay = 'laborable';
+let currentDirection = 'ida';
+let currentData = [];
+let allFavorites = [];
+let allHistory = [];
+
+// ===== DATA SDK =====
+const dataHandler = {
+  onDataChanged(data) {
+    currentData = data;
+    renderFavoritesTab();
+    renderHistoryTab();
+  }
+};
+
+// ===== TABS =====
+function switchTab(tab) {
+  // Hide all tabs
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('tab-active'));
+  
+  // Show selected tab
+  document.getElementById('tab-content-' + tab).classList.remove('hidden');
+  document.getElementById('tab-' + tab).classList.add('tab-active');
+}
+
+// ===== SCHEDULING FUNCTIONS =====
+function setDay(day) {
+  currentDay = day;
+  document.querySelectorAll('.day-btn').forEach(b => { b.className = 'day-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600'; });
+  document.getElementById('btn-' + day).className = 'day-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#005a9c] text-white';
+  renderSchedule();
+}
+
+function toggleDirection() {
+  currentDirection = currentDirection === 'ida' ? 'vuelta' : 'ida';
+  document.getElementById('direction-label').textContent = currentDirection === 'ida' ? 'Ida' : 'Vuelta';
+  renderSchedule();
+}
+
+function handleLineSearch() {
+  // Placeholder for search functionality
+}
+
+function handleStopSearch() {
+  // Placeholder for search functionality
+}
+
+// ===== SCHEDULE RENDERING =====
+function renderSchedule() {
+  const data = scheduleData[currentDay][currentDirection];
+  const now = new Date();
+  const currentH = now.getHours();
+  const currentM = now.getMinutes();
+  
+  const body = document.getElementById('schedule-body');
+  body.innerHTML = '';
+  
+  let foundNext = false;
+  let nextBusTime = null;
+  
+  data.forEach(row => {
+    const rowDiv = document.createElement('div');
+    rowDiv.className = 'schedule-row grid grid-cols-[80px_1fr_50px] items-center px-4 py-3';
+    
+    const minsDiv = document.createElement('div');
+    minsDiv.className = 'flex flex-wrap gap-1';
+    
+    row.m.forEach(m => {
+      const span = document.createElement('span');
+      const isPast = parseInt(row.h) < currentH || (parseInt(row.h) === currentH && parseInt(m) < currentM);
+      const isNext = !foundNext && !isPast && parseInt(row.h) === currentH && parseInt(m) >= currentM;
+      
+      if (isNext) {
+        foundNext = true;
+        nextBusTime = `${row.h}:${m.padStart(2, '0')}`;
+        span.className = 'inline-block w-8 h-7 leading-7 text-center rounded text-sm font-bold bg-[#005a9c] text-white';
+      } else if (isPast) {
+        span.className = 'inline-block w-8 h-7 leading-7 text-center rounded text-sm text-slate-300';
+      } else {
+        span.className = 'inline-block w-8 h-7 leading-7 text-center rounded text-sm text-slate-700 hover:bg-slate-100 cursor-pointer transition';
+      }
+      span.textContent = m;
+      span.onclick = () => addToFavorite(row.h, m);
+      minsDiv.appendChild(span);
+    });
+    
+    rowDiv.innerHTML = `<span class="font-bold text-slate-700 text-sm">${row.h}:</span>`;
+    rowDiv.appendChild(minsDiv);
+    
+    const starBtn = document.createElement('button');
+    starBtn.className = 'flex items-center justify-center p-2 hover:bg-slate-100 rounded transition';
+    starBtn.innerHTML = '<i data-lucide="heart" style="width:16px;height:16px;color:#cbd5e1;"></i>';
+    starBtn.onclick = () => addToFavorite(row.h, row.m[0]);
+    rowDiv.appendChild(starBtn);
+    
+    body.appendChild(rowDiv);
+  });
+  
+  // Update next bus card
+  if (nextBusTime) {
+    const nextCard = document.getElementById('next-bus-card');
+    const timeParts = nextBusTime.split(':');
+    const nextH = parseInt(timeParts[0]);
+    const nextMin = parseInt(timeParts[1]);
+    const waitMin = ((nextH * 60 + nextMin) - (currentH * 60 + currentM));
+    
+    document.getElementById('next-bus-time').textContent = nextBusTime;
+    document.getElementById('next-bus-wait').textContent = `en ${waitMin} minuto${waitMin !== 1 ? 's' : ''}`;
+    nextCard.classList.remove('hidden');
+  } else {
+    document.getElementById('next-bus-card').classList.add('hidden');
+  }
+  
+  lucide.createIcons();
+}
+
+// ===== FAVORITES & HISTORY =====
+async function addToFavorite(hour, minute) {
+  const record = {
+    tipo: 'favorito',
+    parada: document.getElementById('search-stop').value || 'Parada',
+    linea: document.getElementById('search-line').value || 'C1',
+    hora: `${hour}:${minute.padStart(2, '0')}`,
+    favorito: true,
+    timestamp: new Date().toISOString()
+  };
+  
+  const result = await window.dataSdk.create(record);
+  if (result.isOk) {
+    console.log('Favorito guardado');
+    // Add to history too
+    await addToHistory(hour, minute);
+  }
+}
+
+async function addToHistory(hour, minute) {
+  const record = {
+    tipo: 'historial',
+    parada: document.getElementById('search-stop').value || 'Parada',
+    linea: document.getElementById('search-line').value || '4A',
+    hora: `${hour}:${minute.padStart(2, '0')}`,
+    favorito: false,
+    timestamp: new Date().toISOString()
+  };
+  
+  const result = await window.dataSdk.create(record);
+}
+
+function renderFavoritesTab() {
+  const favorites = currentData.filter(r => r.favorito === true);
+  const list = document.getElementById('favorites-list');
+  const empty = document.getElementById('favorites-empty');
+  
+  if (favorites.length === 0) {
+    empty.classList.remove('hidden');
+    list.classList.add('hidden');
+  } else {
+    empty.classList.add('hidden');
+    list.classList.remove('hidden');
+    list.innerHTML = favorites.map(fav => `
+      <div class="bg-white p-3 rounded-lg border border-slate-200 flex justify-between items-center hover:border-slate-300 transition">
+        <div>
+          <div class="font-bold text-slate-700">${fav.linea}</div>
+          <div class="text-xs text-slate-500">${fav.parada} - ${fav.hora}</div>
+        </div>
+        <button onclick="deleteFavorite('${fav.__backendId}')" class="p-1.5 text-red-400 hover:bg-red-50 rounded transition">
+          <i data-lucide="trash-2" style="width:16px;height:16px;"></i>
+        </button>
+      </div>
+    `).join('');
+    lucide.createIcons();
+  }
+}
+
+function renderHistoryTab() {
+  const history = currentData.filter(r => r.tipo === 'historial').sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  const list = document.getElementById('history-list');
+  const empty = document.getElementById('history-empty');
+  
+  if (history.length === 0) {
+    empty.classList.remove('hidden');
+    list.classList.add('hidden');
+  } else {
+    empty.classList.remove('hidden');
+    list.classList.remove('hidden');
+    list.innerHTML = history.slice(0, 10).map(hist => {
+      const date = new Date(hist.timestamp);
+      const time = date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+      return `
+        <div class="bg-white p-3 rounded-lg border border-slate-200 flex justify-between items-center">
+          <div>
+            <div class="font-bold text-slate-700">${hist.linea}</div>
+            <div class="text-xs text-slate-500">${hist.parada} - ${hist.hora} (${time})</div>
+          </div>
+          <button onclick="deleteHistory('${hist.__backendId}')" class="p-1.5 text-slate-300 hover:bg-slate-100 rounded transition">
+            <i data-lucide="x" style="width:16px;height:16px;"></i>
+          </button>
+        </div>
+      `;
+    }).join('');
+    lucide.createIcons();
+  }
+}
+
+async function deleteFavorite(id) {
+  const record = currentData.find(r => r.__backendId === id);
+  if (record) {
+    const result = await window.dataSdk.delete(record);
+    if (result.isOk) {
+      renderFavoritesTab();
+    }
+  }
+}
+
+async function deleteHistory(id) {
+  const record = currentData.find(r => r.__backendId === id);
+  if (record) {
+    const result = await window.dataSdk.delete(record);
+    if (result.isOk) {
+      renderHistoryTab();
+    }
+  }
+}
+
+// ===== ELEMENT SDK =====
+const defaultConfig = {
+  app_title: 'Vitrasa Plus',
+  default_line: 'C1',
+  default_origin: 'Plaza de España',
+  background_color: '#f1f5f9',
+  header_color: '#005a9c',
+  text_color: '#334155',
+  accent_color: '#005a9c',
+  surface_color: '#ffffff',
+  font_family: 'Poppins',
+  font_size: 14
+};
+
+function applyConfig(config) {
+  const c = {...defaultConfig, ...config};
+  document.getElementById('app-title').textContent = c.app_title;
+  document.getElementById('search-line').placeholder = `Línea (ej: ${c.default_line})`;
+  document.getElementById('search-stop').placeholder = `Parada (ej: ${c.default_origin})`;
+  document.getElementById('app').style.backgroundColor = c.background_color;
+  document.querySelector('header').style.backgroundColor = c.header_color;
+  document.body.style.fontFamily = `${c.font_family}, Poppins, sans-serif`;
+  document.body.style.fontSize = c.font_size + 'px';
+}
+
+window.elementSdk.init({
+  defaultConfig,
+  onConfigChange: async (config) => { applyConfig(config); },
+  mapToCapabilities: (config) => ({
+    recolorables: [
+      { get: () => config.background_color || defaultConfig.background_color, set: v => { config.background_color = v; window.elementSdk.setConfig({background_color:v}); }},
+      { get: () => config.surface_color || defaultConfig.surface_color, set: v => { config.surface_color = v; window.elementSdk.setConfig({surface_color:v}); }},
+      { get: () => config.text_color || defaultConfig.text_color, set: v => { config.text_color = v; window.elementSdk.setConfig({text_color:v}); }},
+      { get: () => config.header_color || defaultConfig.header_color, set: v => { config.header_color = v; window.elementSdk.setConfig({header_color:v}); }},
+      { get: () => config.accent_color || defaultConfig.accent_color, set: v => { config.accent_color = v; window.elementSdk.setConfig({accent_color:v}); }}
+    ],
+    borderables: [],
+    fontEditable: { get: () => config.font_family || defaultConfig.font_family, set: v => { config.font_family = v; window.elementSdk.setConfig({font_family:v}); }},
+    fontSizeable: { get: () => config.font_size || defaultConfig.font_size, set: v => { config.font_size = v; window.elementSdk.setConfig({font_size:v}); }}
+  }),
+  mapToEditPanelValues: (config) => new Map([
+    ['app_title', config.app_title || defaultConfig.app_title],
+    ['default_line', config.default_line || defaultConfig.default_line],
+    ['default_origin', config.default_origin || defaultConfig.default_origin]
+  ])
+});
+
+// Initialize
+(async () => {
+  await window.dataSdk.init(dataHandler);
+  applyConfig(window.elementSdk.config);
+  renderSchedule();
+  lucide.createIcons();
+})();
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9f89c3ddb05d0141',t:'MTc3ODI1Njk0Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
