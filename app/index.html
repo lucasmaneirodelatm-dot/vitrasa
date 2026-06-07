@@ -1,13 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es" class="h-full">
-<head>
+ <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VITRASA Vigo - Transporte Público</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
   <script src="/_sdk/element_sdk.js"></script>
   <style>
     body {
@@ -190,87 +190,63 @@
       color: #10b981;
     }
   </style>
-</head>
-<body class="h-full bg-gray-50">
-  <div id="app" class="h-full overflow-auto">
-    
-    <!-- Header -->
-    <header class="bg-white shadow-sm sticky top-0 z-50">
-      <div class="max-w-7xl mx-auto px-4 py-3">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3 cursor-pointer" onclick="navigate('home')">
-            <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
-              <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h8m-8 4h8m-4 4v4m-4-8a4 4 0 01-4-4V5a2 2 0 012-2h8a2 2 0 012 2v2a4 4 0 01-4 4m-4 0h8"/>
-              </svg>
-            </div>
-            <div>
-              <h1 id="site-title" class="text-xl font-bold text-gray-800">VITRASA Vigo</h1>
-              <p id="welcome-msg" class="text-xs text-gray-500">Tu transporte público en Vigo</p>
-            </div>
-          </div>
-          
-          <nav class="hidden md:flex items-center gap-6">
-            <button onclick="navigate('home')" class="nav-item text-gray-600 hover:text-emerald-600 font-medium" data-nav="home">Inicio</button>
-            <button onclick="navigate('lines')" class="nav-item text-gray-600 hover:text-emerald-600 font-medium" data-nav="lines">Líneas</button>
-            <button onclick="navigate('stops')" class="nav-item text-gray-600 hover:text-emerald-600 font-medium" data-nav="stops">Paradas</button>
-            <button onclick="navigate('routes')" class="nav-item text-gray-600 hover:text-emerald-600 font-medium" data-nav="routes">Planificar</button>
-            <button onclick="navigate('chat')" class="nav-item text-gray-600 hover:text-emerald-600 font-medium" data-nav="chat">Ayuda IA</button>
-          </nav>
-          
-          <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-lg hover:bg-gray-100">
-            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-            </svg>
-          </button>
-        </div>
-        
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden mt-4 pb-2 border-t pt-4">
-          <div class="flex flex-col gap-2">
-            <button onclick="navigate('home')" class="text-left px-4 py-2 rounded-lg hover:bg-emerald-50 text-gray-700 font-medium">🏠 Inicio</button>
-            <button onclick="navigate('lines')" class="text-left px-4 py-2 rounded-lg hover:bg-emerald-50 text-gray-700 font-medium">🚌 Líneas</button>
-            <button onclick="navigate('stops')" class="text-left px-4 py-2 rounded-lg hover:bg-emerald-50 text-gray-700 font-medium">📍 Paradas</button>
-            <button onclick="navigate('routes')" class="text-left px-4 py-2 rounded-lg hover:bg-emerald-50 text-gray-700 font-medium">🗺️ Planificar</button>
-            <button onclick="navigate('chat')" class="text-left px-4 py-2 rounded-lg hover:bg-emerald-50 text-gray-700 font-medium">🤖 Ayuda IA</button>
-          </div>
-        </div>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ <script src="/_sdk/telemetry_sdk.js"></script></head>
+ <body class="h-full bg-gray-50">
+  <div id="app" class="h-full overflow-auto"><!-- Header -->
+   <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-3">
+     <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3 cursor-pointer" onclick="navigate('home')">
+       <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h8m-8 4h8m-4 4v4m-4-8a4 4 0 01-4-4V5a2 2 0 012-2h8a2 2 0 012 2v2a4 4 0 01-4 4m-4 0h8" />
+        </svg>
+       </div>
+       <div>
+        <h1 id="site-title" class="text-xl font-bold text-gray-800">VITRASA Vigo</h1>
+        <p id="welcome-msg" class="text-xs text-gray-500">Tu transporte público en Vigo</p>
+       </div>
       </div>
-    </header>
-    
-    <!-- Main Content -->
-    <main id="main-content" class="max-w-7xl mx-auto px-4 py-6">
-      <!-- Content will be dynamically loaded here -->
-    </main>
-    
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white mt-auto">
-      <div class="max-w-7xl mx-auto px-4 py-8">
-        <div class="grid md:grid-cols-3 gap-8">
-          <div>
-            <h3 class="font-bold text-lg mb-3">VITRASA</h3>
-            <p class="text-gray-400 text-sm">Servicio de transporte público urbano de Vigo. Conectando la ciudad desde 1986.</p>
-          </div>
-          <div>
-            <h3 class="font-bold text-lg mb-3">Contacto</h3>
-            <p class="text-gray-400 text-sm">📞 986 292 100</p>
-            <p class="text-gray-400 text-sm">📧 vitrasa@vitrasa.es</p>
-            <p class="text-gray-400 text-sm">📍 Rúa Coruña, 1 - Vigo</p>
-          </div>
-          <div>
-            <h3 class="font-bold text-lg mb-3">Horario de Atención</h3>
-            <p class="text-gray-400 text-sm">Lunes a Viernes: 7:00 - 20:00</p>
-            <p class="text-gray-400 text-sm">Sábados: 8:00 - 14:00</p>
-            <p class="text-gray-400 text-sm">Domingos: Cerrado</p>
-          </div>
-        </div>
-        <div class="border-t border-gray-700 mt-6 pt-6 text-center text-gray-500 text-sm">
-          <p>© 2024 VITRASA Vigo - Aplicación informativa no oficial</p>
-        </div>
+      <nav class="hidden md:flex items-center gap-6"><button onclick="navigate('home')" class="nav-item text-gray-600 hover:text-emerald-600 font-medium" data-nav="home">Inicio</button> <button onclick="navigate('lines')" class="nav-item text-gray-600 hover:text-emerald-600 font-medium" data-nav="lines">Líneas</button> <button onclick="navigate('stops')" class="nav-item text-gray-600 hover:text-emerald-600 font-medium" data-nav="stops">Paradas</button> <button onclick="navigate('routes')" class="nav-item text-gray-600 hover:text-emerald-600 font-medium" data-nav="routes">Planificar</button> <button onclick="navigate('chat')" class="nav-item text-gray-600 hover:text-emerald-600 font-medium" data-nav="chat">Ayuda IA</button>
+      </nav><button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-lg hover:bg-gray-100">
+       <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+       </svg></button>
+     </div><!-- Mobile Menu -->
+     <div id="mobile-menu" class="hidden md:hidden mt-4 pb-2 border-t pt-4">
+      <div class="flex flex-col gap-2"><button onclick="navigate('home')" class="text-left px-4 py-2 rounded-lg hover:bg-emerald-50 text-gray-700 font-medium">🏠 Inicio</button> <button onclick="navigate('lines')" class="text-left px-4 py-2 rounded-lg hover:bg-emerald-50 text-gray-700 font-medium">🚌 Líneas</button> <button onclick="navigate('stops')" class="text-left px-4 py-2 rounded-lg hover:bg-emerald-50 text-gray-700 font-medium">📍 Paradas</button> <button onclick="navigate('routes')" class="text-left px-4 py-2 rounded-lg hover:bg-emerald-50 text-gray-700 font-medium">🗺️ Planificar</button> <button onclick="navigate('chat')" class="text-left px-4 py-2 rounded-lg hover:bg-emerald-50 text-gray-700 font-medium">🤖 Ayuda IA</button>
       </div>
-    </footer>
+     </div>
+    </div>
+   </header><!-- Main Content -->
+   <main id="main-content" class="max-w-7xl mx-auto px-4 py-6"><!-- Content will be dynamically loaded here -->
+   </main><!-- Footer -->
+   <footer class="bg-gray-800 text-white mt-auto">
+    <div class="max-w-7xl mx-auto px-4 py-8">
+     <div class="grid md:grid-cols-3 gap-8">
+      <div>
+       <h3 class="font-bold text-lg mb-3">VITRASA</h3>
+       <p class="text-gray-400 text-sm">Servicio de transporte público urbano de Vigo. Conectando la ciudad desde 1986.</p>
+      </div>
+      <div>
+       <h3 class="font-bold text-lg mb-3">Contacto</h3>
+       <p class="text-gray-400 text-sm">📞 986 292 100</p>
+       <p class="text-gray-400 text-sm">📧 vitrasa@vitrasa.es</p>
+       <p class="text-gray-400 text-sm">📍 Rúa Coruña, 1 - Vigo</p>
+      </div>
+      <div>
+       <h3 class="font-bold text-lg mb-3">Horario de Atención</h3>
+       <p class="text-gray-400 text-sm">Lunes a Viernes: 7:00 - 20:00</p>
+       <p class="text-gray-400 text-sm">Sábados: 8:00 - 14:00</p>
+       <p class="text-gray-400 text-sm">Domingos: Cerrado</p>
+      </div>
+     </div>
+     <div class="border-t border-gray-700 mt-6 pt-6 text-center text-gray-500 text-sm">
+      <p>© 2024 VITRASA Vigo - Aplicación informativa no oficial</p>
+     </div>
+    </div>
+   </footer>
   </div>
-
   <script>
     // ==========================================
     // DATOS CENTRALIZADOS JSON AMPLIADOS
@@ -289,330 +265,222 @@
         }
       },
       fares: {
-        single: { price: 1.65, description: "Billete sencillo" },
-        passCard: { price: 0.67, description: "Con tarjeta PASS Vigo" },
-        bono10: { price: 0.00, description: "Bono 10 viajes" },
-        bono30dias: { price: 00.00, description: "Bono mensual 30 días" },
+        single: { price: 1.35, description: "Billete sencillo" },
+        passCard: { price: 0.61, description: "Con tarjeta PASS Vigo" },
+        bono10: { price: 10.50, description: "Bono 10 viajes" },
+        bono30dias: { price: 38.00, description: "Bono mensual 30 días" },
         youth: { price: 0.51, description: "Tarifa joven (hasta 26 años)" },
-        senior: { price: 0.00, description: "Mayores de 65 años" },
-        children: { price: 0.00, description: "Menores de 14 años gratis" }
+        senior: { price: 0.51, description: "Mayores de 65 años" },
+        children: { price: 0.00, description: "Menores de 4 años gratis" }
       },
       lines: [
         {
           id: "C1",
-          name: "CIRCULAR CENTRO",
+          name: "Circular 1 - Sentido Horario",
           color: "#e74c3c",
           description: "Recorre el centro de Vigo conectando principales puntos comerciales y administrativos",
-          frequency: "10 min",
-          frequencyWeekend: "12-18 min",
-          firstBus: "07:15",
+          frequency: "8-12 min",
+          frequencyWeekend: "12-15 min",
+          firstBus: "06:30",
           lastBus: "23:00",
           duration: "35 min",
           accessible: true,
-          stops: [],
+          stops: ["P001", "P002", "P003", "P004", "P005", "P006", "P007", "P008", "P022", "P023"],
           route: [
-            [], [], [],
-            [], [], [],
-            [], [], [], []
+            [42.2406, -8.7207], [42.2380, -8.7150], [42.2350, -8.7100],
+            [42.2320, -8.7080], [42.2300, -8.7120], [42.2330, -8.7180],
+            [42.2370, -8.7220], [42.2406, -8.7207], [42.2425, -8.7245], [42.2420, -8.7190]
           ]
         },
         {
           id: "C2",
           name: "Circular 2 - Sentido Antihorario",
           color: "#3498db",
-          description: null,
-          frequency: "0 min",
-          frequencyWeekend: "0 min",
-          firstBus: null,
-          lastBus: null,
-          duration: "0 min",
-          accessible: false,
-          stops: [],
+          description: "Línea circular en sentido contrario a C1, mismo recorrido inverso",
+          frequency: "8-12 min",
+          frequencyWeekend: "12-15 min",
+          firstBus: "06:30",
+          lastBus: "23:00",
+          duration: "35 min",
+          accessible: true,
+          stops: ["P023", "P022", "P008", "P007", "P006", "P005", "P004", "P003", "P002", "P001"],
           route: [
-            [], [], [],
-            [], [], [],
-            [], [], [], []
+            [42.2420, -8.7190], [42.2425, -8.7245], [42.2406, -8.7207],
+            [42.2370, -8.7220], [42.2330, -8.7180], [42.2300, -8.7120],
+            [42.2320, -8.7080], [42.2350, -8.7100], [42.2380, -8.7150], [42.2406, -8.7207]
           ]
         },
         {
-          id: "C3.I",
-          name: "COIA/BOUZAS - ENCARNACIÓN (Praza España)",
-          color: "#FDD835",
-          description: "Conecta Vigo de un extremo a otro",
+          id: "L1",
+          name: "Hospital Meixoeiro - Centro",
+          color: "#27ae60",
+          description: "Conecta el Hospital Meixoeiro con el centro pasando por barrios residenciales",
           frequency: "15-20 min",
-          frequencyWeekend: "30-40 min",
+          frequencyWeekend: "20-25 min",
+          firstBus: "06:15",
+          lastBus: "23:00",
+          duration: "28 min",
+          accessible: true,
+          stops: ["P025", "P026", "P027", "P003", "P001", "P002"],
+          route: [
+            [42.2250, -8.7450], [42.2280, -8.7380], [42.2310, -8.7280],
+            [42.2350, -8.7100], [42.2406, -8.7207], [42.2380, -8.7150]
+          ]
+        },
+        {
+          id: "L4",
+          name: "Navia - Hospital Álvaro Cunqueiro",
+          color: "#f39c12",
+          description: "Línea estratégica que conecta zonas residenciales con el nuevo hospital universitario",
+          frequency: "15-18 min",
+          frequencyWeekend: "18-22 min",
           firstBus: "06:00",
-          lastBus: "23:00",
-          duration: "100 min",
-          accessible: true,
-          stops: ["230", "190", "200", "210"],
-          route: [
-            [42.248017, -8.691476], [42.2150, -8.7500], [42.252502, -8.683413],
-            [42.255835, -8.678907], [], []
-          ]
-        },
-        {
-          id: "C3.D",
-          name: "COIA/BOUZAS - ENCARNACIÓN (Praza Eugenio Fadrique)",
-          color: "#FDD835",
-          description: "Conecta Vigo de un extremo a otro",
-          frequency: "15-20 min",
-          frequencyWeekend: "30-40 min",
-          firstBus: "05:30",
-          lastBus: "23:00",
-          duration: "100 min",
-          accessible: true,
-          stops: ["195", "250", "220", "260", "240"],
-          route: [
-            [42.256697, -8.677912], [42.255343, -8.679875], [42.256635, -8.677858],
-            [42.250262, -8.686058], [42.248120, -8.691521], []
-          ]
-        },
-        {
-          id: "4A",
-          name: "COIA - ARAGÓN",
-          color: "#4CAF50",
-          description: null,
-          frequency: "30-35 min",
-          frequencyWeekend: "60-70 min",
-          firstBus: "05:30",
           lastBus: "23:30",
-          duration: "92 min",
+          duration: "32 min",
           accessible: true,
-          stops: ["390", "410", "340", "350", "370", "380", "360", "420", "400"],
+          stops: ["P012", "P032", "P003", "P004", "P034", "P013", "P014"],
           route: [
-            [42.233017, -8.702832], [42.235179, -8.701743], [42.238716, -8.701644],
-            [42.240571, -8.700617], [42.241834, -8.698994], [42.242058, -8.699249],
-            [42.240188, -8.701268], [42.236307, -8.701531], [42.234321, -8.702556]
-          ]
-        },
-        {
-          id: "4C",
-          name: "COIA - GREGORIO ESPINO",
-          color: "#4CAF50",
-          description: null,
-          frequency: "30-35 min",
-          frequencyWeekend: "60-70 min",
-          firstBus: "07:00",
-          lastBus: "23:30",
-          duration: "92 min",
-          accessible: true,
-          stops: [],
-          route: [
-            [], [], [],
-            [], [], [],
-            [], [], []
+            [42.2500, -8.7350], [42.2470, -8.7280], [42.2350, -8.7100],
+            [42.2320, -8.7080], [42.2260, -8.7020], [42.2200, -8.7000], [42.2100, -8.6900]
           ]
         },
         {
           id: "L5A",
-          name: "PEDRA SEIXA/TEIXUGEIRAS - BUENOS AIRES (Por Urzáiz)",
+          name: "Castrelos - Urzáiz",
           color: "#1abc9c",
-          description: null,
-          frequency: "30-35 min",
-          frequencyWeekend: "35-60 min",
-          firstBus: "06:00",
+          description: "Une el parque de Castrelos con la estación de tren y el centro",
+          frequency: "12-15 min",
+          frequencyWeekend: "15-20 min",
+          firstBus: "07:00",
           lastBus: "22:00",
-          duration: "130 min",
+          duration: "22 min",
           accessible: true,
-          stops: [],
+          stops: ["P015", "P035", "P006", "P005", "P001", "P018"],
           route: [
-            [], [], [],
-            [], [], []
-          ]
-        },
-        {
-          id: "L5B",
-          name: "PEDRA SEIXA/TEIXUGEIRAS - BUENOS AIRES (Por García Barbón)",
-          color: "#1abc9c",
-          description: null,
-          frequency: "30-35 min",
-          frequencyWeekend: "35-60 min",
-          firstBus: "06:00",
-          lastBus: "22:00",
-          duration: "130 min",
-          accessible: true,
-          stops: [],
-          route: [
-            [], [], [],
-            [], [], []
-          ]
-        },
-        {
-          id: "6",
-          name: "PIZARRO - BEADE/HOSPITAL ÁLVARO CUNQUEIRO",
-          color: "#1abc9c",
-          description: null,
-          frequency: "60 min",
-          frequencyWeekend: "90-120 min",
-          firstBus: "05:45",
-          lastBus: "22:00",
-          duration: "70 min",
-          accessible: true,
-          stops: [],
-          route: [
-            [], [], [],
-            [], [], []
+            [42.2150, -8.7400], [42.2220, -8.7300], [42.2330, -8.7180],
+            [42.2300, -8.7120], [42.2406, -8.7207], [42.2420, -8.7100]
           ]
         },
         {
           id: "L7",
-          name: "PRAZA ESPAÑA - GARRIDA/ZAMÁNS/SOBREIRA/SAN COSME",
+          name: "Samil - Casco Vello",
           color: "#e67e22",
-          description: "Está al cargo del Alto de la Garrida",
-          frequency: "30 min",
-          frequencyWeekend: "45-75 min",
-          firstBus: "05:30",
-          lastBus: "23:00",
-          duration: "105 min",
-          accessible: true,
-          stops: ["180", "660"],
-          route: [
-            [42.165894, -8.720551], [42.211532, -8.736717], [],
-            [], [], [], []
-          ]
-        },
-        {
-          id: "A",
-          name: "UNIVERSIDADE - AEROPORTO PEINADOR",
-          color: "#43A047",
-          description: "Conecta dos puntos clave de las afueras de la ciudad",
-          frequency: "30-35 min",
-          frequencyWeekend: "35-60 min",
-          firstBus: "05:30",
-          lastBus: "23:00",
-          duration: "145 min",
-          accessible: true,
-          stops: ["90"],
-          route: [
-            [42.225891, -8.633242], [], [],
-            [], [], [], []
-          ]
-        },
-        {
-          id: "L9B",
-          name: "RECONQUISTA - RABADEIRA",
-          color: "#c0392b",
-          description: null,
-          frequency: "62-66 min",
-          frequencyWeekend: "60-65 min",
-          firstBus: "05:30",
+          description: "Desde la playa de Samil hasta el casco histórico, ruta turística costera",
+          frequency: "15-20 min",
+          frequencyWeekend: "12-15 min",
+          firstBus: "06:30",
           lastBus: "23:30",
-          duration: "56 min",
+          duration: "38 min",
           accessible: true,
-          stops: [],
+          stops: ["P016", "P036", "P017", "P037", "P006", "P001", "P038"],
           route: [
-            [], [], [],
-            [], [], []
+            [42.2050, -8.7700], [42.2100, -8.7620], [42.2150, -8.7500],
+            [42.2200, -8.7400], [42.2330, -8.7180], [42.2406, -8.7207], [42.2430, -8.7280]
           ]
         },
         {
-          id: "10",
-          name: "SAIÁNS/CANIDO - CEMITERIO TEIS",
-          color: "#34495e",
-          description: "Conexión de extremo a extremo",
-          frequency: "60 min",
-          frequencyWeekend: "50-70 min",
-          firstBus: "05:30",
+          id: "L9A",
+          name: "Coruxo - Universidad",
+          color: "#c0392b",
+          description: "Conecta barrios del sur con el campus universitario y el centro",
+          frequency: "18-22 min",
+          frequencyWeekend: "20-25 min",
+          firstBus: "06:45",
           lastBus: "22:30",
-          duration: "135 min",
+          duration: "42 min",
           accessible: true,
-          stops: ["650", "600", "310", "280", "320", "330", "270", "290", "230", "190", "200", "210", "195", "250", "220", "260", "240", "310", "280", "320", "330", "270", "560"],
+          stops: ["P019", "P040", "P016", "P017", "P041", "P001"],
           route: [
-            [42.181057, -8.807881], [42.189720, -8.801269], [42.190873, -8.804010],
-            [42.189497, -8.808519], [42.189209, -8.812172], [42.187244, -8.813385],
-            [42.192981, -8.800328], [42.189978, -8.804603], [42.248017, -8.691476],
-            [42.2150, -8.7500], [42.252502, -8.683413], [42.255835, -8.678907],
-            [42.256697, -8.677912], [42.255343, -8.679875], [42.256635, -8.677858],
-            [42.250262, -8.686058], [42.248120, -8.691521], [42.190873, -8.804010],
-            [42.189497, -8.808519], [42.189209, -8.812172], [42.187244, -8.813385],
-            [42.192981, -8.800328], [42.189978, -8.804603], [42.180896, -8.807988]
+            [42.1900, -8.7900], [42.1980, -8.7800], [42.2050, -8.7700],
+            [42.2150, -8.7500], [42.2250, -8.7350], [42.2406, -8.7207]
           ]
         },
         {
-          id: "N1",
-          name: "SAMIL - BUENOS AIRES",
+          id: "L12",
+          name: "Aeropuerto - Centro - Estación Marítima",
+          color: "#34495e",
+          description: "Conexión aeropuerto con centro urbano y puerto, ideal para turistas y viajeros",
+          frequency: "30-35 min",
+          frequencyWeekend: "40-45 min",
+          firstBus: "06:00",
+          lastBus: "23:30",
+          duration: "45 min",
+          accessible: true,
+          stops: ["P020", "P021", "P043", "P004", "P001", "P028"],
+          route: [
+            [42.2300, -8.6300], [42.2350, -8.6600], [42.2380, -8.6850],
+            [42.2320, -8.7080], [42.2406, -8.7207], [42.2390, -8.7250]
+          ]
+        },
+        {
+          id: "BN1",
+          name: "Búho Nocturno Centro-Bouzas",
           color: "#8e44ad",
-          description: "Servicio nocturno a diario",
-          frequency: "70-85 min",
-          frequencyWeekend: "70-90 min",
-          firstBus: "23:00",
-          lastBus: "05:30",
-          duration: "75 min",
+          description: "Servicio nocturno viernes y sábados desde el centro hacia barrios del este",
+          frequency: "45-60 min",
+          frequencyWeekend: "45-60 min",
+          firstBus: "23:30",
+          lastBus: "04:30",
+          duration: "35 min",
           accessible: true,
-          stops: [],
+          stops: ["P001", "P002", "P010", "P011"],
           route: [
-            [], [], [], []
+            [42.2406, -8.7207], [42.2380, -8.7150], [42.2340, -8.7050], [42.2280, -8.6980]
           ]
         },
         {
-          id: "N4",
-          name: "NAVIA - GREGORIO ESPINO",
+          id: "BN2",
+          name: "Búho Nocturno Centro-Samil",
           color: "#2980b9",
-          description: "Servicio nocturno viernes y sábados desde Navia hacia la zona de Llorones",
-          frequency: null,
-          frequencyWeekend: "75-95 min",
+          description: "Servicio nocturno viernes y sábados desde el centro hacia la zona de playas",
+          frequency: "45-60 min",
+          frequencyWeekend: "45-60 min",
           firstBus: "23:30",
-          lastBus: "06:00",
-          duration: "87 min",
+          lastBus: "04:30",
+          duration: "40 min",
           accessible: true,
-          stops: [],
+          stops: ["P001", "P006", "P017", "P016"],
           route: [
-            [], [], [], []
+            [42.2406, -8.7207], [42.2330, -8.7180], [42.2150, -8.7500], [42.2050, -8.7700]
           ]
         }
       ],
       stops: [
-        { id: "20", name: "Rúa do Abade de Juan de Bastos(fronte Asociación Veciños)", lat: 42.187231, lng: -8.741008, zone: "Matamá", address: "Rúa do Abade de Juan de Bastos(fronte Asociación Veciños)", lines: ["17"] },
-        { id: "40", name: "Rúa do Abade Juan de Bastos (cruce Baixada da Moo)", lat: 42.191297, lng: -8.731706, zone: "Matamá", address: "Rúa do Abade Juan de Bastos, 48", lines: ["17"] },
-        { id: "50", name: "Rúa do Abade Juan de Bastos, 24", lat: 42.187978, lng: -8.737403, zone: "Matamá", address: "Rúa do Abade Juan de Bastos, 24", lines: ["17"] },
-        { id: "70", name: "Rúa da Lagoa (cruce Camiño do Casmarcelo)", lat: 42.2320, lng: -8.7080, zone: "Pouleira", address: "Rúa da Lagoa (cruce Camiño do Casmarcelo)", lines: ["18A", "18B"] },
-        { id: "80", name: "Rúa da Lagoa, 46", lat: 42.201192, lng: -8.703497, zone: "Pouleira", address: "Rúa da Lagoa, 46", lines: ["18A", "18B"] },
-        { id: "90", name: "Aeroporto de Peinador", lat: 42.225891, lng: -8.633242, zone: "Aeroporto", address: "Avda. de Peinador", lines: ["A"] },
-        { id: "100", name: "Avda. do Alcalde Lavadores, 125", lat: 42.218988, lng: -8.696379, zone: "Lavadores", address: "Avda. do Alcalde Lavadores, 125", lines: ["6"] },
-        { id: "110", name: "Avda. do Alcalde Lavadores, 171", lat: 42.215542, lng: -8.697041, zone: "Lavadores", address: "Avda. do Alcalde Lavadores, 171", lines: ["6"] },
-        { id: "120", name: "Avda. do Alcalde Lavadores, 8", lat: 42.223074, lng: -8.701765, zone: "Lavadores", address: "Avda. do Alcalde Lavadores, 8", lines: ["6"] },
-        { id: "130", name: "Avda. do Alcalde Lavadores, 102", lat: 42.218758, lng: -8.696760, zone: "Lavadores", address: "Avda. do Alcalde Lavadores, 102", lines: ["6"] },
-        { id: "140", name: "Avda. do Alcalde Lavadores, 29", lat: 42.223533, lng: -8.699710, zone: "Lavadores", address: "Avda. do Alcalde Lavadores, 29", lines: ["6"] },
-        { id: "150", name: "Avda. do Alcalde Lavadores, 48", lat: 42.222697, lng: -8.697682, zone: "Lavadores", address: "Avda. do Alcalde Lavadores, 48", lines: ["6"] },
-        { id: "160", name: "Avda. do Alcalde Lavadores, 67", lat: 42.222866, lng: -8.697647, zone: "Lavadores", address: "Avda. do Alcalde Lavadores, 67", lines: ["6"] },
-        { id: "170", name: "Avda. do Alcalde Lavadores, 152", lat: 42.215254, lng: -8.697283, zone: "Lavadores", address: "Avda. do Alcalde Lavadores, 152", lines: ["6"] },
-        { id: "180", name: "Estrada de Valadares, 451", lat: 42.165894, lng: -8.720551, zone: "Garrida", address: "Estrada de Valadares, 451", lines: ["L7"] },
-        { id: "190", name: "Rúa de Ángel de Lema, 58", lat: 42.2150, lng: -8.7500, zone: "Teis", address: "Rúa de Ángel de Lema, 58", lines: ["10", "C3.I"] },
-        { id: "195", name: "Rúa de Ángel de Lema, 247", lat: 42.256697, lng: -8.677912, zone: "Teis", address: "Rúa de Ángel de Lema, 247", lines: ["10", "C3.D"] },
-        { id: "200", name: "Rúa de Ángel de Lema, 100", lat: 42.252502, lng: -8.683413, zone: "Teis", address: "Rúa de Ángel de Lema, 100", lines: ["10", "C3.I"] },
-        { id: "210", name: "Rúa de Ángel de Lema, 140", lat: 42.255835, lng: -8.678907, zone: "Teis", address: "Rúa de Ángel de Lema, 140", lines: ["10", "C3.I"] },
-        { id: "220", name: "Rúa de Ángel de Lema, 163", lat: 42.256635, lng: -8.677858, zone: "Teis", address: "Rúa de Ángel de Lema, 163", lines: ["10", "C3.D"] },
-        { id: "230", name: "Rúa de Ángel de Lema, 14", lat: 42.248017, lng: -8.691476, zone: "Teis", address: "Rúa de Ángel de Lema, 14", lines: ["10", "C3.I"] },
-        { id: "240", name: "Rúa de Ángel de Lema, 19", lat: 42.248120, lng: -8.691521, zone: "Teis", address: "Rúa de Ángel de Lema, 19", lines: ["10", "C3.D"] },
-        { id: "250", name: "Rúa de Ángel de Lema, 221", lat: 42.255343, lng: -8.679875, zone: "Teis", address: "Rúa de Ángel de Lema, 221", lines: ["10", "C3.D"] },
-        { id: "260", name: "Rúa de Ángel de Lema, 91", lat: 42.250262, lng: -8.686058, zone: "Teis", address: "Rúa de Ángel de Lema, 91", lines: ["10", "C3.D"] },
-        { id: "270", name: "Rúa de Desiderio Pernas Arquitecto, 1", lat: 42.192981, lng: -8.800328, zone: "Cabo Estai", address: "Rúa de Desiderio Pernas Arquitecto, 1", lines: ["10"] },
-        { id: "280", name: "Rúa do Arquitecto Antonio Cominges, 38", lat: 42.189497, lng: -8.808519, zone: "Cabo Estai", address: "Rúa do Arquitecto Antonio Cominges, 38", lines: ["10"] },
-        { id: "290", name: "Rúa do Arquitecto Gómez Román, 37", lat: 42.189978, lng: -8.804603, zone: "Cabo Estai", address: "Rúa do Arquitecto Gómez Román, 37", lines: ["10"] },
-        { id: "310", name: "Rúa do Arquitecto Antonio Cominges, 4", lat: 42.190873, lng: -8.804010, zone: "Cabo Estai", address: "Rúa do Arquitecto Antonio Cominges, 4", lines: ["10"] },
-        { id: "320", name: "Rúa do Arquitecto Antonio Cominges, 70", lat: 42.189209, lng: -8.812172, zone: "Cabo Estai", address: "Rúa do Arquitecto Antonio Cominges, 70", lines: ["10"] },
-        { id: "330", name: "Rúa do Arquitecto Antonio Cominges, 90", lat: 42.187244, lng: -8.813385, zone: "Cabo Estai", address: "Rúa do Arquitecto Antonio Cominges, 90", lines: ["10"] },
-        { id: "340", name: "Rúa de Aragón, 116", lat: 42.238716, lng: -8.701644, zone: "Choróns", address: "Rúa de Aragón, 116", lines: ["4A", "H3"] },
-        { id: "350", name: "Rúa de Aragón, 162", lat: 42.240571, lng: -8.700617, zone: "Choróns", address: "Rúa de Aragón, 162", lines: ["4A", "H3"] },
-        { id: "360", name: "Rúa de Aragón, 193", lat: 42.240188, lng: -8.701268, zone: "Choróns", address: "Rúa de Aragón, 193", lines: ["4A", "H3"] },
-        { id: "370", name: "Rúa de Aragón, 212", lat: 42.241834, lng: -8.698994, zone: "Choróns", address: "Rúa de Aragón, 212", lines: ["4A", "H3"] },
-        { id: "380", name: "Rúa de Aragón, 221", lat: 42.242058, lng: -8.699249, zone: "Choróns", address: "Rúa de Aragón, 221", lines: ["4A", "H3"] },
-        { id: "390", name: "Rúa de Aragón, 26", lat: 42.233017, lng: -8.702832, zone: "Choróns", address: "Rúa de Aragón, 26", lines: ["4A", "H3"] },
-        { id: "400", name: "Rúa de Aragón, 91", lat: 42.234321, lng: -8.702556, zone: "Choróns", address: "Rúa de Aragón, 91", lines: ["4A", "H3"] },
-        { id: "410", name: "Rúa de Aragón, 82", lat: 42.235179, lng: -8.701743, zone: "Choróns", address: "Rúa de Aragón, 82", lines: ["4A", "H3"] },
-        { id: "420", name: "Rúa de Aragón, 147", lat: 42.236307, lng: -8.701531, zone: "Choróns", address: "Rúa de Aragón, 147", lines: ["4A", "H3"] },
-        { id: "430", name: "Rúa do Areal (Aduana)", lat: 42.239387, lng: -8.720398, zone: "Praza de Compostela", address: "Rúa do Areal (Aduana)", lines: ["18A", "24", "28", "H1"] },
-        { id: "530", name: "Avda. de Ricardo Mella (Estación Coruxo)", lat: 42.193691, lng: -8.781882, zone: "Coruxo", address: "Avda. de Ricardo Mella (Estación)", lines: ["12A"] },
-        { id: "540", name: "Avda. de Ricardo Mella (fronte 223)", lat: 42.189539, lng: -8.791080, zone: "Coruxo", address: "Avda. de Ricardo Mella (fronte 223)", lines: ["12A"] },
-        { id: "560", name: "Avda. de Ricardo Mella, 518", lat: 42.180896, lng: -8.807988, zone: "Coruxo", address: "Avda. de Ricardo Mella, 518", lines: ["10"] },
-        { id: "570", name: "Avda. de Ricardo Mella, 250", lat: 42.194974, lng: -8.776432, zone: "Coruxo", address: "Avda. de Ricardo Mella, 250", lines: ["12A"] },
-        { id: "580", name: "Avda. de Ricardo Mella, 135", lat: 42.195831, lng: -8.773983, zone: "Coruxo", address: "Avda. de Ricardo Mella, 135", lines: ["12A"] },
-        { id: "600", name: "Avda. de Ricardo Mella, 273", lat: 42.189720, lng: -8.801269, zone: "Coruxo", address: "Avda. de Ricardo Mella, 273", lines: ["10", "12A"] },
-        { id: "620", name: "Avda. de Ricardo Mella, 165", lat: 42.193597, lng: -8.781815, zone: "Coruxo", address: "Avda. de Ricardo Mella, 165", lines: ["12A"] },
-        { id: "630", name: "Avda. de Ricardo Mella, 223", lat: 42.189416, lng: -8.790865, zone: "Coruxo", address: "Avda. de Ricardo Mella, 223", lines: ["12A"] },
-        { id: "650", name: "Avda. de Ricardo Mella, 289", lat: 42.181057, lng: -8.807881, zone: "Coruxo", address: "Avda. de Ricardo Mella, 289", lines: ["10", "12A"] },
-        { id: "660", name: "Avda. do Alcalde Portanet, 34", lat: 42.211532, lng: -8.736717, zone: "Portanet", address: "Avda. do Alcalde Portanet, 34", lines: ["L7", "12B", "17", "H1"] }
+        { id: "P001", name: "Porta do Sol", lat: 42.2406, lng: -8.7207, zone: "Centro", address: "Praza de Compostela", lines: ["C1", "C2", "L1", "L5A", "L7", "L9A", "L12", "BN1", "BN2"] },
+        { id: "P002", name: "Príncipe", lat: 42.2380, lng: -8.7150, zone: "Centro", address: "Rúa do Príncipe", lines: ["C1", "C2", "L1", "BN1"] },
+        { id: "P003", name: "Plaza de España", lat: 42.2350, lng: -8.7100, zone: "Centro", address: "Praza de España", lines: ["C1", "C2", "L1", "L4"] },
+        { id: "P004", name: "Gran Vía", lat: 42.2320, lng: -8.7080, zone: "Centro", address: "Gran Vía", lines: ["C1", "C2", "L4", "L12"] },
+        { id: "P005", name: "Plaza América", lat: 42.2300, lng: -8.7120, zone: "Centro", address: "Praza de América", lines: ["C1", "C2", "L5A"] },
+        { id: "P006", name: "García Barbón", lat: 42.2330, lng: -8.7180, zone: "Centro", address: "Rúa García Barbón", lines: ["C1", "C2", "L5A", "L7", "BN2"] },
+        { id: "P007", name: "Elduayen", lat: 42.2370, lng: -8.7220, zone: "Centro", address: "Rúa Elduayen", lines: ["C1", "C2"] },
+        { id: "P008", name: "Colón", lat: 42.2406, lng: -8.7207, zone: "Centro", address: "Rúa Colón", lines: ["C1", "C2"] },
+        { id: "P010", name: "República Argentina", lat: 42.2340, lng: -8.7050, zone: "Este", address: "Av. República Argentina", lines: ["BN1"] },
+        { id: "P011", name: "Bouzas", lat: 42.2280, lng: -8.6980, zone: "Este", address: "Praza de Bouzas", lines: ["BN1"] },
+        { id: "P012", name: "Navia", lat: 42.2500, lng: -8.7350, zone: "Norte", address: "Av. de Navia", lines: ["L4"] },
+        { id: "P013", name: "Teis", lat: 42.2200, lng: -8.7000, zone: "Sur", address: "Rúa de Teis", lines: ["L4"] },
+        { id: "P014", name: "Hospital Álvaro Cunqueiro", lat: 42.2100, lng: -8.6900, zone: "Sur", address: "Hospital Álvaro Cunqueiro", lines: ["L4"] },
+        { id: "P015", name: "Castrelos", lat: 42.2150, lng: -8.7400, zone: "Sur", address: "Parque de Castrelos", lines: ["L5A"] },
+        { id: "P016", name: "Playa de Samil", lat: 42.2050, lng: -8.7700, zone: "Oeste", address: "Praia de Samil", lines: ["L7", "L9A", "BN2"] },
+        { id: "P017", name: "Alcabre", lat: 42.2150, lng: -8.7500, zone: "Oeste", address: "Av. de Alcabre", lines: ["L7", "L9A", "BN2"] },
+        { id: "P018", name: "Estación de Urzáiz", lat: 42.2420, lng: -8.7100, zone: "Centro", address: "Estación RENFE Urzáiz", lines: ["L5A"] },
+        { id: "P019", name: "Coruxo", lat: 42.1900, lng: -8.7900, zone: "Oeste", address: "Av. de Coruxo", lines: ["L9A"] },
+        { id: "P020", name: "Aeropuerto de Vigo", lat: 42.2300, lng: -8.6300, zone: "Este", address: "Aeropuerto de Peinador", lines: ["L12"] },
+        { id: "P021", name: "Peinador", lat: 42.2350, lng: -8.6600, zone: "Este", address: "Peinador Centro", lines: ["L12"] },
+        { id: "P022", name: "Urzáiz", lat: 42.2425, lng: -8.7245, zone: "Centro", address: "Rúa de Urzáiz", lines: ["C1", "C2"] },
+        { id: "P023", name: "Policarpo Sanz", lat: 42.2420, lng: -8.7190, zone: "Centro", address: "Praza Policarpo Sanz", lines: ["C1", "C2"] },
+        { id: "P025", name: "Hospital Meixoeiro", lat: 42.2250, lng: -8.7450, zone: "Sur", address: "Hospital Meixoeiro", lines: ["L1"] },
+        { id: "P026", name: "Zamora", lat: 42.2280, lng: -8.7380, zone: "Sur", address: "Rúa Zamora", lines: ["L1"] },
+        { id: "P027", name: "Lepanto", lat: 42.2310, lng: -8.7280, zone: "Centro", address: "Rúa Lepanto", lines: ["L1"] },
+        { id: "P028", name: "Estación Marítima", lat: 42.2390, lng: -8.7250, zone: "Centro", address: "Estación Marítima", lines: ["L12"] },
+        { id: "P032", name: "Calvario", lat: 42.2470, lng: -8.7280, zone: "Norte", address: "Rúa do Calvario", lines: ["L4"] },
+        { id: "P034", name: "Travesía de Vigo", lat: 42.2260, lng: -8.7020, zone: "Sur", address: "Travesía de Vigo", lines: ["L4"] },
+        { id: "P035", name: "Doctor Cadaval", lat: 42.2220, lng: -8.7300, zone: "Sur", address: "Rúa Doctor Cadaval", lines: ["L5A"] },
+        { id: "P036", name: "O Vao", lat: 42.2100, lng: -8.7620, zone: "Oeste", address: "Av. do Vao", lines: ["L7"] },
+        { id: "P037", name: "Torrecedeira", lat: 42.2200, lng: -8.7400, zone: "Oeste", address: "Av. Torrecedeira", lines: ["L7"] },
+        { id: "P038", name: "Casco Vello", lat: 42.2430, lng: -8.7280, zone: "Centro", address: "Casco Histórico", lines: ["L7"] },
+        { id: "P040", name: "Candeán", lat: 42.1980, lng: -8.7800, zone: "Oeste", address: "Candeán", lines: ["L9A"] },
+        { id: "P041", name: "Campus Universitario", lat: 42.2250, lng: -8.7350, zone: "Centro", address: "Campus Lagoas-Marcosende", lines: ["L9A"] },
+        { id: "P043", name: "Sárdoma", lat: 42.2380, lng: -8.6850, zone: "Este", address: "Sárdoma", lines: ["L12"] }
       ],
       schedules: {
         "C1": generateSchedule(6, 30, 23, 0, 10),
@@ -629,12 +497,12 @@
       faqs: [
         { 
           q: "¿Cuál es el precio del billete?", 
-          a: "💶 <strong>Tarifas VITRASA:</strong><br><br>• Billete sencillo: <strong>1,65€</strong><br>• Con tarjeta PASS: <strong>0,67€/viaje</strong><br>• Bono 10 viajes: <strong>0,00€</strong><br>• Bono mensual: <strong>0€</strong><br>• Tarifa joven/senior: <strong>0,51€</strong><br>• Menores de 14 años: <strong>Gratis</strong><br><br>💳 La tarjeta PASS permite <strong>transbordo gratuito en 45 minutos</strong>.",
+          a: "💶 <strong>Tarifas VITRASA:</strong><br><br>• Billete sencillo: <strong>1,35€</strong><br>• Con tarjeta PASS: <strong>0,61€/viaje</strong><br>• Bono 10 viajes: <strong>10,50€</strong><br>• Bono mensual: <strong>38€</strong><br>• Tarifa joven/senior: <strong>0,51€</strong><br>• Menores de 4 años: <strong>Gratis</strong><br><br>💳 La tarjeta PASS permite <strong>transbordo gratuito en 60 minutos</strong>.",
           keywords: ["precio", "billete", "tarifa", "cuesta", "coste", "vale", "pagar", "cuanto"]
         },
         { 
           q: "¿Dónde puedo conseguir la tarjeta PASS?", 
-          a: "📍 <strong>Dónde obtener la tarjeta PASS:</strong><br><br>• Concello (Praza do Rei 1)<br>• Ningún sitio más<br>• En cocheras NO<br>• Recarga online: www.vigo.org<br><br>💰 Coste primera emisión: <strong>3€</strong>",
+          a: "📍 <strong>Dónde obtener la tarjeta PASS:</strong><br><br>• Oficinas VITRASA (Rúa Coruña 1)<br>• Estancos autorizados<br>• Máquinas expendedoras en paradas principales<br>• Recarga online: www.vitrasa.es<br><br>💰 Coste primera emisión: <strong>3€</strong>",
           keywords: ["pass", "tarjeta", "conseguir", "obtener", "comprar", "donde", "sacar"]
         },
         { 
@@ -1160,4 +1028,817 @@
                     <span class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">🌙</span>
                     <div>
                       <p class="text-gray-400 text-xs">Último bus</p>
-                      <p class="font-semibold text-gray-700">${line.lastBus
+                      <p class="font-semibold text-gray-700">${line.lastBus}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Map -->
+          <div class="bg-white rounded-2xl shadow-sm p-4 mb-6">
+            <h3 class="font-bold text-gray-800 mb-4">📍 Recorrido</h3>
+            <div class="map-container">
+              <div id="line-map" style="height: 300px; width: 100%;"></div>
+            </div>
+          </div>
+          
+          <!-- Stops -->
+          <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+            <h3 class="font-bold text-gray-800 mb-4">🚏 Paradas (${stops.length})</h3>
+            <div class="space-y-3">
+              ${stops.map((stop, idx) => `
+                <button onclick="navigate('stop-detail', {stopId: '${stop.id}'})" 
+                  class="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition-all text-left">
+                  <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm" 
+                    style="background: ${line.color}">${idx + 1}</div>
+                  <div class="flex-1">
+                    <p class="font-semibold text-gray-800">${stop.name}</p>
+                    <p class="text-sm text-gray-500">${stop.zone}</p>
+                  </div>
+                  <div class="time-chip text-sm">${simulateArrivalTime(idx)}</div>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+          
+          <!-- Schedule -->
+          <div class="bg-white rounded-2xl shadow-sm p-6">
+            <h3 class="font-bold text-gray-800 mb-4">📅 Horarios de salida</h3>
+            <div class="schedule-grid">
+              ${schedules.map(time => {
+                const [h, m] = time.split(':').map(Number);
+                const timeInMin = h * 60 + m;
+                const isNext = timeInMin >= currentTime && timeInMin < currentTime + 30;
+                return `<div class="schedule-time ${isNext ? 'next' : ''}">${time}</div>`;
+              }).join('')}
+            </div>
+            <p class="text-sm text-gray-400 mt-4 text-center">Los horarios mostrados son aproximados y pueden variar según el tráfico</p>
+          </div>
+        </div>
+      `;
+      
+      // Initialize line map
+      setTimeout(() => initLineMap(line, stops), 100);
+    }
+    
+    function initLineMap(line, stops) {
+      if (map) map.remove();
+      
+      const mapContainer = document.getElementById('line-map');
+      if (!mapContainer) return;
+      
+      map = L.map('line-map').setView([42.2306, -8.7200], 13);
+      
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+      
+      // Add route
+      L.polyline(line.route, {
+        color: line.color,
+        weight: 5,
+        opacity: 0.9
+      }).addTo(map);
+      
+      // Add stop markers
+      stops.forEach((stop, idx) => {
+        const marker = L.marker([stop.lat, stop.lng], {
+          icon: L.divIcon({
+            className: 'custom-marker',
+            html: `<div class="stop-marker">${idx + 1}</div>`,
+            iconSize: [24, 24],
+            iconAnchor: [12, 12]
+          })
+        }).addTo(map);
+        
+        marker.bindPopup(`<strong>${stop.name}</strong>`);
+      });
+      
+      // Fit bounds
+      if (line.route.length > 0) {
+        map.fitBounds(line.route);
+      }
+    }
+    
+    // ==========================================
+    // PÁGINA DE PARADAS
+    // ==========================================
+    function renderStops(container) {
+      const zones = [...new Set(VITRASA_DATA.stops.map(s => s.zone))];
+      
+      container.innerHTML = `
+        <div class="slide-in">
+          <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Paradas</h2>
+            <p class="text-gray-500">Encuentra información sobre cualquier parada de VITRASA</p>
+          </div>
+          
+          <div class="flex flex-col md:flex-row gap-4 mb-6">
+            <input type="text" id="stop-search" placeholder="Buscar parada..." 
+              class="search-input flex-1 px-4 py-3 rounded-xl outline-none"
+              oninput="filterStops(this.value)">
+            <select id="zone-filter" onchange="filterStopsByZone(this.value)"
+              class="search-input px-4 py-3 rounded-xl outline-none cursor-pointer">
+              <option value="">Todas las zonas</option>
+              ${zones.map(zone => `<option value="${zone}">${zone}</option>`).join('')}
+            </select>
+          </div>
+          
+          <div id="stops-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            ${VITRASA_DATA.stops.map(stop => renderStopCard(stop)).join('')}
+          </div>
+        </div>
+      `;
+    }
+    
+    function renderStopCard(stop) {
+      return `
+        <button onclick="navigate('stop-detail', {stopId: '${stop.id}'})" 
+          class="stop-card bg-white p-4 rounded-xl shadow-sm card-hover text-left"
+          data-stop-id="${stop.id}" data-stop-name="${stop.name.toLowerCase()}" data-stop-zone="${stop.zone}">
+          <div class="flex items-start gap-3">
+            <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-xl">📍</div>
+            <div class="flex-1 min-w-0">
+              <h3 class="font-bold text-gray-800 truncate">${stop.name}</h3>
+              <p class="text-sm text-gray-500 mb-2">${stop.zone} · ${stop.id}</p>
+              <div class="flex flex-wrap gap-1">
+                ${stop.lines.slice(0, 4).map(lineId => {
+                  const line = VITRASA_DATA.lines.find(l => l.id === lineId);
+                  return `<span class="px-2 py-1 rounded-md text-white text-xs font-semibold" style="background: ${line?.color || '#666'}">${lineId}</span>`;
+                }).join('')}
+                ${stop.lines.length > 4 ? `<span class="px-2 py-1 bg-gray-200 rounded-md text-gray-600 text-xs font-semibold">+${stop.lines.length - 4}</span>` : ''}
+              </div>
+            </div>
+          </div>
+        </button>
+      `;
+    }
+    
+    function filterStops(query) {
+      const cards = document.querySelectorAll('.stop-card');
+      const q = query.toLowerCase().trim();
+      const zoneFilter = document.getElementById('zone-filter').value;
+      
+      cards.forEach(card => {
+        const name = card.dataset.stopName;
+        const id = card.dataset.stopId.toLowerCase();
+        const zone = card.dataset.stopZone;
+        const matchesSearch = name.includes(q) || id.includes(q);
+        const matchesZone = !zoneFilter || zone === zoneFilter;
+        card.style.display = (matchesSearch && matchesZone) ? 'block' : 'none';
+      });
+    }
+    
+    function filterStopsByZone(zone) {
+      const searchQuery = document.getElementById('stop-search').value;
+      filterStops(searchQuery);
+    }
+    
+    // ==========================================
+    // DETALLE DE PARADA
+    // ==========================================
+    function renderStopDetail(container, stopId) {
+      const stop = VITRASA_DATA.stops.find(s => s.id === stopId);
+      if (!stop) {
+        container.innerHTML = '<p class="text-center text-gray-500 py-8">Parada no encontrada</p>';
+        return;
+      }
+      
+      const lines = stop.lines.map(lineId => VITRASA_DATA.lines.find(l => l.id === lineId)).filter(Boolean);
+      
+      container.innerHTML = `
+        <div class="slide-in">
+          <!-- Back button -->
+          <button onclick="navigate('stops')" class="flex items-center gap-2 text-gray-600 hover:text-emerald-600 mb-6 font-medium">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Volver a paradas
+          </button>
+          
+          <!-- Header -->
+          <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+            <div class="flex items-start gap-4">
+              <div class="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center text-3xl">📍</div>
+              <div class="flex-1">
+                <span class="text-sm font-medium text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">${stop.id}</span>
+                <h2 class="text-2xl font-bold text-gray-800 mt-2 mb-1">${stop.name}</h2>
+                <p class="text-gray-500">Zona: ${stop.zone}</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Map -->
+          <div class="bg-white rounded-2xl shadow-sm p-4 mb-6">
+            <h3 class="font-bold text-gray-800 mb-4">📍 Ubicación</h3>
+            <div class="map-container">
+              <div id="stop-map" style="height: 250px; width: 100%;"></div>
+            </div>
+          </div>
+          
+          <!-- Real-time arrivals -->
+          <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-bold text-gray-800">🚌 Próximas llegadas</h3>
+              <button onclick="refreshArrivals('${stopId}')" class="text-emerald-600 hover:text-emerald-700 text-sm font-medium flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                Actualizar
+              </button>
+            </div>
+            <div id="arrivals-list" class="space-y-3">
+              ${lines.map(line => `
+                <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+                  <div class="line-badge" style="background: ${line.color}">${line.id}</div>
+                  <div class="flex-1">
+                    <p class="font-semibold text-gray-800">${line.name}</p>
+                    <p class="text-sm text-gray-500">hacia ${getLineDestination(line)}</p>
+                  </div>
+                  <div class="time-chip ${Math.random() > 0.7 ? 'arriving' : ''}">${simulateArrivalTime(Math.floor(Math.random() * 5))}</div>
+                </div>
+              `).join('')}
+            </div>
+            <p class="text-xs text-gray-400 mt-4 text-center">⚠️ Tiempos simulados basados en horarios programados</p>
+          </div>
+          
+          <!-- Lines at this stop -->
+          <div class="bg-white rounded-2xl shadow-sm p-6">
+            <h3 class="font-bold text-gray-800 mb-4">🚌 Líneas en esta parada</h3>
+            <div class="grid md:grid-cols-2 gap-3">
+              ${lines.map(line => `
+                <button onclick="navigate('line-detail', {lineId: '${line.id}'})" 
+                  class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-all text-left">
+                  <div class="line-badge" style="background: ${line.color}">${line.id}</div>
+                  <div class="flex-1">
+                    <p class="font-semibold text-gray-800">${line.name}</p>
+                    <p class="text-sm text-gray-500">Cada ${line.frequency}</p>
+                  </div>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Initialize stop map
+      setTimeout(() => initStopMap(stop), 100);
+    }
+    
+    function initStopMap(stop) {
+      if (map) map.remove();
+      
+      const mapContainer = document.getElementById('stop-map');
+      if (!mapContainer) return;
+      
+      map = L.map('stop-map').setView([stop.lat, stop.lng], 16);
+      
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+      
+      L.marker([stop.lat, stop.lng]).addTo(map)
+        .bindPopup(`<strong>${stop.name}</strong><br>${stop.zone}`)
+        .openPopup();
+    }
+    
+    function refreshArrivals(stopId) {
+      const list = document.getElementById('arrivals-list');
+      if (list) {
+        list.innerHTML = '<div class="text-center py-4 text-gray-500">Actualizando...</div>';
+        setTimeout(() => {
+          navigate('stop-detail', { stopId });
+        }, 500);
+      }
+    }
+    
+    // ==========================================
+    // PLANIFICADOR DE RUTAS
+    // ==========================================
+    function renderRoutes(container) {
+      container.innerHTML = `
+        <div class="slide-in">
+          <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Planificar viaje</h2>
+            <p class="text-gray-500">Encuentra la mejor ruta entre dos puntos de Vigo</p>
+          </div>
+          
+          <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">📍 Origen</label>
+                <select id="origin-select" class="search-input w-full px-4 py-3 rounded-xl outline-none cursor-pointer">
+                  <option value="">Selecciona parada de origen</option>
+                  ${VITRASA_DATA.stops.map(s => `<option value="${s.id}">${s.name} (${s.zone})</option>`).join('')}
+                </select>
+              </div>
+              
+              <div class="flex justify-center">
+                <button onclick="swapStops()" class="p-2 rounded-lg hover:bg-gray-100 transition-all">
+                  <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                  </svg>
+                </button>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">🎯 Destino</label>
+                <select id="destination-select" class="search-input w-full px-4 py-3 rounded-xl outline-none cursor-pointer">
+                  <option value="">Selecciona parada de destino</option>
+                  ${VITRASA_DATA.stops.map(s => `<option value="${s.id}">${s.name} (${s.zone})</option>`).join('')}
+                </select>
+              </div>
+              
+              <button onclick="calculateRoute()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-4 rounded-xl font-semibold hover:from-emerald-600 hover:to-teal-600 transition-all flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                </svg>
+                Buscar ruta
+              </button>
+            </div>
+          </div>
+          
+          <div id="route-result" class="hidden">
+            <!-- Results will be shown here -->
+          </div>
+          
+          <div class="bg-white rounded-2xl shadow-sm p-4">
+            <h3 class="font-bold text-gray-800 mb-4">🗺️ Mapa de la red</h3>
+            <div class="map-container">
+              <div id="route-map" style="height: 400px; width: 100%;"></div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      setTimeout(initRouteMap, 100);
+    }
+    
+    function initRouteMap() {
+      if (map) map.remove();
+      
+      const mapContainer = document.getElementById('route-map');
+      if (!mapContainer) return;
+      
+      map = L.map('route-map').setView([42.2306, -8.7200], 13);
+      
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+      
+      // Add all lines
+      VITRASA_DATA.lines.forEach(line => {
+        L.polyline(line.route, {
+          color: line.color,
+          weight: 3,
+          opacity: 0.6
+        }).addTo(map);
+      });
+      
+      // Add all stops
+      VITRASA_DATA.stops.forEach(stop => {
+        L.circleMarker([stop.lat, stop.lng], {
+          radius: 6,
+          fillColor: '#10b981',
+          color: '#fff',
+          weight: 2,
+          fillOpacity: 0.8
+        }).addTo(map).bindPopup(`<strong>${stop.name}</strong>`);
+      });
+    }
+    
+    function swapStops() {
+      const origin = document.getElementById('origin-select');
+      const destination = document.getElementById('destination-select');
+      const temp = origin.value;
+      origin.value = destination.value;
+      destination.value = temp;
+    }
+    
+    function calculateRoute() {
+      const originId = document.getElementById('origin-select').value;
+      const destId = document.getElementById('destination-select').value;
+      
+      if (!originId || !destId) {
+        showRouteMessage('Por favor, selecciona origen y destino', 'warning');
+        return;
+      }
+      
+      if (originId === destId) {
+        showRouteMessage('El origen y destino no pueden ser iguales', 'warning');
+        return;
+      }
+      
+      const origin = VITRASA_DATA.stops.find(s => s.id === originId);
+      const dest = VITRASA_DATA.stops.find(s => s.id === destId);
+      
+      // Find common lines
+      const commonLines = origin.lines.filter(l => dest.lines.includes(l));
+      
+      const resultDiv = document.getElementById('route-result');
+      resultDiv.classList.remove('hidden');
+      
+      if (commonLines.length > 0) {
+        // Direct route
+        const directLine = VITRASA_DATA.lines.find(l => l.id === commonLines[0]);
+        
+        resultDiv.innerHTML = `
+          <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 mb-6 fade-in">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center text-white text-xl">✓</div>
+              <div>
+                <h3 class="font-bold text-emerald-800">¡Ruta directa encontrada!</h3>
+                <p class="text-emerald-600 text-sm">Sin transbordos necesarios</p>
+              </div>
+            </div>
+            
+            <div class="bg-white rounded-xl p-4 mb-4">
+              <div class="flex items-center gap-4">
+                <div class="line-badge" style="background: ${directLine.color}">${directLine.id}</div>
+                <div class="flex-1">
+                  <p class="font-semibold text-gray-800">${directLine.name}</p>
+                  <p class="text-sm text-gray-500">${origin.name} → ${dest.name}</p>
+                </div>
+                <div class="time-chip">${getNextBusTime(directLine.id)}</div>
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-4 text-center">
+              <div class="bg-white rounded-xl p-3">
+                <p class="text-2xl font-bold text-emerald-600">${estimateTravelTime(origin, dest)}</p>
+                <p class="text-xs text-gray-500">minutos</p>
+              </div>
+              <div class="bg-white rounded-xl p-3">
+                <p class="text-2xl font-bold text-emerald-600">0</p>
+                <p class="text-xs text-gray-500">transbordos</p>
+              </div>
+              <div class="bg-white rounded-xl p-3">
+                <p class="text-2xl font-bold text-emerald-600">1,35€</p>
+                <p class="text-xs text-gray-500">precio</p>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        // Highlight route on map
+        highlightRouteOnMap(origin, dest, directLine);
+        
+      } else {
+        // Need transfer - find a transfer point
+        const transferRoute = findTransferRoute(origin, dest);
+        
+        if (transferRoute) {
+          resultDiv.innerHTML = `
+            <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-6 fade-in">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center text-white text-xl">↔️</div>
+                <div>
+                  <h3 class="font-bold text-amber-800">Ruta con transbordo</h3>
+                  <p class="text-amber-600 text-sm">1 cambio de línea necesario</p>
+                </div>
+              </div>
+              
+              <div class="space-y-3">
+                <div class="bg-white rounded-xl p-4">
+                  <div class="flex items-center gap-4">
+                    <div class="line-badge" style="background: ${transferRoute.line1.color}">${transferRoute.line1.id}</div>
+                    <div class="flex-1">
+                      <p class="font-semibold text-gray-800">${transferRoute.line1.name}</p>
+                      <p class="text-sm text-gray-500">${origin.name} → ${transferRoute.transfer.name}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="flex justify-center">
+                  <div class="px-3 py-1 bg-amber-100 rounded-full text-amber-700 text-sm font-medium">
+                    🔄 Transbordo en ${transferRoute.transfer.name}
+                  </div>
+                </div>
+                
+                <div class="bg-white rounded-xl p-4">
+                  <div class="flex items-center gap-4">
+                    <div class="line-badge" style="background: ${transferRoute.line2.color}">${transferRoute.line2.id}</div>
+                    <div class="flex-1">
+                      <p class="font-semibold text-gray-800">${transferRoute.line2.name}</p>
+                      <p class="text-sm text-gray-500">${transferRoute.transfer.name} → ${dest.name}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="grid grid-cols-3 gap-4 text-center mt-4">
+                <div class="bg-white rounded-xl p-3">
+                  <p class="text-2xl font-bold text-amber-600">${estimateTravelTime(origin, dest) + 10}</p>
+                  <p class="text-xs text-gray-500">minutos</p>
+                </div>
+                <div class="bg-white rounded-xl p-3">
+                  <p class="text-2xl font-bold text-amber-600">1</p>
+                  <p class="text-xs text-gray-500">transbordo</p>
+                </div>
+                <div class="bg-white rounded-xl p-3">
+                  <p class="text-2xl font-bold text-amber-600">1,35€</p>
+                  <p class="text-xs text-gray-500">precio*</p>
+                </div>
+              </div>
+              <p class="text-xs text-gray-400 mt-2 text-center">*Con tarjeta PASS el transbordo es gratuito en 60 min</p>
+            </div>
+          `;
+        } else {
+          resultDiv.innerHTML = `
+            <div class="bg-red-50 border border-red-200 rounded-2xl p-6 mb-6 fade-in">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center text-white text-xl">❌</div>
+                <div>
+                  <h3 class="font-bold text-red-800">Ruta no disponible</h3>
+                  <p class="text-red-600 text-sm">No se encontró una conexión directa entre estas paradas</p>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      }
+    }
+    
+    function findTransferRoute(origin, dest) {
+      // Find a stop that connects origin and destination
+      for (const stop of VITRASA_DATA.stops) {
+        if (stop.id === origin.id || stop.id === dest.id) continue;
+        
+        const connectsOrigin = origin.lines.some(l => stop.lines.includes(l));
+        const connectsDest = dest.lines.some(l => stop.lines.includes(l));
+        
+        if (connectsOrigin && connectsDest) {
+          const line1Id = origin.lines.find(l => stop.lines.includes(l));
+          const line2Id = dest.lines.find(l => stop.lines.includes(l));
+          
+          return {
+            transfer: stop,
+            line1: VITRASA_DATA.lines.find(l => l.id === line1Id),
+            line2: VITRASA_DATA.lines.find(l => l.id === line2Id)
+          };
+        }
+      }
+      return null;
+    }
+    
+    function highlightRouteOnMap(origin, dest, line) {
+      // Re-init map with highlighted route
+      if (map) map.remove();
+      
+      const mapContainer = document.getElementById('route-map');
+      if (!mapContainer) return;
+      
+      map = L.map('route-map').setView([(origin.lat + dest.lat) / 2, (origin.lng + dest.lng) / 2], 14);
+      
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+      
+      // Highlighted route
+      L.polyline(line.route, {
+        color: line.color,
+        weight: 6,
+        opacity: 1
+      }).addTo(map);
+      
+      // Origin marker
+      L.marker([origin.lat, origin.lng]).addTo(map)
+        .bindPopup(`<strong>🚏 Origen</strong><br>${origin.name}`);
+      
+      // Destination marker
+      L.marker([dest.lat, dest.lng]).addTo(map)
+        .bindPopup(`<strong>🎯 Destino</strong><br>${dest.name}`);
+    }
+    
+    function showRouteMessage(message, type) {
+      const resultDiv = document.getElementById('route-result');
+      resultDiv.classList.remove('hidden');
+      const bgColor = type === 'warning' ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200';
+      const textColor = type === 'warning' ? 'text-amber-800' : 'text-red-800';
+      resultDiv.innerHTML = `
+        <div class="${bgColor} border rounded-2xl p-4 mb-6 fade-in">
+          <p class="${textColor} font-medium">${message}</p>
+        </div>
+      `;
+    }
+    
+    // ==========================================
+    // CHAT IA MEJORADO
+    // ==========================================
+    function renderChat(container) {
+      container.innerHTML = `
+        <div class="slide-in max-w-3xl mx-auto">
+          <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Asistente Virtual VITRASA</h2>
+            <p class="text-gray-500">Pregúntame sobre líneas, horarios, tarifas y cómo llegar a tu destino</p>
+          </div>
+          
+          <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div id="chat-messages" class="p-4 space-y-4" style="height: 500px; overflow-y: auto;">
+              <div class="chat-bubble bot">
+                👋 ¡Hola! Soy el asistente virtual de VITRASA. Estoy aquí para ayudarte con cualquier consulta sobre el transporte público en Vigo.<br><br>
+                Puedo ayudarte con:<br>
+                <ul class="mt-2 space-y-1 text-sm ml-4">
+                  <li>✅ Información sobre líneas y frecuencias</li>
+                  <li>✅ Horarios y paradas</li>
+                  <li>✅ Tarifas, bonos y tarjeta PASS</li>
+                  <li>✅ Cómo llegar a destinos específicos</li>
+                  <li>✅ Servicios especiales (nocturno, accesibilidad)</li>
+                  <li>✅ Objetos perdidos, WiFi y más</li>
+                </ul>
+                <br>¿En qué puedo ayudarte?
+              </div>
+              
+              <!-- Quick questions -->
+              <div class="flex flex-wrap gap-2">
+                ${['¿Precio del billete?', '¿Cómo llego al hospital?', '¿Servicio nocturno?', '¿Tarjeta PASS?', '¿Llegar al aeropuerto?', '¿Horario línea C1?'].map(q => `
+                  <button onclick="sendQuickQuestion('${q}')" 
+                    class="px-3 py-2 bg-emerald-50 text-emerald-700 rounded-full text-sm font-medium hover:bg-emerald-100 transition-all">
+                    ${q}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+            
+            <div class="border-t p-4">
+              <form onsubmit="handleChatSubmit(event)" class="flex gap-2">
+                <input type="text" id="chat-input" placeholder="Escribe tu pregunta..." 
+                  class="flex-1 px-4 py-3 bg-gray-100 rounded-xl outline-none focus:bg-gray-50 transition-all">
+                <button type="submit" class="px-6 py-3 bg-emerald-500 text-white rounded-xl font-semibold hover:bg-emerald-600 transition-all">
+                  Enviar
+                </button>
+              </form>
+            </div>
+          </div>
+          
+          <p class="text-center text-gray-400 text-sm mt-4">
+            ℹ️ Este asistente proporciona información basada en datos actualizados. Para consultas oficiales, contacta con VITRASA: 986 292 100
+          </p>
+        </div>
+      `;
+    }
+    
+    function handleChatSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById('chat-input');
+      const question = input.value.trim();
+      if (!question) return;
+      
+      addChatMessage(question, 'user');
+      input.value = '';
+      
+      // Simulate thinking
+      setTimeout(() => {
+        const answer = getAIResponse(question);
+        addChatMessage(answer, 'bot');
+      }, 600);
+    }
+    
+    function sendQuickQuestion(question) {
+      addChatMessage(question, 'user');
+      setTimeout(() => {
+        const answer = getAIResponse(question);
+        addChatMessage(answer, 'bot');
+      }, 600);
+    }
+    
+    function addChatMessage(message, type) {
+      const container = document.getElementById('chat-messages');
+      const bubble = document.createElement('div');
+      bubble.className = `chat-bubble ${type} fade-in`;
+      bubble.innerHTML = message;
+      container.appendChild(bubble);
+      container.scrollTop = container.scrollHeight;
+    }
+    
+    function getAIResponse(question) {
+      const q = question.toLowerCase();
+      
+      // Check for exact FAQ matches with keyword matching
+      for (const faq of VITRASA_DATA.faqs) {
+        if (faq.keywords.some(keyword => q.includes(keyword))) {
+          return faq.a;
+        }
+      }
+      
+      // Check for line-specific info
+      for (const line of VITRASA_DATA.lines) {
+        if (q.includes(line.id.toLowerCase()) || q.includes(line.name.toLowerCase().split(' ')[0])) {
+          return `🚌 <strong>${line.id} - ${line.name}</strong><br><br>
+            📍 ${line.description}<br>
+            🕐 Frecuencia: <strong>${line.frequency}</strong><br>
+            🌅 Primer bus: <strong>${line.firstBus}</strong><br>
+            🌙 Último bus: <strong>${line.lastBus}</strong><br>
+            ⏱️ Duración recorrido: <strong>${line.duration}</strong><br>
+            🚏 Paradas: <strong>${line.stops.length}</strong><br>
+            ♿ Accesible: <strong>${line.accessible ? 'Sí' : 'No'}</strong><br><br>
+            ¿Necesitas más información sobre esta línea?`;
+        }
+      }
+      
+      // Check for stop-specific info
+      for (const stop of VITRASA_DATA.stops) {
+        if (q.includes(stop.name.toLowerCase())) {
+          return `📍 <strong>Parada: ${stop.name}</strong><br><br>
+            🗺️ Zona: <strong>${stop.zone}</strong><br>
+            📋 Código: <strong>${stop.id}</strong><br>
+            📍 Dirección: ${stop.address || 'N/A'}<br>
+            🚌 Líneas que paran aquí:<br>
+            <span class="text-sm">${stop.lines.join(', ')}</span><br><br>
+            Puedes ver más detalles y tiempos de llegada en la sección de paradas.`;
+        }
+      }
+      
+      // Default contextual response
+      return `❓ No encontré información específica sobre "${question}".<br><br>
+        Sin embargo, puedo ayudarte con:<br><br>
+        📍 <strong>Líneas y horarios:</strong> Pregunta por cualquier línea (ej: "línea C1", "horario L4")<br>
+        💶 <strong>Tarifas:</strong> "precio", "tarifa", "cuánto cuesta"<br>
+        🗺️ <strong>Cómo llegar:</strong> "cómo llego al hospital", "ir al aeropuerto"<br>
+        💳 <strong>Tarjeta PASS:</strong> "pass", "transbordo", "recargar"<br>
+        🌙 <strong>Servicios:</strong> "nocturno", "wifi", "accesibilidad"<br><br>
+        ¿Sobre qué te gustaría saber más?`;
+    }
+    
+    // ==========================================
+    // UTILIDADES
+    // ==========================================
+    function getNextBusTime(lineId) {
+      const schedules = VITRASA_DATA.schedules[lineId] || [];
+      const now = new Date();
+      const currentTime = now.getHours() * 60 + now.getMinutes();
+      
+      for (const time of schedules) {
+        const [h, m] = time.split(':').map(Number);
+        const timeInMin = h * 60 + m;
+        if (timeInMin >= currentTime) {
+          const diff = timeInMin - currentTime;
+          if (diff <= 1) return '< 1 min';
+          if (diff <= 15) return `${diff} min`;
+          return time;
+        }
+      }
+      return schedules[0] || '--:--';
+    }
+    
+    function isArriving(lineId) {
+      const schedules = VITRASA_DATA.schedules[lineId] || [];
+      const now = new Date();
+      const currentTime = now.getHours() * 60 + now.getMinutes();
+      
+      for (const time of schedules) {
+        const [h, m] = time.split(':').map(Number);
+        const timeInMin = h * 60 + m;
+        const diff = timeInMin - currentTime;
+        if (diff >= 0 && diff <= 3) return true;
+      }
+      return false;
+    }
+    
+    function simulateArrivalTime(stopIndex) {
+      const baseTime = 2 + stopIndex * 3;
+      const variation = Math.floor(Math.random() * 3);
+      const total = baseTime + variation;
+      if (total <= 1) return '< 1 min';
+      return `${total} min`;
+    }
+    
+    function getLineDestination(line) {
+      const lastStopId = line.stops[line.stops.length - 1];
+      const stop = VITRASA_DATA.stops.find(s => s.id === lastStopId);
+      return stop ? stop.name : 'Destino';
+    }
+    
+    function estimateTravelTime(origin, dest) {
+      const distance = Math.sqrt(
+        Math.pow(origin.lat - dest.lat, 2) + 
+        Math.pow(origin.lng - dest.lng, 2)
+      );
+      return Math.max(5, Math.round(distance * 500));
+    }
+    
+    // ==========================================
+    // INICIALIZACIÓN
+    // ==========================================
+    initSDK();
+    navigate('home');
+    
+    // Update times every minute
+    setInterval(() => {
+      if (currentPage === 'home' || currentPage === 'lines') {
+        const timeChips = document.querySelectorAll('.time-chip');
+        timeChips.forEach((chip, idx) => {
+          if (chip.closest('.line-card') || chip.closest('button[onclick*="line-detail"]')) {
+            const lineId = VITRASA_DATA.lines[idx % VITRASA_DATA.lines.length]?.id;
+            if (lineId) {
+              chip.textContent = getNextBusTime(lineId);
+            }
+          }
+        });
+      }
+    }, 60000);
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a07f69b66a3a6eea',t:'MTc4MDgzMjc1MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
