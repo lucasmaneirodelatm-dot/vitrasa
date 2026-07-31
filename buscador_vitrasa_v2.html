@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buscador de Líneas VITRASA</title>
+<style>
+    :root {
+        --primary-color: #0056b3;
+        --bg-color: #f4f6f9;
+        --card-bg: #ffffff;
+        --text-color: #333333;
+        --accent-color: #28a745;
+    }
+    
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 700px;
+        background: var(--card-bg);
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    h2 {
+        margin-top: 0;
+        color: var(--primary-color);
+        border-bottom: 2px solid #eef2f5;
+        padding-bottom: 10px;
+    }
+
+    p {
+        color: #666;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    .options {
+        background-color: #fff3cd;
+        border: 1px solid #ffeeba;
+        color: #856404;
+        padding: 10px 15px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+        font-size: 0.9rem;
+    }
+
+    .controls {
+        margin: 20px 0;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    button {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 10px 18px;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    button:hover {
+        background-color: #004085;
+    }
+
+    button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+    }
+
+    .btn-export {
+        background-color: var(--accent-color);
+        display: none;
+    }
+
+    .btn-export:hover {
+        background-color: #218838;
+    }
+
+    /* Barra de progreso */
+    .progress-container {
+        display: none;
+        margin: 20px 0;
+        background: #eef2f5;
+        padding: 15px;
+        border-radius: 8px;
+    }
+
+    progress {
+        width: 100%;
+        height: 25px;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    progress::-webkit-progress-bar {
+        background-color: #ddd;
+    }
+    
+    progress::-webkit-progress-value {
+        background-color: var(--primary-color);
+        transition: width 0.15s ease;
+    }
+
+    .progress-text {
+        text-align: center;
+        font-size: 0.95rem;
+        font-weight: bold;
+        margin-top: 8px;
+        color: var(--primary-color);
+    }
+
+    #salida {
+        background-color: #1e1e1e;
+        color: #00ff66;
+        padding: 15px;
+        border-radius: 8px;
+        font-family: "Courier New", Courier, monospace;
+        font-size: 0.88rem;
+        max-height: 300px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        margin-top: 15px;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Listado de Líneas VITRASA (Vigo)</h2>
+    <p>Este script consulta la API pública del Ayuntamiento de Vigo. Se ha añadido un proxy CORS para evitar que el navegador bloquee las peticiones al abrir el archivo directamente.</p>
+
+    <div class="options">
+        <label style="cursor: pointer;">
+            <input type="checkbox" id="checkProxy" checked> 
+            Usar Proxy CORS (Obligatorio si abres este archivo con doble clic. Desmárcalo solo si usas un servidor web local).
+        </label>
+    </div>
+
+    <div class="controls">
+        <button id="btnBuscar" onclick="buscar()">Comenzar búsqueda</button>
+        <button id="btnExportar" class="btn-export" onclick="exportarCSV()">Guardar Resultado (CSV)</button>
+    </div>
+
+    <div class="progress-container" id="contenedorProgreso">
+        <progress id="barraProgreso" value="0" max="100"></progress>
+        <div class="progress-text" id="textoProgreso">Iniciando...</div>
+    </div>
+
+    <pre id="salida">Presiona "Comenzar búsqueda" para iniciar la lectura de paradas...</pre>
+</div>
+
+<script>
+const salida = document.getElementById("salida");
+const btnBuscar = document.getElementById("btnBuscar");
+const btnExportar = document.getElementById("btnExportar");
+const checkProxy = document.getElementById("checkProxy");
+
+// Elementos de la barra de progreso
+const contenedorProgreso = document.getElementById("contenedorProgreso");
+const barraProgreso = document.getElementById("barraProgreso");
+const textoProgreso = document.getElementById("textoProgreso");
+
+let resultadoFinal = [];
+
+function escribir(txt){
+    salida.textContent += txt + "\n";
+    salida.scrollTop = salida.scrollHeight;
+}
+
+function obtenerUrl(urlBase) {
+    if (checkProxy.checked) {
+        // Usa allorigins.win como proxy CORS gratuito
+        return "https://api.allorigins.win/raw?url=" + encodeURIComponent(urlBase);
+    }
+    return urlBase;
+}
+
+async function cargarParadas(){
+    const url = "https://datos.vigo.org/data/transporte/paradas.json";
+    const r = await fetch(obtenerUrl(url));
+    if (!r.ok) throw new Error("Fallo al descargar el JSON (HTTP " + r.status + ")");
+    const json = await r.json();
+    return json.features.map(f => f.properties.stop_id);
+}
+
+async function consultarParada(id){
+    try {
+        const url = "https://datos.vigo.org/vci_api_app/api2.jsp?tipo=TRANSPORTE-ESTIMACION-PARADA&id=" + id;
+        const r = await fetch(obtenerUrl(url));
+        if (!r.ok) return [];
+        const texto = await r.text();
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(texto, "text/xml");
+        const estimaciones = xml.getElementsByTagName("estimacion");
+
+        let datos = [];
+        for(let e of estimaciones){
+            datos.push({
+                linea: e.getElementsByTagName("linea")[0]?.textContent.trim(),
+                ruta: e.getElementsByTagName("ruta")[0]?.textContent.trim()
+            });
+        }
+        return datos;
+    } catch(e) {
+        return [];
+    }
+}
+
+async function buscar(){
+    btnBuscar.disabled = true;
+    checkProxy.disabled = true;
+    btnExportar.style.display = "none";
+    salida.textContent = "";
+    resultadoFinal = [];
+
+    // Mostrar y reiniciar barra
+    contenedorProgreso.style.display = "block";
+    barraProgreso.value = 0;
+    textoProgreso.textContent = "Descargando mapa de paradas...";
+
+    escribir("Descargando mapa de paradas...");
+
+    try {
+        const paradas = await cargarParadas();
+        escribir("Total de paradas encontradas: " + paradas.length);
+        
+        barraProgreso.max = paradas.length;
+
+        const lineas = {};
+
+        for(let i = 0; i < paradas.length; i++){
+            // Actualizar interfaz (barra y textos)
+            barraProgreso.value = i + 1;
+            const porcentaje = Math.round(((i + 1) / paradas.length) * 100);
+            textoProgreso.textContent = `Procesando parada ${i + 1} de ${paradas.length} (${porcentaje}%)`;
+            escribir("Consultando parada " + (i + 1) + "/" + paradas.length + " (ID: " + paradas[i] + ")");
+
+            const datos = await consultarParada(paradas[i]);
+
+            for(const d of datos){
+                if(!d.linea) continue;
+                if(!lineas[d.linea]) lineas[d.linea] = {};
+                if(!lineas[d.linea][d.ruta]) lineas[d.linea][d.ruta] = 0;
+
+                lineas[d.linea][d.ruta]++;
+            }
+
+            // Pequeña pausa para no saturar el servidor ni el navegador
+            await new Promise(r => setTimeout(r, 150));
+        }
+
+        textoProgreso.textContent = "¡Completado! Generando resultados...";
+        escribir("\n========== RESULTADO FINAL ==========\n");
+
+        for(const linea in lineas){
+            let mejor = "";
+            let veces = 0;
+
+            for(const ruta in lineas[linea]){
+                if(lineas[linea][ruta] > veces){
+                    veces = lineas[linea][ruta];
+                    mejor = ruta;
+                }
+            }
+
+            resultadoFinal.push({
+                linea: linea,
+                ruta: mejor
+            });
+        }
+
+        resultadoFinal.sort((a, b) => a.linea.localeCompare(b.linea, undefined, {numeric: true}));
+
+        for(const r of resultadoFinal){
+            escribir("Línea " + r.linea + " -> " + r.ruta);
+        }
+
+        if(resultadoFinal.length > 0){
+            btnExportar.style.display = "inline-block";
+        }
+
+    } catch (err) {
+        textoProgreso.textContent = "Error: " + err.message;
+        escribir("\n[!] ERROR FATAL: " + err.message);
+        escribir("Si está fallando, intenta cambiar la casilla del Proxy CORS arriba e inténtalo de nuevo.");
+    } finally {
+        btnBuscar.disabled = false;
+        checkProxy.disabled = false;
+    }
+}
+
+function exportarCSV(){
+    if(!resultadoFinal.length) return;
+    let csvContent = "data:text/csv;charset=utf-8,Linea,Ruta\n";
+    resultadoFinal.forEach(r => {
+        csvContent += `"${r.linea}","${r.ruta.replace(/"/g, '""')}"\n`;
+    });
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "lineas_vitrasa.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+</script>
+
+</body>
+</html>
