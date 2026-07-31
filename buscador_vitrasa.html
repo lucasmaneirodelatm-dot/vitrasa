@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Buscador de líneas VITRASA</title>
+</head>
+<body>
+
+<h2>Listado de líneas VITRASA</h2>
+
+<button onclick="buscar()">Comenzar</button>
+
+<pre id="salida"></pre>
+
+<script>
+
+const salida = document.getElementById("salida");
+
+function escribir(txt){
+    salida.textContent += txt + "\n";
+}
+
+async function cargarParadas(){
+
+    const r = await fetch("https://datos.vigo.org/data/transporte/paradas.json");
+    const json = await r.json();
+
+    return json.features.map(f=>f.properties.stop_id);
+
+}
+
+async function consultarParada(id){
+
+    try{
+
+        const r = await fetch(
+            "https://datos.vigo.org/vci_api_app/api2.jsp?tipo=TRANSPORTE-ESTIMACION-PARADA&id="+id
+        );
+
+        const texto = await r.text();
+
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(texto,"text/xml");
+
+        const estimaciones = xml.getElementsByTagName("estimacion");
+
+        let datos=[];
+
+        for(let e of estimaciones){
+
+            datos.push({
+                linea:e.getElementsByTagName("linea")[0]?.textContent.trim(),
+                ruta:e.getElementsByTagName("ruta")[0]?.textContent.trim()
+            });
+
+        }
+
+        return datos;
+
+    }catch(e){
+        return [];
+    }
+
+}
+
+async function buscar(){
+
+    salida.textContent="";
+
+    escribir("Descargando paradas...");
+
+    const paradas = await cargarParadas();
+
+    escribir("Paradas: "+paradas.length);
+
+    const lineas={};
+
+    for(let i=0;i<paradas.length;i++){
+
+        escribir("Parada "+(i+1)+"/"+paradas.length+" ("+paradas[i]+")");
+
+        const datos = await consultarParada(paradas[i]);
+
+        for(const d of datos){
+
+            if(!d.linea) continue;
+
+            if(!lineas[d.linea])
+                lineas[d.linea]={};
+
+            if(!lineas[d.linea][d.ruta])
+                lineas[d.linea][d.ruta]=0;
+
+            lineas[d.linea][d.ruta]++;
+
+        }
+
+        await new Promise(r=>setTimeout(r,150));
+
+    }
+
+    escribir("");
+    escribir("========== RESULTADO ==========");
+
+    const resultado=[];
+
+    for(const linea in lineas){
+
+        let mejor="";
+        let veces=0;
+
+        for(const ruta in lineas[linea]){
+
+            if(lineas[linea][ruta]>veces){
+
+                veces=lineas[linea][ruta];
+                mejor=ruta;
+
+            }
+
+        }
+
+        resultado.push({
+            linea,
+            ruta:mejor
+        });
+
+    }
+
+    resultado.sort((a,b)=>a.linea.localeCompare(b.linea,undefined,{numeric:true}));
+
+    salida.textContent="";
+
+    for(const r of resultado){
+
+        escribir(r.linea+" - "+r.ruta);
+
+    }
+
+    console.log(resultado);
+
+}
+
+</script>
+
+</body>
+</html>
