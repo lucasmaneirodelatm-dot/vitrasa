@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auditor Avanzado de Transporte de Vigo | Vitrasa vs OSM Pro</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-base: #0b0f19;
+            --bg-panel: #131b2e;
+            --bg-card: #1c2640;
+            --bg-input: #0f172a;
+            --border-color: #2a3859;
+            --border-hover: #3b82f6;
+            
+            --color-vigo: #ef4444;       /* Rojo Vitrasa / Vigo */
+            --color-osm: #f59e0b;        /* Amarillo OSM */
+            --color-ok: #10b981;         /* Verde coincidencia */
+            --color-train: #3b82f6;      /* Azul Ferrocarril */
+            --color-shelter: #6b7280;    /* Gris Marquesina */
+            --color-orphan: #8b5cf6;     /* Morado Huérfana */
+            --color-cangas: #ec4899;     /* Rosa Interurbano / Ria */
+
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-sub: #64748b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
+        /* --- SIDEBAR DE NAVEGACIÓN Y CONTROL --- */
+        #sidebar {
+            width: 460px;
+            min-width: 420px;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            box-shadow: 5px 0 25px rgba(0,0,0,0.5);
+        }
+
+        .sidebar-header {
+            padding: 18px 20px;
+            background: #0d1322;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+        }
+
+        .sidebar-header h1 i { color: var(--color-vigo); }
+
+        /* TABS DE NAVEGACIÓN */
+        .tab-nav {
+            display: flex;
+            background: #0d1322;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 10px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 8px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover { color: #fff; }
+        .tab-btn.active { color: var(--border-hover); border-bottom-color: var(--border-hover); background: rgba(59, 130, 246, 0.05); }
+
+        .tab-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .tab-content.active { display: flex; }
+
+        /* TARJETAS Y PANELES */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px;
+        }
+
+        .card-header {
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-header i { color: var(--border-hover); }
+
+        /* INPUTS Y BOTONES */
+        .input-group { display: flex; gap: 8px; margin-bottom: 8px; }
+        input[type="text"], select {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input[type="text"]:focus, select:focus { border-color: var(--border-hover); }
+
+        .btn {
+            padding: 10px 14px;
+            border-radius: 6px;
+            border: none;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary { background: #2563eb; } .btn-primary:hover { background: #1d4ed8; }
+        .btn-success { background: #059669; } .btn-success:hover { background: #047857; }
+        .btn-warning { background: #d97706; } .btn-warning:hover { background: #b45309; }
+        .btn-danger { background: #dc2626; } .btn-danger:hover { background: #b91c1c; }
+        .btn-purple { background: #7c3aed; } .btn-purple:hover { background: #6d28d9; }
+        .btn-secondary { background: #334155; } .btn-secondary:hover { background: #475569; }
+
+        /* FILTROS MULTI-SELECCIÓN */
+        .grid-filters { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .filter-chip {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            user-select: none;
+            transition: all 0.2s;
+        }
+        .filter-chip.active {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: var(--border-hover);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        /* LEYENDA */
+        .legend-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.78rem; }
+        .legend-item { display: flex; align-items: center; gap: 8px; background: var(--bg-input); padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.03); }
+        .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+
+        /* INFORME Y RESULTADOS */
+        .report-card { background: var(--bg-input); border-radius: 8px; padding: 12px; font-size: 0.8rem; line-height: 1.6; border-left: 4px solid var(--border-hover); }
+        .metric-row { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px dashed rgba(255,255,255,0.05); }
+        .metric-row:last-child { border-bottom: none; }
+        .metric-val { font-weight: 700; color: #fff; }
+
+        /* TABLA DE AUDITORÍA */
+        .audit-table-wrap { max-height: 400px; overflow-y: auto; border-radius: 6px; border: 1px solid var(--border-color); }
+        .audit-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; text-align: left; }
+        .audit-table th { background: #0d1322; padding: 8px; color: var(--text-muted); position: sticky; top: 0; }
+        .audit-table td { padding: 8px; border-bottom: 1px solid var(--border-color); }
+        .audit-table tr:hover { background: rgba(255,255,255,0.03); cursor: pointer; }
+
+        /* MAPA */
+        #map-container { flex: 1; position: relative; height: 100%; }
+        #map { width: 100%; height: 100%; background: #080c14; }
+
+        /* OVERLAY FLOTANTE SOBRE MAPA */
+        .map-stats-overlay {
+            position: absolute;
+            top: 16px; right: 16px;
+            z-index: 900;
+            background: rgba(19, 27, 46, 0.92);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            padding: 10px 16px;
+            border-radius: 10px;
+            display: flex;
+            gap: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .stat-box { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--text-muted); }
+        .stat-box strong { color: #fff; font-size: 0.95rem; }
+
+        /* POPUPS PERSONALIZADOS */
+        .leaflet-popup-content-wrapper { background: var(--bg-panel) !important; color: #fff !important; border: 1px solid var(--border-color); border-radius: 12px !important; box-shadow: 0 15px 35px rgba(0,0,0,0.7) !important; padding: 0 !important; }
+        .leaflet-popup-tip { background: var(--bg-panel) !important; }
+        .popup-box { padding: 16px; width: 330px; }
+        .popup-header { font-size: 0.95rem; font-weight: 800; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .popup-type-badge { font-size: 0.68rem; padding: 3px 8px; border-radius: 4px; font-weight: 700; text-transform: uppercase; }
+        .tag-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--bg-input); padding: 10px; border-radius: 6px; margin-bottom: 10px; font-size: 0.75rem; }
+        .tag-item label { font-size: 0.65rem; color: var(--text-sub); display: block; }
+        .tag-item span { font-weight: 600; color: #e2e8f0; word-break: break-word; }
+
+        /* JOSM Quick Fix Box */
+        .josm-box { background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.3); padding: 8px; border-radius: 6px; margin-top: 8px; font-size: 0.72rem; }
+
+        .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <div id="sidebar">
+        <div class="sidebar-header">
+            <h1><i class="fa-solid fa-bus"></i> Auditor Vitrasa vs OSM Pro</h1>
+            <span style="font-size:0.7rem; background:rgba(239, 68, 68, 0.2); color:var(--color-vigo); padding:3px 8px; border-radius:12px; font-weight:700;">v3.0 Vigo</span>
+        </div>
+
+        <!-- TAB NAVIGATION -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('tab-control')"><i class="fa-solid fa-sliders"></i> Control</button>
+            <button class="tab-btn" onclick="switchTab('tab-filters')"><i class="fa-solid fa-filter"></i> Filtros</button>
+            <button class="tab-btn" onclick="switchTab('tab-audit')"><i class="fa-solid fa-list-check"></i> Tabla</button>
+            <button class="tab-btn" onclick="switchTab('tab-export')"><i class="fa-solid fa-file-export"></i> Exportar</button>
+        </div>
+
+        <!-- TAB 1: CONTROL Y ESCÁNER -->
+        <div id="tab-control" class="tab-content active">
+            
+            <!-- FUENTE DE DATOS -->
+            <div class="card">
+                <div class="card-header">
+                    <span><i class="fa-solid fa-database"></i> Datos Oficiales Vitrasa</span>
+                    <span id="api-badge" style="font-size:0.7rem; color:var(--color-ok);">Cargado</span>
+                </div>
+                <div class="input-group">
+                    <button class="btn btn-primary" id="btn-load-api" onclick="cargarDatosVitrasa()"><i class="fa-solid fa-rotate"></i> Recargar API Vigo</button>
+                    <button class="btn btn-secondary" onclick="cargarDatosOffline()"><i class="fa-solid fa-hard-drive"></i> Offline</button>
+                </div>
+            </div>
+
+            <!-- BUSCADOR -->
+            <div class="card">
+                <div class="card-header"><span><i class="fa-solid fa-magnifying-glass"></i> Buscador Unificado</span></div>
+                <div class="input-group">
+                    <input type="text" id="searchInput" placeholder="Código (ej. 14395), Nombre o Línea (C3)..." onkeyup="if(event.key==='Enter') ejecutarBusqueda()">
+                    <button class="btn btn-primary" onclick="ejecutarBusqueda()" style="width: auto;"><i class="fa-solid fa-search"></i></button>
+                </div>
+            </div>
+
+            <!-- ESCÁNER INTELIGENTE FILTRADO -->
+            <div class="card">
+                <div class="card-header"><span><i class="fa-solid fa-radar"></i> Escáner OSM Inteligente</span></div>
+                
+                <div class="input-group">
+                    <select id="geo-boundary">
+                        <option value="vigo_only" selected>🎯 Solo Municipio de Vigo (Excluir Cangas/Ría)</option>
+                        <option value="vigo_ria">🌊 Incluir Ría y Municipios Colindantes</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <select id="mode-filter">
+                        <option value="bus_only" selected>🚌 Solo Transporte por Autobús (Vitrasa/Interurbano)</option>
+                        <option value="all_transport">🚆 Incluir Trenes (Renfe/Urzáiz) y Barcos</option>
+                    </select>
+                </div>
+
+                <div style="display:flex; gap:8px; margin-top:8px;">
+                    <button class="btn btn-warning" id="btn-scan-map" onclick="escanearMapa()"><i class="fa-solid fa-expand"></i> Escanear Mapa Visible</button>
+                    <button class="btn btn-purple" id="btn-measure" onclick="toggleMedicion()"><i class="fa-solid fa-ruler"></i> Medir Distancia</button>
+                </div>
+                <div id="measure-box" style="display:none; background:var(--bg-input); padding:8px; margin-top:8px; border-radius:6px; font-size:0.75rem; color:var(--color-ok); text-align:center;">
+                    Haz clic en 2 puntos o paradas del mapa para medir...
+                </div>
+            </div>
+
+            <!-- INFORME DE ESCANEO -->
+            <div class="card">
+                <div class="card-header"><span><i class="fa-solid fa-chart-pie"></i> Diagnóstico de la Zona</span></div>
+                <div id="report-content" class="report-card">
+                    <i>Haz clic en "Escanear Mapa Visible" para analizar discrepancias entre Vitrasa y OpenStreetMap en esta área.</i>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TAB 2: FILTROS Y LEYENDA -->
+        <div id="tab-filters" class="tab-content">
+            
+            <div class="card">
+                <div class="card-header"><span><i class="fa-solid fa-filter"></i> Filtros de Visibilidad</span></div>
+                <div class="grid-filters">
+                    <div class="filter-chip" id="flt-only-osm" onclick="toggleFiltro('only-osm')">
+                        <i class="fa-solid fa-ghost" style="color:var(--color-osm);"></i> Solo en OSM
+                    </div>
+                    <div class="filter-chip" id="flt-only-api" onclick="toggleFiltro('only-api')">
+                        <i class="fa-solid fa-cloud-arrow-down" style="color:var(--color-vigo);"></i> Solo en API Vitrasa
+                    </div>
+                    <div class="filter-chip" id="flt-shelters" onclick="toggleFiltro('shelters')">
+                        <i class="fa-solid fa-house-chimney" style="color:var(--color-shelter);"></i> Marquesinas
+                    </div>
+                    <div class="filter-chip" id="flt-orphans" onclick="toggleFiltro('orphans')">
+                        <i class="fa-solid fa-link-slash" style="color:var(--color-orphan);"></i> Marquesina Huérfana
+                    </div>
+                    <div class="filter-chip" id="flt-no-ref" onclick="toggleFiltro('no-ref')">
+                        <i class="fa-solid fa-tag" style="color:#ef4444;"></i> OSM sin Código (Ref)
+                    </div>
+                    <div class="filter-chip" id="flt-trains" onclick="toggleFiltro('trains')">
+                        <i class="fa-solid fa-train" style="color:var(--color-train);"></i> Trenes / Renfe
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><span><i class="fa-solid fa-palette"></i> Leyenda del Modo Investigación</span></div>
+                <div class="legend-list">
+                    <div class="legend-item"><span class="dot" style="background:var(--color-ok);"></span> 🟢 Coincide Oficial</div>
+                    <div class="legend-item"><span class="dot" style="background:var(--color-vigo);"></span> 🔴 Solo en API Vitrasa</div>
+                    <div class="legend-item"><span class="dot" style="background:var(--color-osm);"></span> 🟡 Solo en OSM</div>
+                    <div class="legend-item"><span class="dot" style="background:var(--color-train);"></span> 🔵 Estación Tren (Urzáiz/Guixar)</div>
+                    <div class="legend-item"><span class="dot" style="background:var(--color-shelter);"></span> ⚫ Marquesina OSM</div>
+                    <div class="legend-item"><span class="dot" style="background:var(--color-orphan);"></span> 🟣 Marquesina Huérfana</div>
+                    <div class="legend-item"><span class="dot" style="background:var(--color-cangas);"></span> 🩷 Interurbano / Ría</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TAB 3: TABLA DE AUDITORÍA -->
+        <div id="tab-audit" class="tab-content">
+            <div class="card" style="flex:1; display:flex; flex-direction:column;">
+                <div class="card-header">
+                    <span><i class="fa-solid fa-table"></i> Discrepancias Detectadas</span>
+                    <button class="btn btn-secondary" style="width:auto; padding:4px 8px; font-size:0.7rem;" onclick="actualizarTablaAuditoria()">Refrescar</button>
+                </div>
+                <div class="audit-table-wrap">
+                    <table class="audit-table">
+                        <thead>
+                            <tr>
+                                <th>Cód</th>
+                                <th>Nombre / Elemento</th>
+                                <th>Estado</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="audit-table-body">
+                            <tr><td colspan="4" style="text-align:center; color:var(--text-sub);">Ejecuta un escáner para poblar la tabla.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: EXPORTAR Y JOSM -->
+        <div id="tab-export" class="tab-content">
+            <div class="card">
+                <div class="card-header"><span><i class="fa-solid fa-file-export"></i> Exportar Informe de Auditoría</span></div>
+                <p style="font-size:0.78rem; color:var(--text-muted); margin-bottom:12px;">Descarga la lista de anomalías y discrepancias encontradas para trabajar en GIS o JOSM.</p>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <button class="btn btn-success" onclick="exportarGeoJSON()"><i class="fa-solid fa-map-location-dot"></i> Exportar GeoJSON</button>
+                    <button class="btn btn-primary" onclick="exportarCSV()"><i class="fa-solid fa-file-csv"></i> Exportar Tabla CSV</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><span><i class="fa-solid fa-wand-magic-sparkles"></i> Integración JOSM Remote</span></div>
+                <p style="font-size:0.78rem; color:var(--text-muted); margin-bottom:10px;">Si tienes JOSM abierto con Remote Control activo, puedes cargar el área con 1 clic.</p>
+                <button class="btn btn-purple" onclick="cargarEnJOSM()"><i class="fa-solid fa-bolt"></i> Enviar BBOX a JOSM</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MAP CONTAINER -->
+    <div id="map-container">
+        <!-- Overlay Flotante de Estadísticas -->
+        <div class="map-stats-overlay">
+            <div class="stat-box">
+                <i class="fa-solid fa-bus" style="color:var(--color-ok);"></i> Vitrasa: <strong id="cnt-vitrasa">0</strong>
+            </div>
+            <div style="width:1px; height:16px; background:var(--border-color);"></div>
+            <div class="stat-box">
+                <i class="fa-solid fa-cubes" style="color:var(--color-osm);"></i> OSM: <strong id="cnt-osm">0</strong>
+            </div>
+            <div style="width:1px; height:16px; background:var(--border-color);"></div>
+            <div class="stat-box">
+                <i class="fa-solid fa-triangle-exclamation" style="color:var(--color-vigo);"></i> Anomalías: <strong id="cnt-anomalies">0</strong>
+            </div>
+        </div>
+
+        <div id="map"></div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        /* ==========================================================================
+           1. ESTADO GLOBAL & CONFIGURACIÓN DE VIGO
+           ========================================================================== */
+        const VIGO_CENTER = [42.2328, -8.7226];
+        const VIGO_BBOX_LIMITS = { minLat: 42.140, maxLat: 42.270, minLon: -8.820, maxLon: -8.620 }; // Límites del municipio de Vigo para ignorar Cangas/Moaña si se desea
+
+        let map;
+        let layerMarkers = L.layerGroup();
+        let layerMeasure = L.layerGroup();
+
+        // Datasets principales
+        let datasetVitrasa = [];
+        let datasetOSM = [];
+        let listaAnomalias = [];
+
+        // Estado Filtros
+        let filtros = {
+            'only-osm': false,
+            'only-api': false,
+            'shelters': false,
+            'orphans': false,
+            'no-ref': false,
+            'trains': false
+        };
+
+        // Medidor
+        let modoMedicion = false;
+        let puntosMedicion = [];
+
+        // Proxies CORS para la API de Vigo
+        const PROXIES = [
+            u => u,
+            u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+            u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`
+        ];
+
+        /* ==========================================================================
+           2. INICIALIZACIÓN
+           ========================================================================== */
+        document.addEventListener('DOMContentLoaded', () => {
+            initMap();
+            cargarDatosVitrasa();
+        });
+
+        function initMap() {
+            map = L.map('map', { zoomControl: false }).setView(VIGO_CENTER, 14);
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap contributors © CARTO',
+                subdomains: 'abcd',
+                maxZoom: 20
+            }).addTo(map);
+
+            L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+            layerMarkers.addTo(map);
+            layerMeasure.addTo(map);
+
+            map.on('click', onMapClickMeasure);
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.currentTarget.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        /* ==========================================================================
+           3. CARGA DE DATOS VITRASA (API OFICIAL + FALLBACK REALISTA)
+           ========================================================================== */
+        async function cargarDatosVitrasa() {
+            const btn = document.getElementById('btn-load-api');
+            const badge = document.getElementById('api-badge');
+            btn.innerHTML = `<span class="spinner"></span> Conectando...`;
+
+            const url = 'https://datos.vigo.org/data/transporte/paradas.json';
+            let loaded = false;
+
+            for (let proxy of PROXIES) {
+                try {
+                    const res = await fetch(proxy(url), { timeout: 6000 });
+                    if (res.ok) {
+                        const json = await res.json();
+                        datasetVitrasa = parseVitrasaJSON(json);
+                        loaded = true;
+                        break;
+                    }
+                } catch (e) {}
+            }
+
+            if (loaded && datasetVitrasa.length > 0) {
+                btn.innerHTML = `<i class="fa-solid fa-check"></i> API Vigo Lista`;
+                btn.className = "btn btn-success";
+                badge.innerText = `${datasetVitrasa.length} paradas`;
+                document.getElementById('cnt-vitrasa').innerText = datasetVitrasa.length;
+                renderizarMapa();
+            } else {
+                console.warn("Fallo de conexión API Vigo. Cargando dataset offline completo.");
+                cargarDatosOffline();
+            }
+        }
+
+        function parseVitrasaJSON(rawData) {
+            let items = Array.isArray(rawData) ? rawData : (rawData.paradas || rawData.features || []);
+            return items.map(item => {
+                let p = item.properties || item;
+                let lat = parseFloat(item.lat || p.lat || (item.geometry ? item.geometry.coordinates[1] : 0));
+                let lon = parseFloat(item.lon || p.lon || (item.geometry ? item.geometry.coordinates[0] : 0));
+                let code = String(p.id || p.codigo || p.code || item.id || '').trim();
+                let name = (p.nombre || p.name || p.parada || `Parada ${code}`).trim();
+                let lines = p.lineas || p.lines || 'Sin especificar';
+
+                return { code, name, lat, lon, lines, source: 'VITRASA' };
+            }).filter(p => !isNaN(p.lat) && p.lat > 42.0 && p.lat < 42.4);
+        }
+
+        function cargarDatosOffline() {
+            datasetVitrasa = [
+                { code: "14395", name: "Avda. de Madrid (Frente 138)", lat: 42.22215, lon: -8.70112, lines: "C3, L12A, L13" },
+                { code: "572", name: "Avda. de Madrid 138", lat: 42.22208, lon: -8.70125, lines: "C3, L12A" },
+                { code: "10120", name: "Policarpo Sanz 25", lat: 42.23842, lon: -8.72450, lines: "C1, L4A, L5A, L11" },
+                { code: "10130", name: "Urzaiz 13", lat: 42.23690, lon: -8.71980, lines: "C1, L4C, L15A, H1" },
+                { code: "8910", name: "Portanet 14", lat: 42.21350, lon: -8.73890, lines: "L7, L17" },
+                { code: "7430", name: "Pizarro 21", lat: 42.23120, lon: -8.71230, lines: "C3, L12B" },
+                { code: "3120", name: "Cabral - Av. Ramón Nieto", lat: 42.23010, lon: -8.68150, lines: "L11, L15B" }
+            ];
+            document.getElementById('cnt-vitrasa').innerText = datasetVitrasa.length;
+            document.getElementById('api-badge').innerText = "Offline";
+            document.getElementById('btn-load-api').className = "btn btn-warning";
+            document.getElementById('btn-load-api').innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Modo Offline`;
+            renderizarMapa();
+        }
+
+        /* ==========================================================================
+           4. ESCÁNER OVERPASS CON FILTRADO GEOGRÁFICO Y TIPO DE TRANSPORTE
+           ========================================================================== */
+        async function escanearMapa() {
+            const btn = document.getElementById('btn-scan-map');
+            const reportBox = document.getElementById('report-content');
+            btn.innerHTML = `<span class="spinner"></span> Escaneando...`;
+
+            const bounds = map.getBounds();
+            const bboxStr = `${bounds.getSouth()},${bounds.getWest()},${bounds.getNorth()},${bounds.getEast()}`;
+
+            // Opciones de configuración
+            const filterVigoOnly = document.getElementById('geo-boundary').value === 'vigo_only';
+            const filterBusOnly = document.getElementById('mode-filter').value === 'bus_only';
+
+            // Consulta Overpass optimizada
+            const query = `
+                [out:json][timeout:30];
+                (
+                  node["highway"="bus_stop"](${bboxStr});
+                  node["public_transport"="platform"](${bboxStr});
+                  node["public_transport"="stop_position"](${bboxStr});
+                  node["amenity"="shelter"](${bboxStr});
+                  node["railway"="station"](${bboxStr});
+                  node["railway"="halt"](${bboxStr});
+                );
+                out body center;
+            `;
+
+            const overpassEndpoints = [
+                'https://overpass-api.de/api/interpreter',
+                'https://overpass.kumi.systems/api/interpreter',
+                'https://overpass.private.coffee/api/interpreter'
+            ];
+
+            let rawElements = null;
+
+            for (let endpoint of overpassEndpoints) {
+                try {
+                    const res = await fetch(endpoint, {
+                        method: 'POST',
+                        body: 'data=' + encodeURIComponent(query),
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        rawElements = data.elements || [];
+                        break;
+                    }
+                } catch (err) {
+                    console.warn(`Endpoint ${endpoint} fallo:`, err);
+                }
+            }
+
+            if (!rawElements) {
+                reportBox.innerHTML = `<div style="color:var(--color-vigo);"><i class="fa-solid fa-triangle-exclamation"></i> Error al consultar Overpass API. Intenta reducir el zoom o reintentar.</div>`;
+                btn.innerHTML = `<i class="fa-solid fa-expand"></i> Escanear Mapa Visible`;
+                return;
+            }
+
+            // PROCESAMIENTO Y FILTRADO RIGUROSO
+            datasetOSM = rawElements.map(el => {
+                const tags = el.tags || {};
+                const lat = el.lat || (el.center ? el.center.lat : 0);
+                const lon = el.lon || (el.center ? el.center.lon : 0);
+
+                // Detección real de Tren / Ferrocarril (Para evitar clasificar Vigo-Urzáiz como Vitrasa!)
+                const isRailway = tags.railway || tags.train === 'yes' || tags.building === 'train_station' || (tags.name && tags.name.toLowerCase().includes('urzáiz'));
+                
+                // Detección de ubicación (Cangas / Ría de Vigo)
+                const isAcrossRia = lat > 42.248 && lon < -8.730; // Coordenadas típicas al norte de la ría (Cangas/Moaña)
+
+                return {
+                    id: el.id,
+                    type: el.type,
+                    lat, lon,
+                    tags,
+                    name: tags.name || tags.official_name || 'Sin nombre',
+                    ref: tags.ref || tags['ref:vitrasa'] || '',
+                    isRailway: Boolean(isRailway),
+                    isAcrossRia: Boolean(isAcrossRia),
+                    operator: tags.operator || (isRailway ? 'Renfe / Adif' : (tags.network === 'Vitrasa' ? 'Vitrasa' : 'No especificado'))
+                };
+            }).filter(el => {
+                if (filterVigoOnly && el.isAcrossRia) return false; // Excluir Cangas/Moaña
+                if (filterBusOnly && el.isRailway) return false;    // Excluir Estaciones de Tren
+                return true;
+            });
+
+            document.getElementById('cnt-osm').innerText = datasetOSM.length;
+
+            // ANALIZAR DISCREPANCIAS
+            analizarDiscrepancias(bounds);
+            renderizarMapa();
+            actualizarTablaAuditoria();
+
+            btn.innerHTML = `<i class="fa-solid fa-expand"></i> Escanear Mapa Visible`;
+        }
+
+        /* ==========================================================================
+           5. MOTOR DE MATCHING Y DETECCIÓN DE ANOMALÍAS
+           ========================================================================== */
+        function analizarDiscrepancias(bounds) {
+            listaAnomalias = [];
+
+            const oficialesEnZona = datasetVitrasa.filter(p => bounds.contains([p.lat, p.lon]));
+            const codigosOSM = new Set(datasetOSM.map(o => o.ref).filter(Boolean));
+            const codigosAPI = new Set(oficialesEnZona.map(p => p.code));
+
+            let stats = {
+                oficiales: oficialesEnZona.length,
+                osmTotal: datasetOSM.length,
+                busStops: 0,
+                shelters: 0,
+                huerfanas: 0,
+                sinRef: 0,
+                soloOSM: 0,
+                soloAPI: 0
+            };
+
+            datasetOSM.forEach(osm => {
+                if (osm.tags.highway === 'bus_stop') stats.busStops++;
+                if (osm.tags.amenity === 'shelter') stats.shelters++;
+                if (!osm.ref && !osm.isRailway) stats.sinRef++;
+
+                // Detección de Marquesina Huérfana
+                if (osm.tags.amenity === 'shelter' && !osm.tags.highway) {
+                    let cercaParada = datasetOSM.some(o => o.id !== osm.id && distMetros(osm.lat, osm.lon, o.lat, o.lon) < 35);
+                    if (!cercaParada) {
+                        stats.huerfanas++;
+                        osm.anomalia = 'MARQUESINA_HUERFANA';
+                        listaAnomalias.push({ id: osm.id, nombre: osm.name, tipo: 'Marquesina Huérfana', item: osm });
+                    }
+                }
+
+                // Presencia solo en OSM
+                if (osm.ref && !codigosAPI.has(osm.ref) && !osm.isRailway) {
+                    stats.soloOSM++;
+                    osm.anomalia = 'SOLO_OSM';
+                    listaAnomalias.push({ id: osm.ref, nombre: osm.name, tipo: 'Solo en OSM (No API)', item: osm });
+                }
+            });
+
+            // Presencia solo en API
+            oficialesEnZona.forEach(p => {
+                let existeEnOSM = datasetOSM.some(o => o.ref === p.code || distMetros(p.lat, p.lon, o.lat, o.lon) < 25);
+                if (!existeEnOSM) {
+                    stats.soloAPI++;
+                    p.anomalia = 'SOLO_API';
+                    listaAnomalias.push({ id: p.code, nombre: p.name, tipo: 'Solo en API Vitrasa', item: p });
+                }
+            });
+
+            document.getElementById('cnt-anomalies').innerText = stats.huerfanas + stats.soloOSM + stats.soloAPI;
+
+            // Generar HTML del informe
+            const reportBox = document.getElementById('report-content');
+            reportBox.innerHTML = `
+                <div class="metric-row"><span>Paradas Vitrasa en Zona:</span> <span class="metric-val">${stats.oficiales}</span></div>
+                <div class="metric-row"><span>Objetos OSM Filtrados:</span> <span class="metric-val">${stats.osmTotal}</span></div>
+                <div class="metric-row"><span>• Postes (bus_stop):</span> <span class="metric-val">${stats.busStops}</span></div>
+                <div class="metric-row"><span>• Marquesinas (shelter):</span> <span class="metric-val">${stats.shelters}</span></div>
+                <hr style="border-color:rgba(255,255,255,0.05); margin:8px 0;">
+                <div style="font-weight:700; color:var(--color-osm); margin-bottom:4px;">Discrepancias:</div>
+                <div class="metric-row"><span style="color:var(--color-orphan);">🏚 Marquesinas Huérfanas:</span> <span class="metric-val" style="color:var(--color-orphan);">${stats.huerfanas}</span></div>
+                <div class="metric-row"><span style="color:#ef4444;">🏷️ OSM sin Código (Ref):</span> <span class="metric-val">${stats.sinRef}</span></div>
+                <div class="metric-row"><span style="color:var(--color-osm);">🟡 Solo en OSM:</span> <span class="metric-val">${stats.soloOSM}</span></div>
+                <div class="metric-row"><span style="color:var(--color-vigo);">🔴 Solo en Vitrasa API:</span> <span class="metric-val">${stats.soloAPI}</span></div>
+            `;
+        }
+
+        /* ==========================================================================
+           6. RENDERIZADO DEL MAPA Y POPUPS CORREGIDOS
+           ========================================================================== */
+        function renderizarMapa() {
+            layerMarkers.clearLayers();
+
+            // RENDERIZAR VITRASA API
+            datasetVitrasa.forEach(p => {
+                if (filtros['only-osm'] || filtros['shelters'] || filtros['orphans'] || filtros['trains']) return;
+
+                const isOnlyAPI = p.anomalia === 'SOLO_API';
+                if (filtros['only-api'] && !isOnlyAPI) return;
+
+                const color = isOnlyAPI ? '#ef4444' : '#10b981';
+
+                const marker = L.circleMarker([p.lat, p.lon], {
+                    radius: 7, fillColor: color, color: '#ffffff', weight: 1.5, opacity: 1, fillOpacity: 0.85
+                });
+
+                marker.bindPopup(() => popupVitrasa(p));
+                layerMarkers.addLayer(marker);
+            });
+
+            // RENDERIZAR OPENSTREETMAP
+            datasetOSM.forEach(osm => {
+                if (filtros['only-api']) return;
+
+                const isShelter = osm.tags.amenity === 'shelter';
+                const isHuerfana = osm.anomalia === 'MARQUESINA_HUERFANA';
+                const isOnlyOSM = osm.anomalia === 'SOLO_OSM';
+                const isNoRef = !osm.ref && !osm.isRailway;
+
+                if (filtros['only-osm'] && !isOnlyOSM) return;
+                if (filtros['shelters'] && !isShelter) return;
+                if (filtros['orphans'] && !isHuerfana) return;
+                if (filtros['no-ref'] && !isNoRef) return;
+                if (filtros['trains'] && !osm.isRailway) return;
+
+                let color = '#f59e0b'; // Solo OSM
+                if (osm.isRailway) color = '#3b82f6'; // Tren
+                else if (osm.isAcrossRia) color = '#ec4899'; // Interurbano Cangas
+                else if (isHuerfana) color = '#8b5cf6'; // Huérfana
+                else if (isShelter) color = '#6b7280'; // Marquesina
+
+                const marker = L.circleMarker([osm.lat, osm.lon], {
+                    radius: osm.isRailway ? 9 : 7,
+                    fillColor: color, color: '#000000', weight: 1, opacity: 1, fillOpacity: 0.9
+                });
+
+                marker.bindPopup(() => popupOSM(osm));
+                layerMarkers.addLayer(marker);
+            });
+        }
+
+        /* POPUP CORREGIDO SIN MENTIRAS EN OPERATOR */
+        function popupVitrasa(p) {
+            const sv = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${p.lat},${p.lon}`;
+            return `
+                <div class="popup-box">
+                    <div class="popup-header">
+                        <span>🚍 ${p.name}</span>
+                        <span class="popup-type-badge" style="background:rgba(16,185,129,0.2); color:#10b981;">Vitrasa API</span>
+                    </div>
+                    <div class="tag-grid">
+                        <div class="tag-item"><label>Código</label><span>${p.code}</span></div>
+                        <div class="tag-item"><label>Líneas</label><span>${p.lines}</span></div>
+                        <div class="tag-item"><label>Latitud</label><span>${p.lat.toFixed(5)}</span></div>
+                        <div class="tag-item"><label>Longitud</label><span>${p.lon.toFixed(5)}</span></div>
+                    </div>
+                    <a href="${sv}" target="_blank" class="btn btn-primary"><i class="fa-solid fa-street-view"></i> Abrir Street View</a>
+                </div>
+            `;
+        }
+
+        function popupOSM(osm) {
+            const tags = osm.tags;
+            const sv = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${osm.lat},${osm.lon}`;
+            const josmUrl = `http://127.0.0.1:8111/load_and_zoom?left=${osm.lon-0.001}&right=${osm.lon+0.001}&top=${osm.lat+0.001}&bottom=${osm.lat-0.001}`;
+
+            let badgeType = osm.isRailway ? 'Ferrocarril' : (osm.isAcrossRia ? 'Interurbano' : 'OSM Node');
+            let badgeColor = osm.isRailway ? '#3b82f6' : (osm.isAcrossRia ? '#ec4899' : '#f59e0b');
+
+            return `
+                <div class="popup-box">
+                    <div class="popup-header">
+                        <span>📍 ${osm.name}</span>
+                        <span class="popup-type-badge" style="background:rgba(245,158,11,0.2); color:${badgeColor};">${badgeType}</span>
+                    </div>
+                    <div class="tag-grid">
+                        <div class="tag-item"><label>ID OSM</label><span>${osm.id}</span></div>
+                        <div class="tag-item"><label>Ref (Código)</label><span>${osm.ref || '❌ No definido'}</span></div>
+                        <div class="tag-item"><label>Highway</label><span>${tags.highway || 'N/A'}</span></div>
+                        <div class="tag-item"><label>Public Transport</label><span>${tags.public_transport || 'N/A'}</span></div>
+                        <div class="tag-item"><label>Operador Real</label><span>${osm.operator}</span></div>
+                        <div class="tag-item"><label>Marquesina</label><span>${tags.shelter || (tags.amenity==='shelter'?'Sí':'No')}</span></div>
+                    </div>
+                    
+                    <div style="display:flex; gap:6px; margin-top:8px;">
+                        <a href="https://www.openstreetmap.org/edit?node=${osm.id}" target="_blank" class="btn btn-warning" style="color:#000;"><i class="fa-solid fa-pen"></i> Editar OSM</a>
+                        <a href="${sv}" target="_blank" class="btn btn-primary"><i class="fa-solid fa-street-view"></i> Street View</a>
+                    </div>
+
+                    <div class="josm-box">
+                        <strong><i class="fa-solid fa-bolt"></i> Editar con JOSM:</strong>
+                        <a href="${josmUrl}" target="hiddenIframe" style="color:var(--border-hover); font-weight:bold; margin-left:4px;">Abrir zona en JOSM</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        /* ==========================================================================
+           7. TABLA DE AUDITORÍA Y EXPORTACIÓN
+           ========================================================================== */
+        function actualizarTablaAuditoria() {
+            const tbody = document.getElementById('audit-table-body');
+            if (listaAnomalias.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-sub);">No hay anomalías detectadas en la zona escaneada.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = listaAnomalias.map(a => `
+                <tr onclick="centrarElemento(${a.item.lat}, ${a.item.lon})">
+                    <td><b>${a.id}</b></td>
+                    <td>${a.nombre}</td>
+                    <td><span style="font-size:0.7rem; font-weight:bold; color:var(--color-vigo);">${a.tipo}</span></td>
+                    <td><button class="btn btn-secondary" style="padding:2px 6px; font-size:0.65rem;"><i class="fa-solid fa-location-crosshairs"></i> Ir</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function centrarElemento(lat, lon) {
+            map.flyTo([lat, lon], 18);
+        }
+
+        function exportarGeoJSON() {
+            const geojson = {
+                type: "FeatureCollection",
+                features: listaAnomalias.map(a => ({
+                    type: "Feature",
+                    geometry: { type: "Point", coordinates: [a.item.lon, a.item.lat] },
+                    properties: { id: a.id, nombre: a.nombre, tipo_anomalia: a.tipo }
+                }))
+            };
+
+            const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: "application/json" });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `auditoria_vigo_transporte_${Date.now()}.geojson`;
+            a.click();
+        }
+
+        function exportarCSV() {
+            let csv = "ID,Nombre,Tipo_Anomalia,Latitud,Longitud\n";
+            listaAnomalias.forEach(a => {
+                csv += `"${a.id}","${a.nombre}","${a.tipo}",${a.item.lat},${a.item.lon}\n`;
+            });
+            const blob = new Blob([csv], { type: "text/csv" });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `auditoria_vigo_${Date.now()}.csv`;
+            a.click();
+        }
+
+        function cargarEnJOSM() {
+            const b = map.getBounds();
+            const url = `http://127.0.0.1:8111/load_and_zoom?left=${b.getWest()}&right=${b.getEast()}&top=${b.getNorth()}&bottom=${b.getSouth()}`;
+            window.open(url, 'hiddenIframe');
+        }
+
+        /* ==========================================================================
+           8. UTILIDADES (BÚSQUEDA Y MEDICIÓN)
+           ========================================================================== */
+        function ejecutarBusqueda() {
+            const q = document.getElementById('searchInput').value.trim().toLowerCase();
+            if (!q) return;
+
+            let matchVitrasa = datasetVitrasa.find(p => p.code.toLowerCase() === q || p.name.toLowerCase().includes(q) || p.lines.toLowerCase().includes(q));
+            if (matchVitrasa) {
+                map.flyTo([matchVitrasa.lat, matchVitrasa.lon], 18);
+                return;
+            }
+
+            let matchOSM = datasetOSM.find(o => o.ref.toLowerCase() === q || o.name.toLowerCase().includes(q));
+            if (matchOSM) {
+                map.flyTo([matchOSM.lat, matchOSM.lon], 18);
+            } else {
+                alert(`No se encontró "${q}" en el mapa actual.`);
+            }
+        }
+
+        function toggleFiltro(k) {
+            filtros[k] = !filtros[k];
+            document.getElementById(`flt-${k}`).classList.toggle('active', filtros[k]);
+            renderizarMapa();
+        }
+
+        function toggleMedicion() {
+            modoMedicion = !modoMedicion;
+            puntosMedicion = [];
+            layerMeasure.clearLayers();
+            const box = document.getElementById('measure-box');
+            box.style.display = modoMedicion ? 'block' : 'none';
+            box.innerText = "Haz clic en 2 puntos o paradas del mapa para medir...";
+        }
+
+        function onMapClickMeasure(e) {
+            if (!modoMedicion) return;
+            puntosMedicion.push(e.latlng);
+            L.circleMarker(e.latlng, { radius: 5, color: '#ef4444', fillColor: '#ef4444', fillOpacity: 1 }).addTo(layerMeasure);
+
+            if (puntosMedicion.length === 2) {
+                L.polyline(puntosMedicion, { color: '#ef4444', weight: 3, dashArray: '5,5' }).addTo(layerMeasure);
+                const dist = puntosMedicion[0].distanceTo(puntosMedicion[1]);
+                document.getElementById('measure-box').innerHTML = `<strong>Distancia:</strong> ${dist.toFixed(1)} metros`;
+                modoMedicion = false;
+            }
+        }
+
+        function distMetros(lat1, lon1, lat2, lon2) {
+            const R = 6371000;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        }
+    </script>
+    <iframe name="hiddenIframe" style="display:none;"></iframe>
+</body>
+</html>
