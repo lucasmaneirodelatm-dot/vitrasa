@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paradas Vitrasa OSM - Vigo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f6f9;
+        }
+        h1 {
+            color: #333;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 14px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #status {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            font-size: 13px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .copy-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            padding: 5px 8px;
+            font-size: 11px;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+        .copy-btn:hover {
+            background-color: #218838;
+        }
+        input[type="text"] {
+            width: 75%;
+            padding: 4px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Paradas de Vitrasa en Vigo (OpenStreetMap)</h1>
+    <p>Haz clic en el botón para consultar la API de Overpass y obtener las URLs ajustadas para guardar en <strong>web.archive.org</strong>.</p>
+    
+    <button onclick="cargarParadas()">Cargar Paradas de Vitrasa</button>
+    <div id="status"></div>
+
+    <table id="tablaParadas" style="display:none;">
+        <thead>
+            <tr>
+                <th>ID OSM</th>
+                <th>Nombre Parada</th>
+                <th>Operador detectado</th>
+                <th>URL Web OSM</th>
+                <th>URL JSON OSM</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoTabla"></tbody>
+    </table>
+
+    <script>
+        async function cargarParadas() {
+            const statusDiv = document.getElementById('status');
+            const tabla = document.getElementById('tablaParadas');
+            const cuerpoTabla = document.getElementById('cuerpoTabla');
+            
+            statusDiv.textContent = 'Consultando a Overpass API... Esto puede tardar unos segundos.';
+            cuerpoTabla.innerHTML = '';
+            tabla.style.display = 'none';
+
+            // Usamos la expresión regular ["operator"~"vitrasa",i] para ignorar mayúsculas/minúsculas
+            const query = `[out:json][timeout:25];area["name"="Vigo"]->.searchArea;(node["highway"="bus_stop"]["operator"~"vitrasa",i](area.searchArea););out body;`;
+            const url = 'https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query);
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Error al conectar con Overpass API');
+                
+                const data = await response.json();
+                const paradas = data.elements;
+
+                if (paradas.length === 0) {
+                    statusDiv.textContent = 'No se encontraron paradas asociadas a Vitrasa.';
+                    return;
+                }
+
+                statusDiv.textContent = `Se encontraron ${paradas.length} paradas.`;
+
+                paradas.forEach(parada => {
+                    const id = parada.id;
+                    const nombre = (parada.tags && parada.tags.name) ? parada.tags.name : 'Sin nombre';
+                    const operador = (parada.tags && parada.tags.operator) ? parada.tags.operator : 'N/A';
+                    const urlOSM = `https://www.openstreetmap.org/node/${id}`;
+                    const urlJSON = `https://www.openstreetmap.org/api/0.6/node/${id}.json`;
+
+                    const fila = document.createElement('tr');
+                    fila.innerHTML = `
+                        <td>${id}</td>
+                        <td>${nombre}</td>
+                        <td><code>${operador}</code></td>
+                        <td>
+                            <input type="text" value="${urlOSM}" readonly id="osm-${id}">
+                            <button class="copy-btn" onclick="copiarTexto('osm-${id}')">Copiar</button>
+                        </td>
+                        <td>
+                            <input type="text" value="${urlJSON}" readonly id="json-${id}">
+                            <button class="copy-btn" onclick="copiarTexto('json-${id}')">Copiar</button>
+                        </td>
+                    `;
+                    cuerpoTabla.appendChild(fila);
+                });
+
+                tabla.style.display = 'table';
+
+            } catch (error) {
+                statusDiv.textContent = 'Ocurrió un error al cargar los datos: ' + error.message;
+            }
+        }
+
+        function copiarTexto(elementId) {
+            const input = document.getElementById(elementId);
+            input.select();
+            input.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(input.value);
+        }
+    </script>
+
+</body>
+</html>
