@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barrios de Vigo y Paradas Cercanas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        h1 {
+            color: #2c5f2d;
+            text-align: center;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .barrio {
+            padding: 10px;
+            margin: 10px 0;
+            background: #e8f5e9;
+            border-left: 4px solid #2c5f2d;
+            border-radius: 5px;
+        }
+        .parada {
+            padding: 10px;
+            margin: 10px 0;
+            background: #e3f2fd;
+            border-left: 4px solid #0d47a1;
+            border-radius: 5px;
+        }
+        button {
+            background: #2c5f2d;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #1b4d1f;
+        }
+        #loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        #results {
+            margin-top: 20px;
+        }
+        .error {
+            color: red;
+            text-align: center;
+        }
+        #barrioSelect {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+        }
+        .info {
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Barrios de Vigo y Paradas de Transporte Cercanas</h1>
+        <div class="info">
+            <p><strong>Nota:</strong> Los barrios se cargan automáticamente desde <a href="https://overpass-turbo.eu/" target="_blank">Overpass Turbo</a>. Si no aparecen barrios, verifica tu conexión a internet.</p>
+        </div>
+
+        <div>
+            <label for="barrioSelect">Barrio:</label>
+            <select id="barrioSelect" size="10" style="height: 300px;">
+                <option value="">-- Cargando barrios de Vigo... --</option>
+            </select>
+            <button onclick="buscarParada()" style="margin-top: 10px;">Buscar Parada Cercana</button>
+        </div>
+
+        <div id="loading">
+            <p>Cargando paradas de transporte...</p>
+        </div>
+
+        <div id="results"></div>
+        <div id="error" class="error"></div>
+    </div>
+
+    <script>
+        let paradasData = null;
+        let barriosData = [];
+
+        // Cargar barrios desde Overpass Turbo
+        fetch('https://overpass-api.de/api/interpreter', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'data=[out:json];(area["name"="Vigo"]["admin_level"="8"]->.searchArea;(node["name"](area.searchArea);way["name"](area.searchArea);relation["name"](area.searchArea););out body;>;out skel qt;)'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error al cargar los barrios de Vigo.');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Procesar los datos para extraer barrios con coordenadas
+            const elementos = data.elements;
+            barriosData = elementos
+                .filter(el => el.tags && el.tags.name)
+                .map(el => {
+                    // Obtener centroide para ways y relations
+                    if (el.type === 'node') {
+                        return {
+                            name: el.tags.name,
+                            lat: el.lat,
+                            lon: el.lon
+                        };
+                    } else if (el.type === 'way') {
+                        // Calcular centroide para ways
+                        const nodes = elementos.filter(n => n.id === el.nodes[0] || n.id === el.nodes[el.nodes.length - 1]);
+                        const lats = nodes.map(n => n.lat).filter(l => l !== undefined);
+                        const lons = nodes.map(n => n.lon).filter(l => l !== undefined);
+                        if (lats.length > 0 && lons.length > 0) {
+                            return {
+                                name: el.tags.name,
+                                lat: lats.reduce((a, b) => a + b, 0) / lats.length,
+                                lon: lons.reduce((a, b) => a + b, 0) / lons.length
+                            };
+                        }
+                    }
+                    return null;
+                })
+                .filter(el => el !== null);
+
+            // Rellenar el select con los barrios
+            const select = document.getElementById('barrioSelect');
+            select.innerHTML = '<option value="">-- Selecciona un barrio --</option>';
+            barriosData.forEach(barrio => {
+                const option = document.createElement('option');
+                option.value = `${barrio.lat},${barrio.lon},${barrio.name}`;
+                option.textContent = barrio.name;
+                select.appendChild(option);
+            });
+        })
+        .catch(error => {
+            document.getElementById('error').textContent = 'No se pudieron cargar los barrios de Vigo. Usando lista predefinida.';
+            console.error('Error al cargar barrios:', error);
+            // Usar lista predefinida si falla la carga
+            const select = document.getElementById('barrioSelect');
+            select.innerHTML = `
+                <option value="">-- Selecciona un barrio --</option>
+                <option value="42.2328,-8.7219,Casco Vello">Casco Vello</option>
+                <option value="42.2350,-8.7200,Bouzas">Bouzas</option>
+                <option value="42.2200,-8.7000,Teis">Teis</option>
+                <option value="42.2300,-8.6900,Coia">Coia</option>
+                <option value="42.2100,-8.7100,Castrelos">Castrelos</option>
+                <option value="42.2000,-8.6800,Coruxo">Coruxo</option>
+                <option value="42.2400,-8.7300,Candeán">Candeán</option>
+                <option value="42.2150,-8.6700,Zamáns">Zamáns</option>
+                <option value="42.2250,-8.7250,O Calvario">O Calvario</option>
+                <option value="42.2370,-8.7150,O Castro">O Castro</option>
+                <option value="42.2300,-8.7300,Canido">Canido</option>
+                <option value="42.2100,-8.7350,Freixeiro">Freixeiro</option>
+                <option value="42.2050,-8.7050,Alcabre">Alcabre</option>
+                <option value="42.2200,-8.6600,Saiáns">Saiáns</option>
+                <option value="42.2500,-8.7500,Nigrán">Nigrán (zona cercana)</option>
+            `;
+        });
+
+        // Cargar el JSON de paradas al iniciar la página
+        fetch('https://datos.vigo.org/data/transporte/paradas.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error al cargar las paradas de transporte.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                paradasData = data;
+            })
+            .catch(error => {
+                document.getElementById('error').textContent = 'No se pudieron cargar los datos de paradas. Inténtalo más tarde.';
+                console.error('Error:', error);
+            });
+
+        function buscarParada() {
+            const select = document.getElementById('barrioSelect');
+            const barrioSeleccionado = select.value;
+            const resultsDiv = document.getElementById('results');
+            const errorDiv = document.getElementById('error');
+
+            if (!barrioSeleccionado) {
+                errorDiv.textContent = 'Por favor, selecciona un barrio.';
+                resultsDiv.innerHTML = '';
+                return;
+            }
+
+            errorDiv.textContent = '';
+            resultsDiv.innerHTML = '';
+            document.getElementById('loading').style.display = 'block';
+
+            setTimeout(() => {
+                if (!paradasData) {
+                    errorDiv.textContent = 'Los datos de paradas aún no se han cargado. Inténtalo de nuevo en unos segundos.';
+                    document.getElementById('loading').style.display = 'none';
+                    return;
+                }
+
+                const [latBarrio, lonBarrio, nombreBarrio] = barrioSeleccionado.split(',');
+
+                let paradaMasCercana = null;
+                let distanciaMinima = Infinity;
+
+                paradasData.forEach(parada => {
+                    const latParada = parseFloat(parada.lat);
+                    const lonParada = parseFloat(parada.lon);
+
+                    // Calcular distancia en metros (usando Haversine)
+                    const distancia = calcularDistancia(
+                        parseFloat(latBarrio),
+                        parseFloat(lonBarrio),
+                        latParada,
+                        lonParada
+                    );
+
+                    if (distancia < distanciaMinima) {
+                        distanciaMinima = distancia;
+                        paradaMasCercana = parada;
+                    }
+                });
+
+                document.getElementById('loading').style.display = 'none';
+
+                if (paradaMasCercana) {
+                    // Usar nombre de la parada o identificador/address si no tiene nombre
+                    let nombreParada = paradaMasCercana.name || `Parada ${paradaMasCercana.id}`;
+                    if (paradaMasCercana.address) {
+                        nombreParada = paradaMasCercana.address;
+                    }
+
+                    resultsDiv.innerHTML = `
+                        <div class="barrio">
+                            <h3>Barrio seleccionado:</h3>
+                            <p><strong>${nombreBarrio}</strong> (Lat: ${latBarrio}, Lon: ${lonBarrio})</p>
+                        </div>
+                        <div class="parada">
+                            <h3>Parada de transporte más cercana:</h3>
+                            <p><strong>${nombreParada}</strong></p>
+                            <p>Distancia: ${distanciaMinima.toFixed(0)} metros</p>
+                            <p>Coordenadas: (Lat: ${paradaMasCercana.lat}, Lon: ${paradaMasCercana.lon})</p>
+                        </div>
+                    `;
+                } else {
+                    errorDiv.textContent = 'No se encontró ninguna parada cercana.';
+                }
+            }, 500);
+        }
+
+        // Función para calcular la distancia entre dos puntos (Haversine)
+        function calcularDistancia(lat1, lon1, lat2, lon2) {
+            const R = 6371000; // Radio de la Tierra en metros
+            const φ1 = lat1 * Math.PI / 180;
+            const φ2 = lat2 * Math.PI / 180;
+            const Δφ = (lat2 - lat1) * Math.PI / 180;
+            const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+            const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+                      Math.cos(φ1) * Math.cos(φ2) *
+                      Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+            return R * c;
+        }
+    </script>
+</body>
+</html>
