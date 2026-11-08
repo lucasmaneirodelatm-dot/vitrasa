@@ -51,6 +51,10 @@
         button:hover {
             background: #1b4d1f;
         }
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
         #loading {
             display: none;
             text-align: center;
@@ -67,6 +71,7 @@
             width: 100%;
             padding: 10px;
             font-size: 16px;
+            height: 300px;
         }
         .info {
             background: #fff3cd;
@@ -74,21 +79,33 @@
             border-radius: 5px;
             margin-bottom: 20px;
         }
+        .success {
+            background: #d4edda;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            color: #155724;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Barrios de Vigo y Paradas de Transporte Cercanas</h1>
-        <div class="info">
-            <p><strong>Nota:</strong> Los barrios se cargan automáticamente desde <a href="https://overpass-turbo.eu/" target="_blank">Overpass Turbo</a>. Si no aparecen barrios, verifica tu conexión a internet.</p>
+
+        <div id="infoMessage" class="info">
+            <p><strong>Nota:</strong> Los barrios se cargan automáticamente desde <a href="https://overpass-turbo.eu/" target="_blank">Overpass Turbo</a>. Si no aparecen barrios, se usará una lista predefinida.</p>
+        </div>
+
+        <div id="successMessage" class="success" style="display: none;">
+            <p>✅ Barrios cargados correctamente. Selecciona uno y haz clic en "Buscar Parada Cercana".</p>
         </div>
 
         <div>
             <label for="barrioSelect">Barrio:</label>
-            <select id="barrioSelect" size="10" style="height: 300px;">
+            <select id="barrioSelect" size="10">
                 <option value="">-- Cargando barrios de Vigo... --</option>
             </select>
-            <button onclick="buscarParada()" style="margin-top: 10px;">Buscar Parada Cercana</button>
+            <button id="buscarButton" onclick="buscarParada()" disabled>Buscar Parada Cercana</button>
         </div>
 
         <div id="loading">
@@ -102,65 +119,99 @@
     <script>
         let paradasData = null;
         let barriosData = [];
+        let barriosCargados = false;
 
-        // Cargar barrios desde Overpass Turbo
-        fetch('https://overpass-api.de/api/interpreter', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'data=[out:json];(area["name"="Vigo"]["admin_level"="8"]->.searchArea;(node["name"](area.searchArea);way["name"](area.searchArea);relation["name"](area.searchArea););out body;>;out skel qt;)'
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Error al cargar los barrios de Vigo.');
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Procesar los datos para extraer barrios con coordenadas
-            const elementos = data.elements;
-            barriosData = elementos
-                .filter(el => el.tags && el.tags.name)
-                .map(el => {
-                    // Obtener centroide para ways y relations
-                    if (el.type === 'node') {
-                        return {
-                            name: el.tags.name,
-                            lat: el.lat,
-                            lon: el.lon
-                        };
-                    } else if (el.type === 'way') {
-                        // Calcular centroide para ways
-                        const nodes = elementos.filter(n => n.id === el.nodes[0] || n.id === el.nodes[el.nodes.length - 1]);
-                        const lats = nodes.map(n => n.lat).filter(l => l !== undefined);
-                        const lons = nodes.map(n => n.lon).filter(l => l !== undefined);
-                        if (lats.length > 0 && lons.length > 0) {
+        // Consulta mejorada a Overpass Turbo para obtener barrios y zonas de Vigo
+        function cargarBarrios() {
+            const overpassQuery = `[out:json];
+            (
+              node["name"~"^[A-Za-záéíóúüñÁÉÍÓÚÜÑ ]+$"]["place"="neighbourhood"](42.1, -8.8, 42.4, -8.6);
+              node["name"~"^[A-Za-záéíóúüñÁÉÍÓÚÜÑ ]+$"]["place"="suburb"](42.1, -8.8, 42.4, -8.6);
+              node["name"~"^[A-Za-záéíóúüñÁÉÍÓÚÜÑ ]+$"]["place"="quarter"](42.1, -8.8, 42.4, -8.6);
+              way["name"~"^[A-Za-záéíóúüñÁÉÍÓÚÜÑ ]+$"]["place"="neighbourhood"](42.1, -8.8, 42.4, -8.6);
+              way["name"~"^[A-Za-záéíóúüñÁÉÍÓÚÜÑ ]+$"]["place"="suburb"](42.1, -8.8, 42.4, -8.6);
+              way["name"~"^[A-Za-záéíóúüñÁÉÍÓÚÜÑ ]+$"]["place"="quarter"](42.1, -8.8, 42.4, -8.6);
+            );
+            out body;
+            >;
+            out skel qt;`;
+
+            fetch('https://overpass-api.de/api/interpreter', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `data=${encodeURIComponent(overpassQuery)}`
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error al cargar los barrios de Vigo desde Overpass Turbo.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Procesar los datos para extraer barrios con coordenadas
+                const elementos = data.elements;
+                barriosData = elementos
+                    .filter(el => el.tags && el.tags.name)
+                    .map(el => {
+                        if (el.type === 'node') {
                             return {
                                 name: el.tags.name,
-                                lat: lats.reduce((a, b) => a + b, 0) / lats.length,
-                                lon: lons.reduce((a, b) => a + b, 0) / lons.length
+                                lat: el.lat,
+                                lon: el.lon
                             };
+                        } else if (el.type === 'way' && el.nodes) {
+                            // Calcular centroide para ways
+                            const nodes = elementos.filter(n => el.nodes.includes(n.id));
+                            const lats = nodes.map(n => n.lat).filter(l => l !== undefined);
+                            const lons = nodes.map(n => n.lon).filter(l => l !== undefined);
+                            if (lats.length > 0 && lons.length > 0) {
+                                return {
+                                    name: el.tags.name,
+                                    lat: lats.reduce((a, b) => a + b, 0) / lats.length,
+                                    lon: lons.reduce((a, b) => a + b, 0) / lons.length
+                                };
+                            }
                         }
-                    }
-                    return null;
-                })
-                .filter(el => el !== null);
+                        return null;
+                    })
+                    .filter(el => el !== null && el.lat && el.lon);
 
-            // Rellenar el select con los barrios
-            const select = document.getElementById('barrioSelect');
-            select.innerHTML = '<option value="">-- Selecciona un barrio --</option>';
-            barriosData.forEach(barrio => {
-                const option = document.createElement('option');
-                option.value = `${barrio.lat},${barrio.lon},${barrio.name}`;
-                option.textContent = barrio.name;
-                select.appendChild(option);
+                // Eliminar duplicados por nombre
+                const barriosUnicos = [];
+                const nombresVistos = new Set();
+                barriosData.forEach(barrio => {
+                    if (!nombresVistos.has(barrio.name)) {
+                        nombresVistos.add(barrio.name);
+                        barriosUnicos.push(barrio);
+                    }
+                });
+
+                barriosData = barriosUnicos;
+
+                // Rellenar el select con los barrios
+                const select = document.getElementById('barrioSelect');
+                select.innerHTML = '<option value="">-- Selecciona un barrio --</option>';
+                barriosData.forEach(barrio => {
+                    const option = document.createElement('option');
+                    option.value = `${barrio.lat},${barrio.lon},${barrio.name}`;
+                    option.textContent = barrio.name;
+                    select.appendChild(option);
+                });
+
+                document.getElementById('successMessage').style.display = 'block';
+                document.getElementById('buscarButton').disabled = false;
+                barriosCargados = true;
+            })
+            .catch(error => {
+                console.error('Error al cargar barrios desde Overpass:', error);
+                usarListaPredefinida();
             });
-        })
-        .catch(error => {
-            document.getElementById('error').textContent = 'No se pudieron cargar los barrios de Vigo. Usando lista predefinida.';
-            console.error('Error al cargar barrios:', error);
-            // Usar lista predefinida si falla la carga
+        }
+
+        // Usar una lista predefinida de barrios si falla la carga desde Overpass
+        function usarListaPredefinida() {
             const select = document.getElementById('barrioSelect');
             select.innerHTML = `
                 <option value="">-- Selecciona un barrio --</option>
@@ -179,8 +230,15 @@
                 <option value="42.2050,-8.7050,Alcabre">Alcabre</option>
                 <option value="42.2200,-8.6600,Saiáns">Saiáns</option>
                 <option value="42.2500,-8.7500,Nigrán">Nigrán (zona cercana)</option>
+                <option value="42.2450,-8.7100,Berbés">Berbés</option>
+                <option value="42.2380,-8.7050,Areal">Areal</option>
+                <option value="42.2280,-8.6950,Príncipe">Príncipe/Ensanche</option>
+                <option value="42.2220,-8.7150,Monte do Castro">Monte do Castro</option>
             `;
-        });
+            document.getElementById('error').textContent = 'No se pudieron cargar todos los barrios desde Overpass Turbo. Usando lista predefinida.';
+            document.getElementById('buscarButton').disabled = false;
+            barriosCargados = true;
+        }
 
         // Cargar el JSON de paradas al iniciar la página
         fetch('https://datos.vigo.org/data/transporte/paradas.json')
@@ -195,8 +253,13 @@
             })
             .catch(error => {
                 document.getElementById('error').textContent = 'No se pudieron cargar los datos de paradas. Inténtalo más tarde.';
-                console.error('Error:', error);
+                console.error('Error al cargar paradas:', error);
             });
+
+        // Iniciar la carga de barrios al cargar la página
+        window.onload = function() {
+            cargarBarrios();
+        };
 
         function buscarParada() {
             const select = document.getElementById('barrioSelect');
